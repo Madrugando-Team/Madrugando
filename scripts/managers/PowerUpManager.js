@@ -22,6 +22,12 @@ export class PowerUpManager {
         this.scoreManager = scoreManager;
         this.waveManager = waveManager;
 
+        // O "science" é só um valor inicial de segurança. Antes da partida começar, ele será substituído pela escolha do jogador.
+        this.category = "science";
+
+        this.currentWave = 1;
+        this.powerUpsSpawned = 0;
+
 
 
         this.timer = 0;
@@ -39,11 +45,16 @@ export class PowerUpManager {
             "duplicador"
         ];
     }
+
+    setCategory(category) {
+        this.category = category;
+    }
     getRandomWord() {
 
-        const category = "english";
-
-        const levels = ["easy", "medium"];
+        const levels = [
+            "easy",
+            "medium"
+        ];
 
         const level =
             levels[
@@ -53,7 +64,7 @@ export class PowerUpManager {
             ];
 
         const pool =
-            WordPools.boo[category][level];
+            WordPools.boo[this.category][level];
 
         return pool[
             Math.floor(

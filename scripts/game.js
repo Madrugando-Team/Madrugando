@@ -77,9 +77,9 @@ export default class Game {
 
         this.playButton.addEventListener("click", () => {
 
-        this.mainMenu.style.display = "none";
+            this.mainMenu.style.display = "none";
 
-        this.gameConfig.style.display = "flex";
+            this.gameConfig.style.display = "flex";
 
         });
 
@@ -164,11 +164,11 @@ export default class Game {
 
         this.gameConfig =
             document.getElementById("game-config");
-            
-            this.backButton =
+
+        this.backButton =
             this.gameConfig.querySelector("back-button");
 
-            this.backButton.addEventListener("back", () => {
+        this.backButton.addEventListener("back", () => {
 
             this.gameConfig.style.display = "none";
 
@@ -216,6 +216,10 @@ export default class Game {
         );
 
         this.enemySpawner.setCategory(
+            this.selectedSubject
+        );
+
+        this.powerUpManager.setCategory(
             this.selectedSubject
         );
 
@@ -292,8 +296,8 @@ export default class Game {
             !this.bossManager.hasBoss()
         ) {
             this.bossManager.spawn(
-            this.selectedSubject
-);
+                this.selectedSubject
+            );
         }
 
         this.updateHUD();
