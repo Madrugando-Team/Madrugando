@@ -57,7 +57,7 @@ export class EnemyManager {
 
         this.enemies.forEach(enemy => {
 
-            if (enemy.word !== word) {
+           if (enemy.word.toLowerCase() !== word.toLowerCase()) {
                 return;
             }
 
@@ -102,9 +102,9 @@ export class EnemyManager {
     hasWordStartingWith(prefix) {
 
         return this.enemies.some(enemy =>
-            enemy.word.startsWith(prefix)
+        enemy.word.toLowerCase().startsWith(
+            prefix.toLowerCase())
         );
-
     }
 
     reset() {

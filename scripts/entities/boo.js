@@ -3,9 +3,9 @@ import WordPools from "../data/WordPools.js";
 
 export function createBoo(x, y, config) {
 
-    const { category, poolLevel, speed } = config;
+    const { category, poolLevel, speed, customDictionary } = config;
 
-    const pool = WordPools.boo[category][poolLevel];
+    const pool = customDictionary ? customDictionary : WordPools.boo[category][poolLevel];
     const word = pool[Math.floor(Math.random() * pool.length)];
 
     return new Enemy({

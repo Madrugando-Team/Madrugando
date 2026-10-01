@@ -1,4 +1,3 @@
-
 import { createBoo } from "../entities/boo.js";
 import { createScromblus } from "../entities/scromblus.js";
 
@@ -40,6 +39,7 @@ export class EnemySpawner {
         this.enemyManager = enemyManager;
         this.waveManager = waveManager;
         this.spawnPauseTimer = 0;
+        this.customDictionary = null;
 
         this.canvasWidth =
             config.canvasWidth ?? 1280;
@@ -127,7 +127,8 @@ export class EnemySpawner {
             {
                 speed: this.config.speed,
                 category: this.enemyConfig.category,
-                poolLevel: this.config.poolLevel
+                poolLevel: this.config.poolLevel,
+                customDictionary: this.customDictionary
             }
         );
 
@@ -136,6 +137,7 @@ export class EnemySpawner {
         );
 
         this.enemyManager.add(enemy);
+
     }
 
     spawnScromblus() {
@@ -146,7 +148,8 @@ export class EnemySpawner {
             {
                 speed: this.config.speed,
                 category: this.enemyConfig.category,
-                poolLevel: this.config.poolLevel
+                poolLevel: this.config.poolLevel,
+                customDictionary: this.customDictionary
             }
         );
 
@@ -206,14 +209,21 @@ export class EnemySpawner {
     }
 
     reset() {
+
         this.timer = 0;
         this.scromblusTimer = 0;
         this.currentWave = 1;
         this.scromblusSpawned = 0;
+        this.customDictionary = null;
+
     }
 
     setCategory(category) {
         this.enemyConfig.category = category;
+    }
+
+    setCustomDictionary(dictionary) {
+        this.customDictionary = dictionary;
     }
 
 }

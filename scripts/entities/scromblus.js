@@ -6,23 +6,19 @@ export function createScromblus(x, y, config) {
     const {
         category = "science",
         speed = 1.1,
-        poolLevel = "medium"
+        poolLevel = "medium",
+        customDictionary
     } = config;
 
-    const pool =
-        WordPools.boo[category][poolLevel];
+    const pool = customDictionary
+        ? customDictionary
+        : WordPools.boo[category][poolLevel];
 
-    const words = [];
+    const shuffledPool = [...pool]
+        .sort(() => Math.random() - 0.5);
 
-    while (words.length < 3) {
-
-        const word =
-            pool[Math.floor(Math.random() * pool.length)];
-
-        if (!words.includes(word)) {
-            words.push(word);
-        }
-    }
+    const words =
+        shuffledPool.slice(0, 3);
 
     const scromblus = new Enemy({
         x,

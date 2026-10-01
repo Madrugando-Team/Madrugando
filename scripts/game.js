@@ -8,6 +8,7 @@ import WaveManager from "./managers/WaveManager.js";
 import { PowerUpManager } from "./managers/PowerUpManager.js";
 import HUD from "./ui/HUD.js";
 import { BossManager } from "./managers/BossManager.js";
+import { CustomGameManager } from "./managers/CustomGameManager.js";
 
 
 export default class Game {
@@ -31,12 +32,21 @@ export default class Game {
 
         this.hud = new HUD();
 
+        this.customGameManager =
+            new CustomGameManager();
+
+        this.customGameDictionary = [];
+
+        this.customGameQuestions = [];
+
+        this.isCustomGame = false;
+
+        this.customGameEditingId = null;
 
         this.enemyManager = new EnemyManager(
             this.scoreManager,
             this.canvas.height
         );
-
 
         this.enemySpawner = new EnemySpawner(
             this.enemyManager,
@@ -64,13 +74,13 @@ export default class Game {
             this.powerUpManager
         );
 
-
         this.inputBar = new InputBar(
             this.inputManager,
             this.canvas
         );
 
-        this.menu = document.getElementById("game-menu");
+        this.menu =
+            document.getElementById("game-menu");
 
         this.playButton = document.getElementById("play-button");
 
@@ -94,10 +104,8 @@ export default class Game {
             if (!this.bossManager.hasBoss())
                 return;
 
-
             const rect =
                 this.canvas.getBoundingClientRect();
-
 
             const scaleX =
                 this.canvas.width / rect.width;
@@ -105,13 +113,11 @@ export default class Game {
             const scaleY =
                 this.canvas.height / rect.height;
 
-
             const mouseX =
                 (event.clientX - rect.left) * scaleX;
 
             const mouseY =
                 (event.clientY - rect.top) * scaleY;
-
 
             const result =
                 this.bossManager.handleClick(
@@ -142,20 +148,191 @@ export default class Game {
 
         });
 
+        this.canvas.addEventListener("wheel", (event) => {
+
+            if (!this.gameStarted)
+                return;
+
+            if (
+                this.waveManager.getState() !==
+                "question"
+            )
+                return;
+
+            if (!this.bossManager.hasBoss())
+                return;
+
+            const rect =
+                this.canvas.getBoundingClientRect();
+
+            const scaleX =
+                this.canvas.width /
+                rect.width;
+
+            const scaleY =
+                this.canvas.height /
+                rect.height;
+
+            const mouseX =
+                (event.clientX - rect.left) *
+                scaleX;
+
+            const mouseY =
+                (event.clientY - rect.top) *
+                scaleY;
+
+            this.bossManager.handleWheel(
+                event.deltaY,
+                mouseX,
+                mouseY
+            );
+
+            event.preventDefault();
+
+        }, {
+            passive: false
+        });
+
+
+        this.canvas.addEventListener("mousedown", (event) => {
+
+            if (!this.gameStarted)
+                return;
+
+            if (
+                this.waveManager.getState() !==
+                "question"
+            )
+                return;
+
+            if (!this.bossManager.hasBoss())
+                return;
+
+            const rect =
+                this.canvas.getBoundingClientRect();
+
+            const scaleX =
+                this.canvas.width /
+                rect.width;
+
+            const scaleY =
+                this.canvas.height /
+                rect.height;
+
+            const mouseX =
+                (event.clientX - rect.left) *
+                scaleX;
+
+            const mouseY =
+                (event.clientY - rect.top) *
+                scaleY;
+
+            this.bossManager.handleMouseDown(
+                mouseX,
+                mouseY
+            );
+
+        });
+
+
+        this.canvas.addEventListener("mousemove", (event) => {
+
+            if (!this.gameStarted)
+                return;
+
+            if (
+                this.waveManager.getState() !==
+                "question"
+            )
+                return;
+
+            if (!this.bossManager.hasBoss())
+                return;
+
+            const rect =
+                this.canvas.getBoundingClientRect();
+
+            const scaleX =
+                this.canvas.width /
+                rect.width;
+
+            const scaleY =
+                this.canvas.height /
+                rect.height;
+
+            const mouseX =
+                (event.clientX - rect.left) *
+                scaleX;
+
+            const mouseY =
+                (event.clientY - rect.top) *
+                scaleY;
+
+            this.bossManager.handleMouseMove(
+                mouseX,
+                mouseY
+            );
+
+        });
+
+
+        window.addEventListener("mouseup", () => {
+
+            this.bossManager.handleMouseUp();
+
+        });
 
         window.addEventListener("keydown", (event) => {
 
-            if (
-                event.key === "Enter" &&
-                this.scoreManager.gameOverState
-            ) {
+            if (this.scoreManager.gameOverState) {
 
-                this.returnToMenu();
+                if (event.key === "Enter") {
+                    this.returnToMenu();
+                }
+
+                return;
+            }
+
+            if (!this.gameStarted)
+                return;
+
+            if (
+                this.waveManager.getState() !==
+                "question"
+            )
+                return;
+
+            if (!this.bossManager.hasBoss())
+                return;
+
+            const result =
+                this.bossManager.handleKeyDown(
+                    event
+                );
+
+            if (!result)
+                return;
+
+            if (result.result === "wrong") {
+
+                this.scoreManager.loseLife();
+
+                return;
+            }
+
+            if (result.result === "correct") {
+
+                this.waveManager.nextWave();
+
+                this.enemyManager.reset();
+
+                this.powerUpManager.clear();
+
+                this.bossManager.removeBoss();
 
             }
 
         });
-
 
         this.hud.hide();
 
@@ -165,16 +342,129 @@ export default class Game {
         this.gameConfig =
             document.getElementById("game-config");
 
-        this.backButton =
+        this.customGameMenu =
+            document.getElementById("custom-game-menu");
+
+        this.customGameConfig =
+            document.getElementById("custom-game-config");
+
+        this.customizeButton =
+            document.getElementById("customize-button");
+
+        this.createCustomGameButton =
+            document.getElementById("create-custom-game-button");
+
+        this.importCustomGameButton =
+            document.getElementById("import-custom-game-button");
+
+        this.customGameNameInput =
+            document.getElementById("custom-game-name");
+
+        this.customGameDifficultySelect =
+            document.getElementById("custom-game-difficulty");
+
+        this.saveCustomGameButton =
+            document.getElementById("save-custom-game-button");
+
+        this.customGameList =
+            document.getElementById("custom-game-list");
+
+        this.dictionaryWordInput =
+            document.getElementById("dictionary-word");
+
+        this.addWordButton =
+            document.getElementById("add-word-button");
+
+        this.questionTextInput =
+            document.getElementById("question-text");
+
+        this.addQuestionButton =
+            document.getElementById("add-question-button");
+
+        this.dictionaryList =
+            document.getElementById("dictionary-list");
+
+        this.questionList =
+            document.getElementById("question-list");
+
+        this.questionCount =
+            document.getElementById("question-count");
+
+
+        this.playButton.addEventListener("click", () => {
+
+            this.mainMenu.style.display = "none";
+
+            this.gameConfig.style.display = "flex";
+
+        });
+
+
+        this.customizeButton.addEventListener("click", () => {
+
+            this.mainMenu.style.display = "none";
+
+            this.customGameMenu.style.display = "flex";
+
+            this.renderCustomGames();
+
+        });
+
+
+        this.createCustomGameButton.addEventListener("click", () => {
+
+            this.customGameMenu.style.display = "none";
+
+            this.customGameConfig.style.display = "flex";
+
+            this.resetCustomGameForm();
+
+        });
+
+
+        this.importCustomGameButton.addEventListener("click", () => {
+
+            this.importCustomGame();
+
+        });
+
+
+        this.gameConfigBackButton =
             this.gameConfig.querySelector("back-button");
 
-        this.backButton.addEventListener("back", () => {
+        this.customGameBackButton =
+            this.customGameMenu.querySelector("back-button");
+
+        this.customGameConfigBackButton =
+            this.customGameConfig.querySelector("back-button");
+
+
+        this.gameConfigBackButton.addEventListener("back", () => {
 
             this.gameConfig.style.display = "none";
 
             this.mainMenu.style.display = "flex";
 
         });
+
+
+        this.customGameBackButton.addEventListener("back", () => {
+
+            this.customGameMenu.style.display = "none";
+
+            this.mainMenu.style.display = "flex";
+
+        });
+
+
+        this.customGameConfigBackButton.addEventListener("back", () => {
+
+            this.customGameConfig.style.display = "none";
+
+            this.customGameMenu.style.display = "flex";
+
+        });
+
 
         this.subjectSelect =
             document.getElementById("subject-select");
@@ -198,15 +488,422 @@ export default class Game {
                 return;
 
             this.selectedSubject = subject;
+
             this.selectedDifficulty = difficulty;
 
             this.startGame();
 
         });
+
+
+        this.addWordButton.addEventListener("click", () => {
+
+            this.addDictionaryWord();
+
+        });
+
+
+        this.addQuestionButton.addEventListener("click", () => {
+
+            this.addCustomQuestion();
+
+        });
+
+        this.saveCustomGameButton.addEventListener(
+            "click",
+            () => {
+
+                this.saveCustomGame();
+
+            }
+        );
+
     }
 
+    createCustomGameFromForm() {
+
+        const name =
+            this.customGameNameInput.value.trim();
+
+        const difficulty =
+            this.customGameDifficultySelect.value;
+
+        return {
+
+            id: crypto.randomUUID(),
+
+            name: name,
+
+            difficulty: difficulty,
+
+            dictionary: [
+                ...this.customGameDictionary
+            ],
+
+            questions: [
+                ...this.customGameQuestions
+            ]
+
+        };
+
+    }
+
+    addDictionaryWord() {
+
+        const word =
+            this.dictionaryWordInput.value.trim();
+
+        if (!word)
+            return;
+
+        if (this.customGameDictionary.includes(word))
+            return;
+
+        this.customGameDictionary.push(word);
+
+        this.dictionaryWordInput.value = "";
+
+        this.renderDictionary();
+
+    }
+
+    renderDictionary() {
+
+        this.dictionaryList.innerHTML = "";
+
+        this.customGameDictionary.forEach(
+            (word, index) => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className = "dictionary-item";
+
+                item.innerHTML = `
+                    <span>${word}</span>
+
+                    <button type="button">
+                        Excluir
+                    </button>
+                `;
+
+                item
+                    .querySelector("button")
+                    .addEventListener("click", () => {
+
+                        this.customGameDictionary.splice(
+                            index,
+                            1
+                        );
+
+                        this.renderDictionary();
+
+                    });
+
+                this.dictionaryList.appendChild(item);
+
+            }
+        );
+
+    }
+
+    addCustomQuestion() {
+
+        const question =
+            this.questionTextInput.value.trim();
+
+        const optionInputs =
+            this.customGameConfig.querySelectorAll(
+                ".question-option input[type='text']"
+            );
+
+        const correctAnswer =
+            this.customGameConfig.querySelector(
+                "input[name='correct-answer']:checked"
+            );
+
+        if (!question)
+            return;
+
+        if (!correctAnswer)
+            return;
+
+        const options =
+            Array.from(optionInputs).map(
+                input => input.value.trim()
+            );
+
+        if (options.some(option => !option))
+            return;
+
+        const questionData = {
+
+            question: question,
+
+            options: options,
+
+            correctAnswer:
+                Number(correctAnswer.value)
+
+        };
+
+        this.customGameQuestions.push(
+            questionData
+        );
+
+        this.resetQuestionForm();
+
+        this.renderQuestions();
+
+    }
+
+    resetQuestionForm() {
+
+        this.questionTextInput.value = "";
+
+        const optionInputs =
+            this.customGameConfig.querySelectorAll(
+                ".question-option input[type='text']"
+            );
+
+        optionInputs.forEach(input => {
+
+            input.value = "";
+
+        });
+
+        const correctAnswer =
+            this.customGameConfig.querySelector(
+                "input[name='correct-answer']:checked"
+            );
+
+        if (correctAnswer) {
+
+            correctAnswer.checked = false;
+
+        }
+
+    }
+
+    renderQuestions() {
+
+    this.questionList.innerHTML = "";
+
+    this.questionCount.textContent =
+        `${this.customGameQuestions.length} ${
+            this.customGameQuestions.length === 1
+                ? "questão"
+                : "questões"
+        }`;
+
+    this.customGameQuestions.forEach(
+        (question, index) => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "saved-question-item";
+
+            item.innerHTML = `
+                <div class="saved-question-content">
+
+                    <strong>
+                        ${index + 1}. ${question.question}
+                    </strong>
+
+                    <div class="saved-question-options">
+
+                        ${question.options.map(
+                            (option, optionIndex) => `
+                                <span class="${
+                                    optionIndex === question.correctAnswer
+                                        ? "correct"
+                                        : ""
+                                }">
+                                    ${String.fromCharCode(
+                                        65 + optionIndex
+                                    )})
+                                    ${option}
+                                </span>
+                            `
+                        ).join("")}
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="delete-question-button"
+                >
+                    Excluir
+                </button>
+            `;
+
+            item
+                .querySelector(
+                    ".delete-question-button"
+                )
+                .addEventListener("click", () => {
+
+                    this.customGameQuestions.splice(
+                        index,
+                        1
+                    );
+
+                    this.renderQuestions();
+
+                });
+
+            this.questionList.appendChild(item);
+
+        }
+    );
+
+}
+
+    saveCustomGame() {
+
+        const name =
+            this.customGameNameInput.value.trim();
+
+        const difficulty =
+            this.customGameDifficultySelect.value;
+
+        if (!name) {
+
+            console.log(
+                "Digite um nome para o Custom Game."
+            );
+
+            return;
+
+        }
+
+        if (!difficulty) {
+
+            console.log(
+                "Selecione uma dificuldade."
+            );
+
+            return;
+
+        }
+
+        if (
+            this.customGameDictionary.length === 0
+        ) {
+
+            console.log(
+                "Adicione pelo menos uma palavra ao dicionário."
+            );
+
+            return;
+
+        }
+
+        if (
+            this.customGameQuestions.length === 0
+        ) {
+
+            console.log(
+                "Adicione pelo menos uma questão."
+            );
+
+            return;
+
+        }
+
+        const game =
+            this.createCustomGameFromForm();
+
+        if (this.customGameEditingId) {
+
+            game.id =
+                this.customGameEditingId;
+
+            this.customGameManager.update(game);
+
+        }
+        else {
+
+            this.customGameManager.add(game);
+
+        }
+
+        console.log(
+            "Custom Game salvo:",
+            game
+        );
+
+        console.log(
+            "Custom Games armazenados:",
+            this.customGameManager.getAll()
+        );
+
+        this.customGameConfig.style.display =
+        "none";
+
+        this.customGameMenu.style.display =
+            "flex";
+
+        this.customGameEditingId = null;
+
+        this.renderCustomGames();
+
+    }
+
+    resetCustomGameForm() {
+
+        this.customGameEditingId = null;
+
+        this.customGameDictionary = [];
+
+        this.customGameQuestions = [];
+
+        this.customGameNameInput.value = "";
+
+        this.customGameDifficultySelect.value = "";
+
+        this.dictionaryWordInput.value = "";
+
+        this.questionTextInput.value = "";
+
+        this.dictionaryList.innerHTML = "";
+
+        this.questionList.innerHTML = "";
+
+        this.questionCount.textContent =
+            "0 questões";
+
+        const optionInputs =
+            this.customGameConfig.querySelectorAll(
+                ".question-option input[type='text']"
+            );
+
+        optionInputs.forEach(input => {
+
+            input.value = "";
+
+        });
+
+        const correctAnswer =
+            this.customGameConfig.querySelector(
+                "input[name='correct-answer']:checked"
+            );
+
+        if (correctAnswer) {
+
+            correctAnswer.checked = false;
+
+        }
+
+    }
 
     startGame() {
+
+        this.isCustomGame = false;
 
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
@@ -237,7 +934,6 @@ export default class Game {
 
     }
 
-
     start() {
 
         requestAnimationFrame(
@@ -246,7 +942,6 @@ export default class Game {
 
     }
 
-
     loop(timestamp) {
 
         const deltaTime =
@@ -254,11 +949,9 @@ export default class Game {
 
         this.lastTime = timestamp;
 
-
         this.update(deltaTime);
 
         this.draw();
-
 
         requestAnimationFrame(
             this.loop.bind(this)
@@ -266,47 +959,75 @@ export default class Game {
 
     }
 
-
     update(deltaTime) {
+
         if (!this.gameStarted) {
+
             if (this.scene.update) {
+
                 this.scene.update(deltaTime);
+
             }
+
             return;
+
         }
 
         if (this.scoreManager.gameOverState) {
+
             return;
+
         }
 
-        // Gameplay normal: inimigos, digitação e power-ups
-        if (this.waveManager.getState() === "playing") {
+        if (
+            this.waveManager.getState() === "playing"
+        ) {
+
             this.enemySpawner.update(deltaTime);
+
             this.enemyManager.update(deltaTime);
+
             this.powerUpManager.update(deltaTime);
+
             this.inputManager.update(deltaTime);
+
             this.inputBar.update(deltaTime);
+
         }
 
-        // O Boss precisa continuar sendo atualizado durante a questão
         this.bossManager.update(deltaTime);
 
         if (
             this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
-            this.bossManager.spawn(
-                this.selectedSubject
-            );
+
+            if (this.isCustomGame) {
+
+                this.bossManager.spawnCustom(
+                    this.customGameQuestions
+                );
+
+            }
+            else {
+
+                this.bossManager.spawn(
+                    this.selectedSubject
+                );
+
+            }
+
         }
 
         this.updateHUD();
 
         if (this.scene.update) {
-            this.scene.update(deltaTime);
-        }
-    }
 
+            this.scene.update(deltaTime);
+
+        }
+
+    }
 
     draw() {
 
@@ -316,7 +1037,6 @@ export default class Game {
 
         const height = this.canvas.height;
 
-
         ctx.clearRect(
             0,
             0,
@@ -324,13 +1044,11 @@ export default class Game {
             height
         );
 
-
         this.scene.render(
             ctx,
             width,
             height
         );
-
 
         if (!this.gameStarted) {
 
@@ -356,13 +1074,11 @@ export default class Game {
 
     }
 
-
     updateHUD() {
 
         this.hud.setWave(
             this.waveManager.getWave()
         );
-
 
         this.hud.setProgress(
             this.waveManager.getWordsCorrect(),
@@ -371,16 +1087,14 @@ export default class Game {
 
     }
 
-
     drawGameOver(ctx) {
 
         const width = this.canvas.width;
 
         const height = this.canvas.height;
 
-
-        ctx.fillStyle = "rgba(5, 8, 20, 0.65)";
-
+        ctx.fillStyle =
+            "rgba(5, 8, 20, 0.65)";
 
         ctx.fillRect(
             0,
@@ -389,18 +1103,15 @@ export default class Game {
             height
         );
 
-
         const boxWidth = 500;
 
         const boxHeight = 220;
-
 
         const boxX =
             (width - boxWidth) / 2;
 
         const boxY =
             (height - boxHeight) / 2;
-
 
         ctx.fillStyle =
             "rgba(15, 20, 45, 0.95)";
@@ -410,9 +1121,7 @@ export default class Game {
 
         ctx.lineWidth = 2;
 
-
         ctx.beginPath();
-
 
         ctx.roundRect(
             boxX,
@@ -422,27 +1131,22 @@ export default class Game {
             20
         );
 
-
         ctx.fill();
 
         ctx.stroke();
-
 
         ctx.textAlign = "center";
 
         ctx.textBaseline = "middle";
 
-
         ctx.font = "bold 56px Arial";
 
         ctx.fillStyle = "#f5f3ff";
-
 
         ctx.shadowColor =
             "rgba(150, 140, 255, 0.5)";
 
         ctx.shadowBlur = 15;
-
 
         ctx.fillText(
             "GAME OVER",
@@ -450,14 +1154,11 @@ export default class Game {
             boxY + 65
         );
 
-
         ctx.shadowBlur = 0;
-
 
         ctx.font = "20px Arial";
 
         ctx.fillStyle = "#f4f0c9";
-
 
         ctx.fillText(
             `Pontuação: ${this.scoreManager.getScore()}`,
@@ -465,12 +1166,10 @@ export default class Game {
             boxY + 120
         );
 
-
         ctx.font = "16px Arial";
 
         ctx.fillStyle =
             "rgba(235, 233, 255, 0.7)";
-
 
         ctx.fillText(
             "Pressione ENTER para voltar ao menu",
@@ -478,18 +1177,15 @@ export default class Game {
             boxY + 170
         );
 
-
         ctx.textAlign = "left";
 
         ctx.textBaseline = "alphabetic";
 
     }
 
-
     returnToMenu() {
 
         this.gameStarted = false;
-
 
         this.scoreManager.reset();
 
@@ -505,10 +1201,439 @@ export default class Game {
 
         this.bossManager.removeBoss();
 
-
         this.menu.style.display = "flex";
 
         this.hud.hide();
+
+    }
+
+    renderCustomGames() {
+
+        this.customGameList.innerHTML = "";
+
+        const games =
+            this.customGameManager.getAll();
+
+        if (games.length === 0) {
+
+            this.customGameList.innerHTML = `
+                <div class="empty-custom-games">
+                    Nenhum Custom Game criado.
+                </div>
+            `;
+
+            return;
+        }
+
+        games.forEach(game => {
+
+            const item =
+                document.createElement("div");
+
+            item.className = "custom-game-item";
+
+            item.innerHTML = `
+                <span class="custom-game-name">
+                    ${game.name}
+                </span>
+
+                <div class="custom-game-actions">
+
+                    <button
+                        type="button"
+                        class="custom-game-play"
+                    >
+                        Jogar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="custom-game-edit"
+                    >
+                        Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="custom-game-export"
+                    >
+                        Exportar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="custom-game-delete"
+                    >
+                        Excluir
+                    </button>
+
+                </div>
+            `;
+
+            item.addEventListener("dblclick", () => {
+
+                this.startCustomGame(game);
+
+            });
+
+            item
+                .querySelector(".custom-game-play")
+                .addEventListener("click", (event) => {
+
+                    event.stopPropagation();
+
+                    this.startCustomGame(game);
+
+                });
+
+            item
+                .querySelector(".custom-game-edit")
+                .addEventListener("click", (event) => {
+
+                    event.stopPropagation();
+
+                    this.editCustomGame(game);
+
+                });
+
+            item
+                .querySelector(".custom-game-export")
+                .addEventListener("click", (event) => {
+
+                    event.stopPropagation();
+
+                    this.exportCustomGame(game);
+
+                });
+
+            item
+                .querySelector(".custom-game-delete")
+                .addEventListener("click", (event) => {
+
+                    event.stopPropagation();
+
+                    this.deleteCustomGame(game);
+
+                });
+
+            this.customGameList.appendChild(item);
+
+        });
+
+    }
+
+    startCustomGame(game) {
+
+        this.isCustomGame = true;
+
+        const difficulty =
+            DifficultyConfig[game.difficulty];
+
+        this.selectedDifficulty =
+            game.difficulty;
+
+        this.selectedSubject = null;
+
+        this.enemySpawner.setDifficulty(
+            game.difficulty
+        );
+
+        this.enemySpawner.setCustomDictionary(
+            game.dictionary
+        );
+
+        this.scoreManager.setLives(
+            difficulty.lives
+        );
+
+        this.customGameQuestions =
+            game.questions;
+
+        this.gameStarted = true;
+
+        this.menu.style.display =
+            "none";
+
+        this.hud.show();
+
+        this.lastTime =
+            performance.now();
+
+    }
+
+    editCustomGame(game) {
+
+        this.customGameEditingId = game.id;
+
+        this.customGameNameInput.value =
+            game.name;
+
+        this.customGameDifficultySelect.value =
+            game.difficulty;
+
+        this.customGameDictionary = [
+            ...game.dictionary
+        ];
+
+        this.customGameQuestions =
+            game.questions.map(question => ({
+                question: question.question,
+                options: [...question.options],
+                correctAnswer: question.correctAnswer
+            }));
+
+        this.renderDictionary();
+
+        this.renderQuestions();
+
+        this.customGameMenu.style.display =
+            "none";
+
+        this.customGameConfig.style.display =
+            "flex";
+
+    }
+
+    exportCustomGame(game) {
+
+        const data = {
+            name: game.name,
+            difficulty: game.difficulty,
+            dictionary: game.dictionary,
+            questions: game.questions
+        };
+
+        const json =
+            JSON.stringify(data, null, 4);
+
+        const blob =
+            new Blob(
+                [json],
+                {
+                    type: "application/json"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            `${game.name}.json`;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+    }
+
+    deleteCustomGame(game) {
+
+        this.customGameManager.remove(game.id);
+
+        this.renderCustomGames();
+
+    }
+
+    importCustomGame() {
+
+        const input =
+            document.createElement("input");
+
+        input.type = "file";
+        input.accept = ".json,application/json";
+
+        input.addEventListener(
+            "change",
+            async () => {
+
+                const file =
+                    input.files[0];
+
+                if (!file)
+                    return;
+
+                try {
+
+                    const text =
+                        await file.text();
+
+                    const data =
+                        JSON.parse(text);
+
+                    if (
+                        !data ||
+                        typeof data !== "object"
+                    ) {
+                        throw new Error(
+                            "Arquivo inválido."
+                        );
+                    }
+
+                    if (
+                        typeof data.name !== "string" ||
+                        !data.name.trim()
+                    ) {
+                        throw new Error(
+                            "O Custom Game não possui um nome válido."
+                        );
+                    }
+
+                    if (
+                        ![
+                            "easy",
+                            "medium",
+                            "hard"
+                        ].includes(data.difficulty)
+                    ) {
+                        throw new Error(
+                            "A dificuldade do Custom Game é inválida."
+                        );
+                    }
+
+                    if (
+                        !Array.isArray(data.dictionary) ||
+                        data.dictionary.length === 0
+                    ) {
+                        throw new Error(
+                            "O Custom Game precisa possuir pelo menos uma palavra."
+                        );
+                    }
+
+                    if (
+                        !Array.isArray(data.questions) ||
+                        data.questions.length === 0
+                    ) {
+                        throw new Error(
+                            "O Custom Game precisa possuir pelo menos uma pergunta."
+                        );
+                    }
+
+                    for (const question of data.questions) {
+
+                        if (
+                            !question ||
+                            typeof question.question !== "string" ||
+                            !question.question.trim()
+                        ) {
+                            throw new Error(
+                                "Uma das perguntas é inválida."
+                            );
+                        }
+
+                        if (
+                            !Array.isArray(question.options) ||
+                            question.options.length !== 4
+                        ) {
+                            throw new Error(
+                                "Cada pergunta deve possuir exatamente 4 alternativas."
+                            );
+                        }
+
+                        if (
+                            question.options.some(
+                                option =>
+                                    typeof option !== "string" ||
+                                    !option.trim()
+                            )
+                        ) {
+                            throw new Error(
+                                "Todas as alternativas devem possuir texto."
+                            );
+                        }
+
+                        if (
+                            !Number.isInteger(
+                                question.correctAnswer
+                            ) ||
+                            question.correctAnswer < 0 ||
+                            question.correctAnswer >=
+                                question.options.length
+                        ) {
+                            throw new Error(
+                                "Uma das perguntas possui uma resposta correta inválida."
+                            );
+                        }
+
+                    }
+
+                    const game = {
+
+                        id: crypto.randomUUID(),
+
+                        name:
+                            data.name.trim(),
+
+                        difficulty:
+                            data.difficulty,
+
+                        dictionary:
+                            data.dictionary
+                                .map(word => word.trim())
+                                .filter(word => word),
+
+                        questions:
+                            data.questions.map(
+                                question => ({
+
+                                    question:
+                                        question.question.trim(),
+
+                                    options:
+                                        question.options.map(
+                                            option =>
+                                                option.trim()
+                                        ),
+
+                                    correctAnswer:
+                                        question.correctAnswer
+
+                                })
+                            )
+
+                    };
+
+                    if (
+                        game.dictionary.length === 0
+                    ) {
+                        throw new Error(
+                            "O dicionário não possui palavras válidas."
+                        );
+                    }
+
+                    this.customGameManager.add(
+                        game
+                    );
+
+                    this.renderCustomGames();
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Erro ao importar Custom Game:",
+                        error
+                    );
+
+                    alert(
+                        error.message ||
+                        "Não foi possível importar o Custom Game."
+                    );
+
+                }
+
+            }
+        );
+
+        input.click();
 
     }
 

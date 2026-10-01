@@ -28,7 +28,6 @@
             Madrugando
         </h1>
 
-
         <nav class="game-navigation">
 
             <a
@@ -46,7 +45,6 @@
 
     <main class="game-container">
 
-
         <canvas
             id="gameCanvas"
             class="game-canvas"
@@ -60,101 +58,372 @@
 
         <div id="game-menu">
 
+
+            <!-- MENU PRINCIPAL -->
+
             <div id="main-menu" class="menu-content">
 
-            <img
-                src="../assets/images/logo.png"
-                alt="Madrugando"
-                class="game-logo"
-            >
+                <img
+                    src="../assets/images/logo.png"
+                    alt="Madrugando"
+                    class="game-logo"
+                >
 
-            <button id="play-button">
-                Jogar
-            </button>
+                <button id="play-button">
+                    Jogar
+                </button>
 
-            <button id="customize-button">
-                Customizar Jogo
-            </button>
+                <button id="customize-button">
+                    Customizar Jogo
+                </button>
 
-            <button id="how-to-play-button">
-                Como Jogar
-            </button>
+                <button id="how-to-play-button">
+                    Como Jogar
+                </button>
 
-        </div>
-
-
-        <div id="game-config" class="menu-content">
-
-            <back-button></back-button>
-
-            <h2 data-text="Configurar Jogo">Configurar Jogo</h2>
-
-            <label for="subject-select">
-                Matéria
-            </label>
-
-            <select id="subject-select">
-
-                <option value="" selected disabled>
-                    Selecione uma matéria
-                </option>
-
-                <option value="science">
-                    Ciências
-                </option>
-
-                <option value="english">
-                    Inglês
-                </option>
-
-                <option value="portuguese">
-                    Português
-                </option>
-
-                <option value="geography">
-                    Geografia
-                </option>
-
-                <option value="history">
-                    História
-                </option>
-
-            </select>
+            </div>
 
 
-            <label for="difficulty-select">
-                Dificuldade
-            </label>
+            <!-- CONFIGURAÇÃO DO JOGO -->
 
-            <select id="difficulty-select">
+            <div id="game-config" class="menu-content">
 
-                <option value="" selected disabled>
-                    Selecione uma dificuldade
-                </option>
+                <back-button></back-button>
 
-                <option value="easy">
-                    Fácil
-                </option>
+                <h2 data-text="Configurar Jogo">
+                    Configurar Jogo
+                </h2>
 
-                <option value="medium">
-                    Médio
-                </option>
+                <label for="subject-select">
+                    Matéria
+                </label>
 
-                <option value="hard">
-                    Difícil
-                </option>
+                <select id="subject-select">
 
-            </select>
+                    <option value="" selected disabled>
+                        Selecione uma matéria
+                    </option>
+
+                    <option value="science">
+                        Ciências
+                    </option>
+
+                    <option value="english">
+                        Inglês
+                    </option>
+
+                    <option value="portuguese">
+                        Português
+                    </option>
+
+                    <option value="geography">
+                        Geografia
+                    </option>
+
+                    <option value="history">
+                        História
+                    </option>
+
+                </select>
 
 
-            <button id="start-game-button">
-                Iniciar
-            </button>
+                <label for="difficulty-select">
+                    Dificuldade
+                </label>
 
-        </div>
+                <select id="difficulty-select">
 
-    </div>
+                    <option value="" selected disabled>
+                        Selecione uma dificuldade
+                    </option>
 
+                    <option value="easy">
+                        Fácil
+                    </option>
+
+                    <option value="medium">
+                        Médio
+                    </option>
+
+                    <option value="hard">
+                        Difícil
+                    </option>
+
+                </select>
+
+
+                <button id="start-game-button">
+                    Iniciar
+                </button>
+
+            </div>
+
+
+            <!-- CUSTOM GAME -->
+
+            <div id="custom-game-menu" class="menu-content">
+
+                <back-button></back-button>
+
+                <h2 data-text="Selecionar Jogo">
+                    Selecionar Jogo
+                </h2>
+
+                <div id="custom-game-list">
+
+                    <!-- Custom Games criados pelo usuário -->
+
+                </div>
+
+                <div class="custom-game-footer">
+
+                    <button id="create-custom-game-button">
+                        Criar Jogo
+                    </button>
+
+                    <button id="import-custom-game-button">
+                        Importar
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- CONFIGURAÇÃO DO CUSTOM GAME -->
+
+            <div id="custom-game-config" class="menu-content">
+
+                <back-button></back-button>
+
+                <h2 data-text="Personalize seu Jogo">
+                    Personalize seu Jogo
+                </h2>
+
+
+                <!-- INFORMAÇÕES DO JOGO -->
+
+                <div class="custom-game-section">
+
+                    <h3>Informações do Jogo</h3>
+
+                    <div class="custom-game-field">
+
+                        <label for="custom-game-name">
+                            Nome do jogo
+                        </label>
+
+                        <input
+                            type="text"
+                            id="custom-game-name"
+                            placeholder="Digite o nome do jogo"
+                        >
+
+                    </div>
+
+
+                    <div class="custom-game-field">
+
+                        <label for="custom-game-difficulty">
+                            Dificuldade
+                        </label>
+
+                        <select id="custom-game-difficulty">
+
+                            <option value="" selected disabled>
+                                Selecione uma dificuldade
+                            </option>
+
+                            <option value="easy">
+                                Fácil
+                            </option>
+
+                            <option value="medium">
+                                Médio
+                            </option>
+
+                            <option value="hard">
+                                Difícil
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DICIONÁRIO -->
+
+                <div class="custom-game-section">
+
+                    <h3>Dicionário</h3>
+
+                    <div class="dictionary-container">
+
+                        <div class="dictionary-add">
+
+                            <input
+                                type="text"
+                                id="dictionary-word"
+                                placeholder="Digite uma palavra..."
+                            >
+
+                            <button id="add-word-button">
+                                Adicionar
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            id="dictionary-list"
+                            class="dictionary-list">
+
+                            <!-- Palavras adicionadas aparecerão aqui -->
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUESTÕES -->
+
+                <div class="custom-game-section">
+
+                    <h3>Questões</h3>
+
+                    <div class="question-container">
+
+                        <textarea
+                            id="question-text"
+                            placeholder="Digite o enunciado da questão..."
+                        ></textarea>
+
+                        <div class="question-options-header">
+                            <span>Alternativas</span>
+                            <span class="correct-answer-hint">
+                                ● Marque a resposta correta
+                            </span>
+                        </div>
+
+
+                        <div class="question-options">
+
+                            <div class="question-option">
+
+                                <input
+                                    type="radio"
+                                    name="correct-answer"
+                                    value="0"
+                                >
+
+                                <input
+                                    type="text"
+                                    placeholder="Alternativa 1"
+                                >
+
+                            </div>
+
+
+                            <div class="question-option">
+
+                                <input
+                                    type="radio"
+                                    name="correct-answer"
+                                    value="1"
+                                >
+
+                                <input
+                                    type="text"
+                                    placeholder="Alternativa 2"
+                                >
+
+                            </div>
+
+
+                            <div class="question-option">
+
+                                <input
+                                    type="radio"
+                                    name="correct-answer"
+                                    value="2"
+                                >
+
+                                <input
+                                    type="text"
+                                    placeholder="Alternativa 3"
+                                >
+
+                            </div>
+
+
+                            <div class="question-option">
+
+                                <input
+                                    type="radio"
+                                    name="correct-answer"
+                                    value="3"
+                                >
+
+                                <input
+                                    type="text"
+                                    placeholder="Alternativa 4"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <button id="add-question-button">
+                            + Adicionar Questão
+                        </button>
+
+                    </div>
+
+
+                    <!-- QUESTÕES ADICIONADAS -->
+
+                    <div class="saved-questions">
+
+                        <div class="saved-questions-header">
+                            <h4>Questões adicionadas</h4>
+
+                            <span id="question-count">
+                                0 questões
+                            </span>
+                        </div>
+
+
+                        <div
+                            id="question-list"
+                            class="question-list">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALVAR -->
+
+                <div class="custom-game-save">
+
+                    <button id="save-custom-game-button">
+                        Salvar Jogo
+                    </button>
+
+                </div>
+
+            </div>
+
+            </div>
+
+
+        <!-- HUD -->
 
         <div id="hud">
 
@@ -173,13 +442,11 @@
                     WAVE 1
                 </div>
 
-
                 <div id="progress-bar">
 
                     <div id="progress-fill"></div>
 
                 </div>
-
 
                 <div id="progress-text">
                     0 / 15
@@ -191,6 +458,7 @@
             <div class="hud-box">
 
                 🏆
+
                 <span id="score">
                     0
                 </span>
@@ -206,7 +474,6 @@
         type="module"
         src="../scripts/main.js">
     </script>
-
 
 </body>
 

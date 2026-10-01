@@ -148,7 +148,8 @@ export class PowerUpManager {
         }
 
         return this.powerUps.some(powerUp =>
-            powerUp.word.startsWith(prefix)
+        powerUp.word.toLowerCase().startsWith(
+            prefix.toLowerCase())
         );
     }
 
@@ -161,7 +162,7 @@ export class PowerUpManager {
 
         this.powerUps.forEach(powerUp => {
 
-            if (powerUp.word !== word) {
+            if (powerUp.word.toLowerCase() !==word.toLowerCase()) {
                 return;
             }
 
