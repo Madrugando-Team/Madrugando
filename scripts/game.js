@@ -22,6 +22,8 @@ export default class Game {
 
         this.gameStarted = false;
 
+        this.gamePaused = false;
+
         this.scene = new Scene();
 
         this.scoreManager = new ScoreManager();
@@ -82,14 +84,26 @@ export default class Game {
         this.menu =
             document.getElementById("game-menu");
 
+        this.pauseMenu =
+            document.getElementById("pause-menu");
+
+        this.resumeButton =
+            document.getElementById("resume-button");
+
+        this.pauseMenuButton =
+            document.getElementById("pause-menu-button");
+
         this.playButton = document.getElementById("play-button");
 
+        this.resumeButton.addEventListener("click", () => {
 
-        this.playButton.addEventListener("click", () => {
+            this.resumeGame();
 
-            this.mainMenu.style.display = "none";
+        });
 
-            this.gameConfig.style.display = "flex";
+        this.pauseMenuButton.addEventListener("click", () => {
+
+            this.returnToMenu();
 
         });
 
@@ -293,25 +307,66 @@ export default class Game {
                 return;
             }
 
-            if (!this.gameStarted)
-                return;
 
+            // Jogo ainda não começou
+            if (!this.gameStarted) {
+                return;
+            }
+
+
+            // PAUSE
+            if (event.key === "Escape") {
+
+                // Não permite pause durante o Boss
+                if (
+                    this.waveManager.getState() !== "playing"
+                ) {
+                    return;
+                }
+
+                if (this.gamePaused) {
+
+                    this.resumeGame();
+
+                } else {
+
+                    this.pauseGame();
+
+                }
+
+                return;
+            }
+
+
+            // Se estiver pausado, não processa outras teclas
+            if (this.gamePaused) {
+                return;
+            }
+
+
+            // A partir daqui é controle do Boss
             if (
-                this.waveManager.getState() !==
-                "question"
-            )
+                this.waveManager.getState() !== "question"
+            ) {
                 return;
+            }
 
-            if (!this.bossManager.hasBoss())
+
+            if (!this.bossManager.hasBoss()) {
                 return;
+            }
+
 
             const result =
                 this.bossManager.handleKeyDown(
                     event
                 );
 
-            if (!result)
+
+            if (!result) {
                 return;
+            }
+
 
             if (result.result === "wrong") {
 
@@ -319,6 +374,7 @@ export default class Game {
 
                 return;
             }
+
 
             if (result.result === "correct") {
 
@@ -687,25 +743,24 @@ export default class Game {
 
     renderQuestions() {
 
-    this.questionList.innerHTML = "";
+        this.questionList.innerHTML = "";
 
-    this.questionCount.textContent =
-        `${this.customGameQuestions.length} ${
-            this.customGameQuestions.length === 1
+        this.questionCount.textContent =
+            `${this.customGameQuestions.length} ${this.customGameQuestions.length === 1
                 ? "questão"
                 : "questões"
-        }`;
+            }`;
 
-    this.customGameQuestions.forEach(
-        (question, index) => {
+        this.customGameQuestions.forEach(
+            (question, index) => {
 
-            const item =
-                document.createElement("div");
+                const item =
+                    document.createElement("div");
 
-            item.className =
-                "saved-question-item";
+                item.className =
+                    "saved-question-item";
 
-            item.innerHTML = `
+                item.innerHTML = `
                 <div class="saved-question-content">
 
                     <strong>
@@ -715,19 +770,18 @@ export default class Game {
                     <div class="saved-question-options">
 
                         ${question.options.map(
-                            (option, optionIndex) => `
-                                <span class="${
-                                    optionIndex === question.correctAnswer
-                                        ? "correct"
-                                        : ""
-                                }">
+                    (option, optionIndex) => `
+                                <span class="${optionIndex === question.correctAnswer
+                            ? "correct"
+                            : ""
+                        }">
                                     ${String.fromCharCode(
-                                        65 + optionIndex
-                                    )})
+                            65 + optionIndex
+                        )})
                                     ${option}
                                 </span>
                             `
-                        ).join("")}
+                ).join("")}
 
                     </div>
 
@@ -741,27 +795,27 @@ export default class Game {
                 </button>
             `;
 
-            item
-                .querySelector(
-                    ".delete-question-button"
-                )
-                .addEventListener("click", () => {
+                item
+                    .querySelector(
+                        ".delete-question-button"
+                    )
+                    .addEventListener("click", () => {
 
-                    this.customGameQuestions.splice(
-                        index,
-                        1
-                    );
+                        this.customGameQuestions.splice(
+                            index,
+                            1
+                        );
 
-                    this.renderQuestions();
+                        this.renderQuestions();
 
-                });
+                    });
 
-            this.questionList.appendChild(item);
+                this.questionList.appendChild(item);
 
-        }
-    );
+            }
+        );
 
-}
+    }
 
     saveCustomGame() {
 
@@ -843,7 +897,7 @@ export default class Game {
         );
 
         this.customGameConfig.style.display =
-        "none";
+            "none";
 
         this.customGameMenu.style.display =
             "flex";
@@ -915,7 +969,6 @@ export default class Game {
         this.enemySpawner.setCategory(
             this.selectedSubject
         );
-
         this.powerUpManager.setCategory(
             this.selectedSubject
         );
@@ -925,6 +978,7 @@ export default class Game {
         );
 
         this.gameStarted = true;
+
 
         this.menu.style.display = "none";
 
@@ -958,6 +1012,25 @@ export default class Game {
         );
 
     }
+    pauseGame() {
+
+        this.gamePaused = true;
+
+        this.pauseMenu.style.display = "flex";
+
+        this.inputManager.setPaused(true);
+
+    }
+
+    resumeGame() {
+
+        this.gamePaused = false;
+
+        this.pauseMenu.style.display = "none";
+
+        this.inputManager.setPaused(false);
+
+    }
 
     update(deltaTime) {
 
@@ -979,10 +1052,11 @@ export default class Game {
 
         }
 
-        if (
-            this.waveManager.getState() === "playing"
-        ) {
-
+        if (this.gamePaused) {
+            return;
+        }
+        // Gameplay normal: inimigos, digitação e power-ups
+        if (this.waveManager.getState() === "playing") {
             this.enemySpawner.update(deltaTime);
 
             this.enemyManager.update(deltaTime);
@@ -1186,6 +1260,11 @@ export default class Game {
     returnToMenu() {
 
         this.gameStarted = false;
+
+
+        this.gamePaused = false;
+        this.pauseMenu.style.display = "none";
+        this.inputManager.setPaused(false);
 
         this.scoreManager.reset();
 
@@ -1556,7 +1635,7 @@ export default class Game {
                             ) ||
                             question.correctAnswer < 0 ||
                             question.correctAnswer >=
-                                question.options.length
+                            question.options.length
                         ) {
                             throw new Error(
                                 "Uma das perguntas possui uma resposta correta inválida."

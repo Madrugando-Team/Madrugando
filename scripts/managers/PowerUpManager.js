@@ -36,7 +36,7 @@ export class PowerUpManager {
         this.reverso = new Reverso(this.enemyManager);
         this.duplicador = new Duplicador(this.scoreManager);
         // Por enquanto, apenas para teste
-        this.powerUpInterval = 10000;
+        this.powerUpInterval = 20000;
 
         this.types = [
             "despertador",
@@ -76,9 +76,8 @@ export class PowerUpManager {
     update(deltaTime) {
 
         const wave = this.waveManager.getWave();
-        const maxPowerUps =
-            this.currentWave;
 
+        // Detecta mudança de Wave
         if (wave !== this.currentWave) {
 
             this.currentWave = wave;
@@ -88,29 +87,45 @@ export class PowerUpManager {
 
         }
 
-        this.timer += deltaTime;
+        const maxPowerUps = this.currentWave;
 
+
+        // Atualiza os efeitos ativos
         this.gelo.update(deltaTime);
         this.reverso.update(deltaTime);
         this.duplicador.update(deltaTime);
 
+
+        // Só conta o tempo quando NÃO existe
+        // Power-up na tela e ainda é permitido
+        // gerar Power-ups nesta Wave
         if (
-            this.powerUpsSpawned < maxPowerUps &&
-            this.timer >= this.powerUpInterval &&
-            this.powerUps.length === 0
+            this.powerUps.length === 0 &&
+            this.powerUpsSpawned < maxPowerUps
         ) {
 
-            this.spawn();
+            this.timer += deltaTime;
 
-            this.powerUpsSpawned++;
+            if (this.timer >= this.powerUpInterval) {
 
-            this.timer = 0;
+                this.spawn();
+
+                this.powerUpsSpawned++;
+
+                this.timer = 0;
+
+            }
 
         }
 
+
+        // Atualiza o Power-up que estiver na tela
         this.powerUps.forEach(powerUp => {
+
             powerUp.update(deltaTime);
+
         });
+
 
         this.removeDead();
     }
@@ -130,7 +145,7 @@ export class PowerUpManager {
             x: -50,
             y: this.canvasHeight / 2,
             type: type,
-            speed: 2,
+            speed: 1.4,
             word: word
         });
 

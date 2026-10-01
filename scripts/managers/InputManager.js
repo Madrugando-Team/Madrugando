@@ -7,6 +7,8 @@ export class InputManager {
         this.waveManager = waveManager;
         this.powerUpManager = powerUpManager;
 
+        this.paused = false;
+
         this.currentInput = "";
         this.state = "normal";
         this.stateTimer = 0;
@@ -17,7 +19,11 @@ export class InputManager {
         );
 
     }
+    setPaused(value) {
 
+        this.paused = value;
+
+    }
 
     update(deltaTime) {
 
@@ -38,6 +44,10 @@ export class InputManager {
 
 
     handleInput(event) {
+
+        if (this.paused) {
+            return;
+        }
 
         if (this.state !== "normal") {
             return;
@@ -145,6 +155,8 @@ export class InputManager {
     }
 
     reset() {
+
+        this.paused = false;
 
         this.currentInput = "";
         this.state = "normal";

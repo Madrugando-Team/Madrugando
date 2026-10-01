@@ -33,6 +33,7 @@ export class Boss {
 
         this.optionRects = [];
         this.wrongOptions = new Set();
+        this.answerRevealed = false;
 
         this.selectedOption = 0;
         this.hoveredOption = null;
@@ -564,8 +565,7 @@ export class Boss {
                 );
 
                 const isSelected =
-                    this.selectedOption ===
-                        data.index &&
+                    this.selectedOption === data.index &&
                     !this.wrongOptions.has(
                         data.index
                     );
@@ -598,10 +598,25 @@ export class Boss {
                     -drawY
                 );
 
+
+                // Resposta correta revelada
                 if (
-                    this.wrongOptions.has(
-                        data.index
-                    )
+                    this.answerRevealed &&
+                    data.index === this.question.correctAnswer
+                ) {
+
+                    ctx.fillStyle =
+                        "rgba(46, 160, 67, 0.95)";
+
+                    ctx.strokeStyle =
+                        "rgba(100, 230, 120, 0.7)";
+
+                    ctx.lineWidth = 2;
+
+
+                    // Resposta escolhida incorretamente
+                } else if (
+                    this.wrongOptions.has(data.index)
                 ) {
 
                     ctx.fillStyle =
@@ -612,6 +627,8 @@ export class Boss {
 
                     ctx.lineWidth = 2;
 
+
+                    // Alternativa selecionada pelo novo sistema
                 } else if (isSelected) {
 
                     ctx.fillStyle =
@@ -622,6 +639,8 @@ export class Boss {
 
                     ctx.lineWidth = 3;
 
+
+                    // Alternativa normal
                 } else {
 
                     ctx.fillStyle =
@@ -724,23 +743,37 @@ export class Boss {
             if (
                 mouseX >= option.x &&
                 mouseX <=
-                    option.x + option.width &&
+                option.x + option.width &&
                 mouseY >= option.y &&
                 mouseY <=
-                    option.y + option.height
+                option.y + option.height
             ) {
 
+                // Depois de errar, somente a resposta
+                // correta pode ser selecionada
                 if (
-                    this.wrongOptions.has(
-                        option.index
-                    )
+                    this.answerRevealed &&
+                    option.index !== this.question.correctAnswer
                 ) {
 
                     return null;
+
                 }
 
-                this.selectedOption =
-                    option.index;
+
+                // Impede selecionar novamente
+                // uma alternativa que já foi marcada como errada
+                if (
+                    this.wrongOptions.has(option.index)
+                ) {
+
+                    return null;
+
+                }
+
+
+                // Marca visualmente a alternativa selecionada
+                this.selectedOption = option.index;
 
                 if (
                     option.index ===
@@ -758,21 +791,27 @@ export class Boss {
                     };
                 }
 
-                console.log(
-                    "Resposta incorreta!"
-                );
+
+                console.log("Resposta incorreta!");
 
                 this.wrongOptions.add(
                     option.index
                 );
 
-                this.selectNextOption(1);
+
+                // Revela a resposta correta
+                this.answerRevealed = true;
+
+                // Seleciona automaticamente a resposta correta
+                this.selectedOption =
+                    this.question.correctAnswer;
 
                 return {
                     result: "wrong"
                 };
             }
         }
+
 
         return null;
     }
@@ -844,7 +883,7 @@ export class Boss {
         if (
             rowMate >= 0 &&
             rowMate <
-                this.question.options.length &&
+            this.question.options.length &&
             !this.wrongOptions.has(
                 rowMate
             )
@@ -952,7 +991,12 @@ export class Boss {
 
         this.wrongOptions.add(index);
 
-        this.selectNextOption(1);
+        // Revela a resposta correta
+        this.answerRevealed = true;
+
+        // Seleciona automaticamente a resposta correta
+        this.selectedOption =
+            this.question.correctAnswer;
 
         return {
             result: "wrong"
@@ -967,15 +1011,15 @@ export class Boss {
         if (
             this.questionScrollArea &&
             mouseX >=
-                this.questionScrollArea.x &&
+            this.questionScrollArea.x &&
             mouseX <=
-                this.questionScrollArea.x +
-                this.questionScrollArea.width &&
+            this.questionScrollArea.x +
+            this.questionScrollArea.width &&
             mouseY >=
-                this.questionScrollArea.y &&
+            this.questionScrollArea.y &&
             mouseY <=
-                this.questionScrollArea.y +
-                this.questionScrollArea.height
+            this.questionScrollArea.y +
+            this.questionScrollArea.height
         ) {
 
             this.questionScroll =
@@ -999,10 +1043,10 @@ export class Boss {
             if (
                 mouseX >= option.x &&
                 mouseX <=
-                    option.x + option.width &&
+                option.x + option.width &&
                 mouseY >= option.y &&
                 mouseY <=
-                    option.y + option.height
+                option.y + option.height
             ) {
 
                 const index =
@@ -1065,7 +1109,7 @@ export class Boss {
                     mouseY,
                     option,
                     this.optionScrolls[
-                        option.index
+                    option.index
                     ],
                     option.maxScroll
                 )
@@ -1100,10 +1144,10 @@ export class Boss {
                 if (
                     mouseX >= option.x &&
                     mouseX <=
-                        option.x + option.width &&
+                    option.x + option.width &&
                     mouseY >= option.y &&
                     mouseY <=
-                        option.y + option.height
+                    option.y + option.height
                 ) {
 
                     if (
@@ -1275,10 +1319,10 @@ export class Boss {
         return (
             mouseX >= trackX - 5 &&
             mouseX <=
-                trackX + barWidth + 5 &&
+            trackX + barWidth + 5 &&
             mouseY >= thumbY &&
             mouseY <=
-                thumbY + thumbHeight
+            thumbY + thumbHeight
         );
     }
 
