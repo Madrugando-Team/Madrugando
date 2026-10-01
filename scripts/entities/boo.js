@@ -1,5 +1,5 @@
-import { Enemy } from "./Enemy.js";
-import WordPools from "../data/WordPools.js";
+import { Enemy } from "./enemy.js";
+import WordPools from "../data/wordpools.js";
 
 export function createBoo(x, y, config) {
 

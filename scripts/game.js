@@ -6,7 +6,7 @@ import { InputBar } from "./ui/InputBar.js";
 import ScoreManager from "./managers/scoreManager.js";
 import WaveManager from "./managers/WaveManager.js";
 import { PowerUpManager } from "./managers/PowerUpManager.js";
-import HUD from "./ui/HUD.js";
+import HUD from "./ui/hud.js";
 import { BossManager } from "./managers/BossManager.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
 

@@ -1,5 +1,5 @@
-import { PowerUp } from "../entities/PowerUp.js";
-import WordPools from "../data/WordPools.js";
+import { PowerUp } from "../entities/powerUp.js";
+import WordPools from "../data/wordpools.js";
 import { Gelo } from "../powerups/gelo.js";
 import { Despertador } from "../powerups/despertador.js";
 import { Reverso } from "../powerups/reverso.js";

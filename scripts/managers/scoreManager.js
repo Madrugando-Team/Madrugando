@@ -1,4 +1,4 @@
-import HUD from "../ui/HUD.js";
+import HUD from "../ui/hud.js";
 
 export default class ScoreManager {
     constructor() {
