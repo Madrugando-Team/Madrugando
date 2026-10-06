@@ -158,6 +158,8 @@ export default class Game {
 
                 this.bossManager.removeBoss();
 
+                this.hud.show();
+
             }
 
         });
@@ -385,6 +387,8 @@ export default class Game {
                 this.powerUpManager.clear();
 
                 this.bossManager.removeBoss();
+
+                this.hud.show();
 
             }
 
@@ -1071,27 +1075,30 @@ export default class Game {
 
         this.bossManager.update(deltaTime);
 
-        if (
-            this.waveManager.getState() === "question" &&
+        if (this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
 
-            if (this.isCustomGame) {
+        this.enemyManager.reset();
 
-                this.bossManager.spawnCustom(
-                    this.customGameQuestions
-                );
+        this.hud.hide();
 
-            }
-            else {
+        if (this.isCustomGame) {
 
-                this.bossManager.spawn(
-                    this.selectedSubject
-                );
-
-            }
+            this.bossManager.spawnCustom(
+                this.customGameQuestions
+            );
 
         }
+        else {
+
+            this.bossManager.spawn(
+                this.selectedSubject
+            );
+
+        }
+
+    }
 
         this.updateHUD();
 
@@ -1135,10 +1142,9 @@ export default class Game {
         this.bossManager.draw(ctx);
 
         if (this.waveManager.getState() === "playing") {
-            this.powerUpManager.draw(ctx);
-        }
-
+        this.powerUpManager.draw(ctx);
         this.inputBar.draw(ctx);
+        }
 
         if (this.scoreManager.gameOverState) {
 
