@@ -1303,7 +1303,7 @@ export default class Game {
 
             this.customGameList.innerHTML = `
                 <div class="empty-custom-games">
-                    Nenhum Custom Game criado.
+                    Nenhum jogo customizado criado.
                 </div>
             `;
 
