@@ -8,23 +8,26 @@ export const DifficultyConfig = {
         speed: 1,
         maxEnemies: 3,
         poolLevel: "easy",
-        lives: 3
+        lives: 3,
+        bossTime: 60
 
     },
     medium: {
-        spawnInterval: 2500,
+        spawnInterval: 2750,
         speed: 1.1,
-        maxEnemies: 5,
+        maxEnemies: 4,
         poolLevel: "medium",
-        lives: 3
+        lives: 3,
+        bossTime: 45
 
     },
     hard: {
-        spawnInterval: 2000,
+        spawnInterval: 2500,
         speed: 1.2,
-        maxEnemies: 7,
+        maxEnemies: 5,
         poolLevel: "medium",
-        lives: 2
+        lives: 2,
+        bossTime: 30
 
     }
 };
@@ -34,10 +37,12 @@ export class EnemySpawner {
         enemyManager,
         difficulty = "easy",
         config = {},
-        waveManager
+        waveManager,
+        scoreManager
     ) {
         this.enemyManager = enemyManager;
         this.waveManager = waveManager;
+        this.scoreManager = scoreManager;
         this.spawnPauseTimer = 0;
         this.customDictionary = null;
 
@@ -149,7 +154,8 @@ export class EnemySpawner {
                 speed: this.config.speed,
                 category: this.enemyConfig.category,
                 poolLevel: this.config.poolLevel,
-                customDictionary: this.customDictionary
+                customDictionary: this.customDictionary,
+                scoreManager: this.scoreManager
             }
         );
 
@@ -163,6 +169,7 @@ export class EnemySpawner {
             `Scromblus ${this.scromblusSpawned + 1} de ${this.currentWave} na Wave ${this.currentWave}`
         );
     }
+
     findSafeX(wordWidth = 100) {
 
         const margin = 100;
@@ -194,8 +201,6 @@ export class EnemySpawner {
             }
         }
 
-        // Se não encontrou espaço após várias tentativas,
-        // usa uma posição aleatória mesmo assim.
         return this.randomX();
     }
 

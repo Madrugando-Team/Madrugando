@@ -57,10 +57,6 @@ export class InputBar {
             this.canvas.height - this.height;
 
 
-        // ========================================
-        // FUNDO DA INPUT BAR
-        // ========================================
-
         const gradient =
             ctx.createLinearGradient(
                 0,
@@ -92,11 +88,6 @@ export class InputBar {
             this.height
         );
 
-
-        // ========================================
-        // BRILHO SUPERIOR
-        // ========================================
-
         const state =
             this.inputManager.getState();
 
@@ -123,8 +114,7 @@ export class InputBar {
 
         if (state === "combo") {
 
-            glowColor =
-                "rgba(150, 120, 255, 0.75)";
+            glowColor = this.getRainbowColor();
 
         }
 
@@ -157,11 +147,6 @@ export class InputBar {
 
 
         ctx.shadowBlur = 0;
-
-
-        // ========================================
-        // TEXTO
-        // ========================================
 
         const text =
             this.inputManager.getInput();
@@ -214,11 +199,6 @@ export class InputBar {
 
         }
 
-
-        // ========================================
-        // GLOW DO TEXTO
-        // ========================================
-
         ctx.shadowColor =
             textColor;
 
@@ -240,11 +220,6 @@ export class InputBar {
 
 
         ctx.shadowBlur = 0;
-
-
-        // ========================================
-        // CURSOR
-        // ========================================
 
         if (this.cursorVisible) {
 
@@ -274,11 +249,6 @@ export class InputBar {
             ctx.shadowBlur = 0;
 
         }
-
-
-        // ========================================
-        // RESTAURA BASELINE
-        // ========================================
 
         ctx.textBaseline =
             "alphabetic";

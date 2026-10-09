@@ -137,8 +137,14 @@ export class InputManager {
         }
 
         this.currentInput = "";
+
+        if (enemyResult.enemiesHit > 1) {
+        this.state = "combo";
+        this.stateTimer = 360;
+    } else {
         this.state = "success";
         this.stateTimer = 90;
+    }
     }
 
     getInput() {

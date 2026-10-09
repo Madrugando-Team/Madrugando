@@ -33,7 +33,6 @@ export class Boss {
 
         this.optionRects = [];
         this.wrongOptions = new Set();
-        this.answerRevealed = false;
 
         this.selectedOption = 0;
         this.hoveredOption = null;
@@ -598,57 +597,20 @@ export class Boss {
                     -drawY
                 );
 
-
-                // Resposta correta revelada
-                if (
-                    this.answerRevealed &&
-                    data.index === this.question.correctAnswer
-                ) {
-
-                    ctx.fillStyle =
-                        "rgba(46, 160, 67, 0.95)";
-
-                    ctx.strokeStyle =
-                        "rgba(100, 230, 120, 0.7)";
-
+                
+                if (this.wrongOptions.has(data.index)) {
+                    ctx.fillStyle = "rgba(180, 45, 45, 0.95)";
+                    ctx.strokeStyle = "rgba(230, 100, 100, 0.5)";
                     ctx.lineWidth = 2;
 
-
-                    // Resposta escolhida incorretamente
-                } else if (
-                    this.wrongOptions.has(data.index)
-                ) {
-
-                    ctx.fillStyle =
-                        "rgba(180, 45, 45, 0.95)";
-
-                    ctx.strokeStyle =
-                        "rgba(230, 100, 100, 0.5)";
-
-                    ctx.lineWidth = 2;
-
-
-                    // Alternativa selecionada pelo novo sistema
                 } else if (isSelected) {
+                    ctx.fillStyle = "rgba(55, 75, 105, 1)";
+                    ctx.strokeStyle = "rgba(190, 200, 255, 0.7)";
+                    ctx.lineWidth = 2;
 
-                    ctx.fillStyle =
-                        "rgba(65, 82, 125, 1)";
-
-                    ctx.strokeStyle =
-                        "rgba(190, 200, 255, 0.95)";
-
-                    ctx.lineWidth = 3;
-
-
-                    // Alternativa normal
                 } else {
-
-                    ctx.fillStyle =
-                        "rgba(35, 59, 83, 0.95)";
-
-                    ctx.strokeStyle =
-                        "rgba(160, 170, 230, 0.35)";
-
+                    ctx.fillStyle = "rgba(35, 59, 83, 0.95)";
+                    ctx.strokeStyle = "rgba(160, 170, 230, 0.35)";
                     ctx.lineWidth = 2;
                 }
 
@@ -749,20 +711,6 @@ export class Boss {
                 option.y + option.height
             ) {
 
-                // Depois de errar, somente a resposta
-                // correta pode ser selecionada
-                if (
-                    this.answerRevealed &&
-                    option.index !== this.question.correctAnswer
-                ) {
-
-                    return null;
-
-                }
-
-
-                // Impede selecionar novamente
-                // uma alternativa que já foi marcada como errada
                 if (
                     this.wrongOptions.has(option.index)
                 ) {
@@ -771,8 +719,6 @@ export class Boss {
 
                 }
 
-
-                // Marca visualmente a alternativa selecionada
                 this.selectedOption = option.index;
 
                 if (
@@ -794,17 +740,8 @@ export class Boss {
 
                 console.log("Resposta incorreta!");
 
-                this.wrongOptions.add(
-                    option.index
-                );
-
-
-                // Revela a resposta correta
-                this.answerRevealed = true;
-
-                // Seleciona automaticamente a resposta correta
-                this.selectedOption =
-                    this.question.correctAnswer;
+                
+                this.wrongOptions.add(option.index);
 
                 return {
                     result: "wrong"
@@ -991,17 +928,11 @@ export class Boss {
 
         this.wrongOptions.add(index);
 
-        // Revela a resposta correta
-        this.answerRevealed = true;
-
-        // Seleciona automaticamente a resposta correta
-        this.selectedOption =
-            this.question.correctAnswer;
-
         return {
             result: "wrong"
         };
     }
+
 
     handleWheel(deltaY, mouseX, mouseY) {
 

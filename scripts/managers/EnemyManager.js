@@ -48,37 +48,30 @@ export class EnemyManager {
 
 
     processWord(word) {
-
+        
         const result = {
             correct: false,
             killed: false,
-            enemy: null
+            enemy: null,
+            enemiesHit: 0
         };
 
         this.enemies.forEach(enemy => {
-
-           if (enemy.word.toLowerCase() !== word.toLowerCase()) {
+            if (enemy.word.toLowerCase() !== word.toLowerCase()) {
                 return;
             }
 
             result.correct = true;
             result.enemy = enemy;
+            result.enemiesHit++;
 
             if (enemy.type === "scromblus") {
-
-                const completed =
-                    enemy.advanceWord();
-
+                const completed = enemy.advanceWord();
                 result.killed = completed;
-
             } else {
-
                 enemy.kill();
-
                 result.killed = true;
-
             }
-
         });
 
         return result;

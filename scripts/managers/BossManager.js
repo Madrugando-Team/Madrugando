@@ -1,4 +1,5 @@
 import { Boss } from "../entities/boss.js";
+import { DifficultyConfig } from "./EnemySpawner.js";
 
 export class BossManager {
 
@@ -6,24 +7,66 @@ export class BossManager {
 
         this.boss = null;
 
+        this.timeLimit = 45;
+        this.timeRemaining = 45;
+        this.timerActive = false;
+
     }
 
-    spawn(category) {
+    getTimeLimit(difficulty) {
+
+        return DifficultyConfig[difficulty]?.bossTime ?? 45;
+
+    }
+
+    startTimer(difficulty) {
+
+        this.timeLimit = this.getTimeLimit(difficulty);
+        this.timeRemaining = this.timeLimit;
+        this.timerActive = true;
+
+    }
+
+    resetTimer() {
+
+        this.timeRemaining = this.timeLimit;
+        this.timerActive = true;
+
+    }
+
+    stopTimer() {
+
+        this.timerActive = false;
+
+    }
+
+    getTimeRemaining() {
+
+        return Math.ceil(this.timeRemaining);
+
+    }
+
+    isTimerExpired() {
+        return this.boss !== null && this.timeRemaining <= 0;
+    }
+
+    spawn(category, difficulty = "medium") {
 
         this.boss = new Boss({
 
             x: 640,
             y: 150,
-
             category: category
 
         });
 
         this.boss.startIntro();
 
+        this.startTimer(difficulty);
+
     }
 
-    spawnCustom(questions) {
+    spawnCustom(questions, difficulty = "medium") {
 
         if (!questions || questions.length === 0)
             return;
@@ -42,12 +85,13 @@ export class BossManager {
 
             x: 640,
             y: 150,
-
             question: randomizedQuestion
 
         });
 
         this.boss.startIntro();
+
+        this.startTimer(difficulty);
 
     }
 
@@ -101,6 +145,20 @@ export class BossManager {
 
         this.boss.update(deltaTime);
 
+        if (
+            !this.boss.isActive() ||
+            !this.timerActive
+        ) {
+            return;
+        }
+
+        this.timeRemaining -= deltaTime / 1000;
+
+        if (this.timeRemaining <= 0) {
+            this.timeRemaining = 0;
+            this.stopTimer();
+        }
+
     }
 
     draw(ctx) {
@@ -112,6 +170,32 @@ export class BossManager {
 
     }
 
+    drawTimer(ctx) {
+
+        if (!this.boss || !this.boss.isActive())
+            return;
+
+        const seconds = this.getTimeRemaining();
+
+        ctx.save();
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 28px Arial";
+
+        ctx.fillStyle =
+            seconds <= 10 ? "#ff4d4d" : "#ffffff";
+
+        ctx.fillText(
+            `${seconds}s`,
+            ctx.canvas.width / 2,
+            210
+        );
+
+        ctx.restore();
+
+    }
+
     hasBoss() {
 
         return this.boss !== null;
@@ -120,13 +204,14 @@ export class BossManager {
 
     removeBoss() {
 
+        this.stopTimer();
         this.boss = null;
 
     }
 
     handleClick(mouseX, mouseY) {
 
-        if (!this.boss)
+        if (!this.boss || !this.timerActive)
             return null;
 
         return this.boss.handleClick(
@@ -138,12 +223,10 @@ export class BossManager {
 
     handleKeyDown(event) {
 
-        if (!this.boss)
+        if (!this.boss || !this.timerActive)
             return null;
 
-        return this.boss.handleKeyDown(
-            event
-        );
+        return this.boss.handleKeyDown(event);
 
     }
 

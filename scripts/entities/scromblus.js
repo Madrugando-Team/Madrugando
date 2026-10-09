@@ -7,7 +7,8 @@ export function createScromblus(x, y, config) {
         category = "science",
         speed = 1.1,
         poolLevel = "medium",
-        customDictionary
+        customDictionary,
+        scoreManager
     } = config;
 
     const pool = customDictionary
@@ -17,8 +18,7 @@ export function createScromblus(x, y, config) {
     const shuffledPool = [...pool]
         .sort(() => Math.random() - 0.5);
 
-    const words =
-        shuffledPool.slice(0, 3);
+    const words = shuffledPool.slice(0, 3);
 
     const scromblus = new Enemy({
         x,
@@ -35,17 +35,16 @@ export function createScromblus(x, y, config) {
 
         this.currentWordIndex++;
 
-        if (
-            this.currentWordIndex >=
-            this.words.length
-        ) {
+        if (this.currentWordIndex >= this.words.length) {
+
+            scoreManager?.gainLife(1);
+
             this.kill();
 
             return true;
         }
 
-        this.word =
-            this.words[this.currentWordIndex];
+        this.word = this.words[this.currentWordIndex];
 
         return false;
     };

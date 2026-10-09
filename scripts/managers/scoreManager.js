@@ -46,6 +46,14 @@ export default class ScoreManager {
         }
     }
 
+    gainLife(amount = 1) {
+        if (this.lives >= 3) return;
+
+        this.lives = Math.min(this.lives + amount, 3);
+
+        this.updateHUD();
+    }
+
     setLives(lives) {
         this.lives = Math.min(Math.max(lives, 0), 3);
         this.updateHUD();

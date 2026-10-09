@@ -227,3 +227,60 @@
     text-shadow:
         0 1px 4px rgba(0, 0, 0, 0.95);
 }
+
+#wave-progress.boss-timer-active {
+    width: auto;
+    min-width: 100px;
+    padding: 6px 14px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        145deg,
+        rgba(25, 30, 65, 0.96),
+        rgba(7, 11, 29, 0.98)
+    );
+
+    border: 1px solid rgba(160, 150, 255, 0.55);
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.30),
+        0 0 12px rgba(110, 100, 230, 0.20);
+}
+
+#wave-progress.boss-timer-active #wave-number {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #f5f3ff;
+
+    text-shadow:
+        0 0 8px rgba(150, 140, 255, 0.45),
+        0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+#wave-progress.boss-timer-active #progress-bar,
+#wave-progress.boss-timer-active #progress-text {
+    display: none;
+}
+
+#wave-progress.boss-timer-active.timer-warning {
+    border-color: rgba(255, 90, 110, 0.85);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.35),
+        0 0 18px rgba(255, 70, 100, 0.25);
+}
+
+#wave-progress.boss-timer-active.timer-warning #wave-number {
+    color: #ff7185;
+
+    text-shadow:
+        0 0 10px rgba(255, 80, 110, 0.55),
+        0 2px 5px rgba(0, 0, 0, 0.9);
+}

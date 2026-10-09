@@ -51,14 +51,15 @@ export default class Game {
         );
 
         this.enemySpawner = new EnemySpawner(
-            this.enemyManager,
-            "medium",
-            {
-                canvasWidth: this.canvas.width,
-                category: "science"
-            },
-            this.waveManager
-        );
+        this.enemyManager,
+        "medium",
+        {
+            canvasWidth: this.canvas.width,
+            category: "science"
+        },
+        this.waveManager,
+        this.scoreManager
+    );
 
         this.powerUpManager = new PowerUpManager(
             this.canvas.width,
@@ -315,11 +316,8 @@ export default class Game {
                 return;
             }
 
-
-            // PAUSE
             if (event.key === "Escape") {
 
-                // Não permite pause durante o Boss
                 if (
                     this.waveManager.getState() !== "playing"
                 ) {
@@ -340,7 +338,6 @@ export default class Game {
             }
 
 
-            // Se estiver pausado, não processa outras teclas
             if (this.gamePaused) {
                 return;
             }
@@ -1059,7 +1056,6 @@ export default class Game {
         if (this.gamePaused) {
             return;
         }
-        // Gameplay normal: inimigos, digitação e power-ups
         if (this.waveManager.getState() === "playing") {
             this.enemySpawner.update(deltaTime);
 
@@ -1075,30 +1071,42 @@ export default class Game {
 
         this.bossManager.update(deltaTime);
 
-        if (this.waveManager.getState() === "question" &&
+        this.updateBossHUD();
+
+        if (
+            this.waveManager.getState() === "question" &&
+            this.bossManager.isTimerExpired()
+        ) {
+            this.scoreManager.loseLife();
+
+            if (this.scoreManager.gameOverState) {
+                return;
+            }
+
+            this.bossManager.resetTimer();
+            return;
+        }
+
+        if (
+            this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
+            this.enemyManager.reset();
 
-        this.enemyManager.reset();
-
-        this.hud.hide();
-
-        if (this.isCustomGame) {
-
-            this.bossManager.spawnCustom(
-                this.customGameQuestions
-            );
-
-        }
-        else {
-
-            this.bossManager.spawn(
-                this.selectedSubject
-            );
-
+            if (this.isCustomGame) {
+                this.bossManager.spawnCustom(
+                    this.customGameQuestions,
+                    this.selectedDifficulty
+                );
+            }
+            else {
+                this.bossManager.spawn(
+                    this.selectedSubject,
+                    this.selectedDifficulty
+                );
+            }
         }
 
-    }
 
         this.updateHUD();
 
@@ -1132,9 +1140,7 @@ export default class Game {
         );
 
         if (!this.gameStarted) {
-
             return;
-
         }
 
         this.enemyManager.draw(ctx);
@@ -1142,17 +1148,33 @@ export default class Game {
         this.bossManager.draw(ctx);
 
         if (this.waveManager.getState() === "playing") {
-        this.powerUpManager.draw(ctx);
-        this.inputBar.draw(ctx);
+            this.powerUpManager.draw(ctx);
+            this.inputBar.draw(ctx);
         }
 
         if (this.scoreManager.gameOverState) {
-
             this.drawGameOver(ctx);
-
         }
+    }
+
+updateBossHUD() {
+
+    const isBossQuestion =
+        this.waveManager.getState() === "question" &&
+        this.bossManager.hasBoss();
+
+    if (isBossQuestion) {
+
+        this.hud.showBossTimer(
+            this.bossManager.getTimeRemaining()
+        );
+
+    } else {
+
+        this.hud.hideBossTimer();
 
     }
+}
 
     updateHUD() {
 
