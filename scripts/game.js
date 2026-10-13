@@ -24,6 +24,11 @@ export default class Game {
 
         this.gamePaused = false;
 
+        this.gameOverButtons = [];
+
+        this.gameOverHoveredButton = null;
+        this.gameOverHoverProgress = [0, 0, 0];
+
         this.scene = new Scene();
 
         this.scoreManager = new ScoreManager();
@@ -43,6 +48,8 @@ export default class Game {
 
         this.isCustomGame = false;
 
+        this.currentCustomGame = null;
+
         this.customGameEditingId = null;
 
         this.enemyManager = new EnemyManager(
@@ -51,15 +58,15 @@ export default class Game {
         );
 
         this.enemySpawner = new EnemySpawner(
-        this.enemyManager,
-        "medium",
-        {
-            canvasWidth: this.canvas.width,
-            category: "science"
-        },
-        this.waveManager,
-        this.scoreManager
-    );
+            this.enemyManager,
+            "medium",
+            {
+                canvasWidth: this.canvas.width,
+                category: "science"
+            },
+            this.waveManager,
+            this.scoreManager
+        );
 
         this.powerUpManager = new PowerUpManager(
             this.canvas.width,
@@ -102,6 +109,8 @@ export default class Game {
 
         });
 
+
+
         this.pauseMenuButton.addEventListener("click", () => {
 
             this.returnToMenu();
@@ -109,6 +118,10 @@ export default class Game {
         });
 
         this.canvas.addEventListener("click", (event) => {
+
+            if (this.scoreManager.isGameOver()) {
+                return;
+            }
 
             if (!this.gameStarted)
                 return;
@@ -163,6 +176,81 @@ export default class Game {
 
             }
 
+        });
+
+        this.canvas.addEventListener("click", (event) => {
+            if (!this.scoreManager.isGameOver()) return;
+
+            const rect = this.canvas.getBoundingClientRect();
+
+            const mouseX =
+                (event.clientX - rect.left) *
+                (this.canvas.width / rect.width);
+
+            const mouseY =
+                (event.clientY - rect.top) *
+                (this.canvas.height / rect.height);
+
+            const button = this.gameOverButtons?.find(btn =>
+                mouseX >= btn.x &&
+                mouseX <= btn.x + btn.w &&
+                mouseY >= btn.y &&
+                mouseY <= btn.y + btn.h
+            );
+
+            if (!button) return;
+
+            switch (button.action) {
+                case "replay":
+                    this.replayGame();
+                    break;
+
+                case "menu":
+                    this.returnToMenu();
+                    break;
+
+                case "feedback":
+                    window.open(
+                        "https://docs.google.com/forms/d/e/1FAIpQLSfwjlcUTLN0vOwwBRd5dYCP5cnkZp1jPoY1F-7u2ZMgYKhtqQ/viewform?usp=publish-editor",
+                        "_blank",
+                        "noopener,noreferrer"
+                    );
+                    break;
+            }
+        });
+
+        this.canvas.addEventListener("mousemove", (event) => {
+            if (!this.scoreManager.isGameOver()) {
+                return;
+            }
+
+
+            const rect = this.canvas.getBoundingClientRect();
+
+            const mouseX =
+                (event.clientX - rect.left) *
+                (this.canvas.width / rect.width);
+
+            const mouseY =
+                (event.clientY - rect.top) *
+                (this.canvas.height / rect.height);
+
+            const hoveredIndex = this.gameOverButtons.findIndex(btn =>
+                mouseX >= btn.x &&
+                mouseX <= btn.x + btn.w &&
+                mouseY >= btn.y &&
+                mouseY <= btn.y + btn.h
+            );
+            this.gameOverHoveredButton =
+                hoveredIndex >= 0 ? hoveredIndex : null;
+
+            this.canvas.style.cursor =
+                hoveredIndex >= 0 ? "pointer" : "default";
+        });
+
+        this.canvas.addEventListener("mouseleave", () => {
+            this.gameOverHoveredButton = null;
+            this.canvas.style.cursor = "default";
         });
 
         this.canvas.addEventListener("wheel", (event) => {
@@ -302,11 +390,6 @@ export default class Game {
         window.addEventListener("keydown", (event) => {
 
             if (this.scoreManager.gameOverState) {
-
-                if (event.key === "Enter") {
-                    this.returnToMenu();
-                }
-
                 return;
             }
 
@@ -392,6 +475,7 @@ export default class Game {
         });
 
         this.hud.hide();
+
 
         this.mainMenu =
             document.getElementById("main-menu");
@@ -1119,62 +1203,51 @@ export default class Game {
     }
 
     draw() {
-
         const ctx = this.ctx;
-
         const width = this.canvas.width;
-
         const height = this.canvas.height;
 
-        ctx.clearRect(
-            0,
-            0,
-            width,
-            height
-        );
+        ctx.clearRect(0, 0, width, height);
 
-        this.scene.render(
-            ctx,
-            width,
-            height
-        );
+        this.scene.render(ctx, width, height);
 
         if (!this.gameStarted) {
             return;
         }
 
-        this.enemyManager.draw(ctx);
+        // Renderiza o Game Over antes de qualquer outro elemento
+        if (this.scoreManager.isGameOver()) {
+            this.drawGameOver(ctx);
+            return;
+        }
 
+        this.enemyManager.draw(ctx);
         this.bossManager.draw(ctx);
 
         if (this.waveManager.getState() === "playing") {
             this.powerUpManager.draw(ctx);
             this.inputBar.draw(ctx);
         }
+    }
 
-        if (this.scoreManager.gameOverState) {
-            this.drawGameOver(ctx);
+    updateBossHUD() {
+
+        const isBossQuestion =
+            this.waveManager.getState() === "question" &&
+            this.bossManager.hasBoss();
+
+        if (isBossQuestion) {
+
+            this.hud.showBossTimer(
+                this.bossManager.getTimeRemaining()
+            );
+
+        } else {
+
+            this.hud.hideBossTimer();
+
         }
     }
-
-updateBossHUD() {
-
-    const isBossQuestion =
-        this.waveManager.getState() === "question" &&
-        this.bossManager.hasBoss();
-
-    if (isBossQuestion) {
-
-        this.hud.showBossTimer(
-            this.bossManager.getTimeRemaining()
-        );
-
-    } else {
-
-        this.hud.hideBossTimer();
-
-    }
-}
 
     updateHUD() {
 
@@ -1190,106 +1263,194 @@ updateBossHUD() {
     }
 
     drawGameOver(ctx) {
-
         const width = this.canvas.width;
-
         const height = this.canvas.height;
 
-        ctx.fillStyle =
-            "rgba(5, 8, 20, 0.65)";
+        ctx.save();
 
-        ctx.fillRect(
-            0,
-            0,
-            width,
-            height
+        // Fundo escurecido
+        ctx.fillStyle = "rgba(5, 8, 20, 0.82)";
+        ctx.fillRect(0, 0, width, height);
+
+        const boxWidth = 460;
+        const boxHeight = 420;
+        const boxX = (width - boxWidth) / 2;
+        const boxY = (height - boxHeight) / 2;
+
+        // Janela de Game Over
+        const panelGradient = ctx.createLinearGradient(
+            boxX, boxY, boxX + boxWidth, boxY + boxHeight
         );
 
-        const boxWidth = 500;
+        panelGradient.addColorStop(0, "#101936");
+        panelGradient.addColorStop(0.5, "#151b3d");
+        panelGradient.addColorStop(1, "#090d24");
 
-        const boxHeight = 220;
+        ctx.fillStyle = panelGradient;
+        ctx.strokeStyle = "rgba(160, 170, 230, 0.28)";
+        ctx.lineWidth = 1;
 
-        const boxX =
-            (width - boxWidth) / 2;
-
-        const boxY =
-            (height - boxHeight) / 2;
-
-        ctx.fillStyle =
-            "rgba(15, 20, 45, 0.95)";
-
-        ctx.strokeStyle =
-            "rgba(160, 170, 230, 0.35)";
-
-        ctx.lineWidth = 2;
+        ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+        ctx.shadowBlur = 35;
+        ctx.shadowOffsetY = 15;
 
         ctx.beginPath();
-
-        ctx.roundRect(
-            boxX,
-            boxY,
-            boxWidth,
-            boxHeight,
-            20
-        );
-
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 25);
         ctx.fill();
-
         ctx.stroke();
 
-        ctx.textAlign = "center";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
 
+        // Título
+        ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        ctx.font = "bold 56px Arial";
-
+        ctx.font = "bold 50px Arial";
         ctx.fillStyle = "#f5f3ff";
 
-        ctx.shadowColor =
-            "rgba(150, 140, 255, 0.5)";
+        ctx.shadowColor = "rgba(150, 140, 255, 0.35)";
+        ctx.shadowBlur = 20;
 
-        ctx.shadowBlur = 15;
-
-        ctx.fillText(
-            "GAME OVER",
-            width / 2,
-            boxY + 65
-        );
+        ctx.fillText("GAME OVER", width / 2, boxY + 65);
 
         ctx.shadowBlur = 0;
 
-        ctx.font = "20px Arial";
-
-        ctx.fillStyle = "#f4f0c9";
+        // Pontuação
+        ctx.font = "22px Arial";
+        ctx.fillStyle = "#eeeef8";
 
         ctx.fillText(
             `Pontuação: ${this.scoreManager.getScore()}`,
             width / 2,
-            boxY + 120
+            boxY + 125
         );
 
-        ctx.font = "16px Arial";
+        const buttons = [
+            { text: "Jogar Novamente", action: "replay" },
+            { text: "Voltar ao Menu", action: "menu" },
+            { text: "Enviar Feedback", action: "feedback" }
+        ];
 
-        ctx.fillStyle =
-            "rgba(235, 233, 255, 0.7)";
+        this.gameOverButtons = [];
 
-        ctx.fillText(
-            "Pressione ENTER para voltar ao menu",
-            width / 2,
-            boxY + 170
-        );
 
-        ctx.textAlign = "left";
 
-        ctx.textBaseline = "alphabetic";
+        buttons.forEach((button, index) => {
+            const x = boxX + 60;
+            const y = boxY + 175 + index * 65;
+            const w = boxWidth - 120;
+            const h = 48;
 
+            const isHovered = this.gameOverHoveredButton === index;
+
+            // Transição suave de aproximadamente 0,2s
+            const target = isHovered ? 1 : 0;
+            const progress = this.gameOverHoverProgress[index];
+
+            this.gameOverHoverProgress[index] =
+                progress + (target - progress) * 0.18;
+
+            const hover = this.gameOverHoverProgress[index];
+            const offsetY = -4 * hover;
+
+            // Gradiente do botão
+            const gradient = ctx.createLinearGradient(
+                x, y, x + w, y + h
+            );
+
+            // Interpolação gradual entre as cores normais e as do hover
+            const lerp = (start, end, t) =>
+                Math.round(start + (end - start) * t);
+
+            const color1 = `rgb(
+    ${lerp(48, 85, hover)},
+    ${lerp(54, 92, hover)},
+    ${lerp(91, 155, hover)}
+)`;
+
+            const color2 = `rgb(
+    ${lerp(28, 54, hover)},
+    ${lerp(32, 59, hover)},
+    ${lerp(60, 112, hover)}
+)`;
+
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+
+            ctx.save();
+
+            ctx.translate(0, offsetY);
+
+            ctx.fillStyle = gradient;
+            ctx.strokeStyle = isHovered
+                ? "rgba(210, 215, 255, 0.6)"
+                : "rgba(170, 175, 220, 0.30)";
+
+            ctx.lineWidth = 1;
+
+            ctx.shadowColor = isHovered
+                ? "rgba(120, 120, 230, 0.35)"
+                : "rgba(0, 0, 0, 0.4)";
+
+            ctx.shadowBlur = isHovered ? 20 : 14;
+            ctx.shadowOffsetY = isHovered ? 10 : 6;
+
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, 11);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+
+            ctx.font = "600 19px Arial";
+            ctx.fillStyle = "#eeeef8";
+
+            ctx.fillText(
+                button.text,
+                x + w / 2,
+                y + h / 2
+            );
+
+            ctx.restore();
+
+            // Área clicável acompanha a animação
+            this.gameOverButtons.push({
+                x,
+                y: y + offsetY,
+                w,
+                h,
+                action: button.action
+            });
+        });
+
+        ctx.restore();
+    }
+
+    replayGame() {
+        const wasCustomGame = this.isCustomGame;
+        const customGame = this.currentCustomGame;
+
+        this.returnToMenu();
+
+        if (wasCustomGame && customGame) {
+            this.startCustomGame(customGame);
+        } else {
+            this.startGame();
+        }
     }
 
     returnToMenu() {
 
         this.gameStarted = false;
 
+        this.gameOverButtons = [];
 
+        this.gameOverHoveredButton = null;
+        this.gameOverHoverProgress = [0, 0, 0];
+
+        this.canvas.style.cursor = "default";
         this.gamePaused = false;
         this.pauseMenu.style.display = "none";
         this.inputManager.setPaused(false);
@@ -1311,6 +1472,15 @@ updateBossHUD() {
         this.menu.style.display = "flex";
 
         this.hud.hide();
+
+        this.mainMenu.style.display = "flex";
+
+        this.gameConfig.style.display = "none";
+
+        this.customGameMenu.style.display = "none";
+
+        this.customGameConfig.style.display = "none";
+
 
     }
 
@@ -1432,6 +1602,7 @@ updateBossHUD() {
     startCustomGame(game) {
 
         this.isCustomGame = true;
+        this.currentCustomGame = game;
 
         const difficulty =
             DifficultyConfig[game.difficulty];
@@ -1446,6 +1617,10 @@ updateBossHUD() {
         );
 
         this.enemySpawner.setCustomDictionary(
+            game.dictionary
+        );
+
+        this.powerUpManager.setCustomDictionary(
             game.dictionary
         );
 

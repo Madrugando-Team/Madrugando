@@ -27,6 +27,7 @@ export class PowerUpManager {
 
         this.currentWave = 1;
         this.powerUpsSpawned = 0;
+        this.customDictionary = null;
 
 
 
@@ -48,29 +49,49 @@ export class PowerUpManager {
 
     setCategory(category) {
         this.category = category;
+
+        // Desativa o dicionário personalizado
+        // ao iniciar uma partida normal.
+        this.customDictionary = null;
     }
-    getRandomWord() {
+    getRandomWord(excludeWord = null) {
 
-        const levels = [
-            "easy",
-            "medium"
-        ];
+        let pool;
 
-        const level =
-            levels[
-            Math.floor(
-                Math.random() * levels.length
-            )
+        if (this.customDictionary !== null) {
+
+            pool = this.customDictionary;
+
+        } else {
+
+            const levels = ["easy", "medium"];
+
+            const level = levels[
+                Math.floor(Math.random() * levels.length)
             ];
 
-        const pool =
-            WordPools.boo[this.category][level];
+            pool = WordPools.boo[this.category][level];
+        }
 
-        return pool[
-            Math.floor(
-                Math.random() * pool.length
-            )
+        if (!pool || pool.length === 0) {
+            return null;
+        }
+
+        // Evita repetir a palavra anterior,
+        // desde que existam alternativas.
+        const alternatives = pool.filter(
+            word => word.toLowerCase() !==
+                excludeWord?.toLowerCase()
+        );
+
+        const availableWords = alternatives.length > 0
+            ? alternatives
+            : pool;
+
+        return availableWords[
+            Math.floor(Math.random() * availableWords.length)
         ];
+
     }
 
     update(deltaTime) {
@@ -141,6 +162,10 @@ export class PowerUpManager {
 
         const word = this.getRandomWord();
 
+        if (word === null) {
+            return;
+        }
+
         const powerUp = new PowerUp({
             x: -50,
             y: this.canvasHeight / 2,
@@ -163,8 +188,8 @@ export class PowerUpManager {
         }
 
         return this.powerUps.some(powerUp =>
-        powerUp.word.toLowerCase().startsWith(
-            prefix.toLowerCase())
+            powerUp.word.toLowerCase().startsWith(
+                prefix.toLowerCase())
         );
     }
 
@@ -177,7 +202,7 @@ export class PowerUpManager {
 
         this.powerUps.forEach(powerUp => {
 
-            if (powerUp.word.toLowerCase() !==word.toLowerCase()) {
+            if (powerUp.word.toLowerCase() !== word.toLowerCase()) {
                 return;
             }
 
@@ -224,14 +249,11 @@ export class PowerUpManager {
             // Escolhe uma nova palavra
             const oldWord = powerUp.word;
 
-            let newWord = this.getRandomWord();
+            const newWord = this.getRandomWord(oldWord);
 
-            // Evita repetir imediatamente a mesma palavra
-            while (newWord === oldWord) {
-                newWord = this.getRandomWord();
+            if (newWord !== null) {
+                powerUp.word = newWord;
             }
-
-            powerUp.word = newWord;
 
             console.log(
                 `Nova palavra do Power-up: ${newWord}`

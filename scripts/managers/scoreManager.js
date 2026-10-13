@@ -69,6 +69,7 @@ export default class ScoreManager {
     }
 
     gameOver() {
+        if (this.gameOverState) return;
 
         this.gameOverState = true;
     }
@@ -93,6 +94,7 @@ export default class ScoreManager {
 
         this.wordsCorrect = 0;
         this.wordsMissed = 0;
+        this.multiplier = 1;
 
         this.gameOverState = false;
 
