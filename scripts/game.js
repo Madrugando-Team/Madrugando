@@ -160,6 +160,13 @@ export default class Game {
 
                 this.scoreManager.loseLife();
 
+                if (this.scoreManager.isGameOver()) {
+                    return;
+                }
+
+                this.bossManager.startTimeoutReveal();
+
+                return;
             }
 
             if (result.result === "correct") {
@@ -454,9 +461,14 @@ export default class Game {
 
                 this.scoreManager.loseLife();
 
+                if (this.scoreManager.isGameOver()) {
+                    return;
+                }
+
+                this.bossManager.startTimeoutReveal();
+
                 return;
             }
-
 
             if (result.result === "correct") {
 
@@ -1140,6 +1152,15 @@ export default class Game {
         if (this.gamePaused) {
             return;
         }
+
+        // Atualiza o tempo de invencibilidade
+        this.scoreManager.update(deltaTime);
+
+        // Atualiza a animação de invencibilidade
+        this.hud.setInvincibility(
+            this.scoreManager.isInvincible()
+        );
+
         if (this.waveManager.getState() === "playing") {
             this.enemySpawner.update(deltaTime);
 
@@ -1159,18 +1180,38 @@ export default class Game {
 
         if (
             this.waveManager.getState() === "question" &&
-            this.bossManager.isTimerExpired()
+            this.bossManager.isTimerExpired() &&
+            !this.bossManager.timeoutRevealActive &&
+            !this.bossManager.timeoutRevealFinished
         ) {
             this.scoreManager.loseLife();
 
-            if (this.scoreManager.gameOverState) {
+            if (this.scoreManager.isGameOver()) {
                 return;
             }
 
-            this.bossManager.resetTimer();
+            this.bossManager.startTimeoutReveal();
+
             return;
         }
 
+        if (
+            this.waveManager.getState() === "question" &&
+            this.bossManager.timeoutRevealFinished
+        ) {
+            this.waveManager.nextWave();
+
+            this.enemyManager.reset();
+            this.powerUpManager.clear();
+
+            this.bossManager.removeBoss();
+
+            this.hud.show();
+
+            return;
+        }
+
+        // Cria o Boss quando a wave entra na fase de perguntas
         if (
             this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
@@ -1178,19 +1219,21 @@ export default class Game {
             this.enemyManager.reset();
 
             if (this.isCustomGame) {
+
                 this.bossManager.spawnCustom(
                     this.customGameQuestions,
                     this.selectedDifficulty
                 );
-            }
-            else {
+
+            } else {
+
                 this.bossManager.spawn(
                     this.selectedSubject,
                     this.selectedDifficulty
                 );
+
             }
         }
-
 
         this.updateHUD();
 
@@ -1456,6 +1499,8 @@ export default class Game {
         this.inputManager.setPaused(false);
 
         this.scoreManager.reset();
+
+        this.hud.setInvincibility(false);
 
         this.enemyManager.reset();
 

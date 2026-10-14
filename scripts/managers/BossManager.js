@@ -11,6 +11,11 @@ export class BossManager {
         this.timeRemaining = 45;
         this.timerActive = false;
 
+
+        this.timeoutRevealActive = false;
+        this.timeoutRevealTimer = 0;
+        this.timeoutRevealDuration = 2000;
+        this.timeoutRevealFinished = false;
     }
 
     getTimeLimit(difficulty) {
@@ -25,6 +30,34 @@ export class BossManager {
         this.timeRemaining = this.timeLimit;
         this.timerActive = true;
 
+    }
+
+    startTimeoutReveal() {
+        if (!this.boss || this.timeoutRevealActive) {
+            return false;
+        }
+
+        this.stopTimer();
+
+        this.timeoutRevealActive = true;
+        this.timeoutRevealFinished = false;
+        this.timeoutRevealTimer = this.timeoutRevealDuration;
+
+        this.boss.revealCorrectAnswer();
+
+        return true;
+    }
+
+    updateTimeoutReveal(deltaTime) {
+        if (!this.timeoutRevealActive) return;
+
+        this.timeoutRevealTimer -= deltaTime;
+
+        if (this.timeoutRevealTimer <= 0) {
+            this.timeoutRevealTimer = 0;
+            this.timeoutRevealActive = false;
+            this.timeoutRevealFinished = true;
+        }
     }
 
     resetTimer() {
@@ -73,9 +106,9 @@ export class BossManager {
 
         const question =
             questions[
-                Math.floor(
-                    Math.random() * questions.length
-                )
+            Math.floor(
+                Math.random() * questions.length
+            )
             ];
 
         const randomizedQuestion =
@@ -119,9 +152,9 @@ export class BossManager {
                 options[i],
                 options[j]
             ] = [
-                options[j],
-                options[i]
-            ];
+                    options[j],
+                    options[i]
+                ];
 
         }
 
@@ -139,16 +172,18 @@ export class BossManager {
     }
 
     update(deltaTime) {
-
-        if (!this.boss)
+        if (!this.boss) {
             return;
+        }
 
         this.boss.update(deltaTime);
 
-        if (
-            !this.boss.isActive() ||
-            !this.timerActive
-        ) {
+        if (this.timeoutRevealActive) {
+            this.updateTimeoutReveal(deltaTime);
+            return;
+        }
+
+        if (!this.boss.isActive() || !this.timerActive) {
             return;
         }
 
@@ -158,7 +193,6 @@ export class BossManager {
             this.timeRemaining = 0;
             this.stopTimer();
         }
-
     }
 
     draw(ctx) {
@@ -203,10 +237,13 @@ export class BossManager {
     }
 
     removeBoss() {
-
         this.stopTimer();
-        this.boss = null;
 
+        this.timeoutRevealActive = false;
+        this.timeoutRevealFinished = false;
+        this.timeoutRevealTimer = 0;
+
+        this.boss = null;
     }
 
     handleClick(mouseX, mouseY) {

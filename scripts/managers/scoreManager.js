@@ -11,6 +11,10 @@ export default class ScoreManager {
 
         this.gameOverState = false;
 
+        // Invencibilidade temporária após receber dano
+        this.invincible = false;
+        this.invincibilityDuration = 3000; // 3 segundos
+        this.invincibilityTimer = 0;
 
         this.hud = new HUD();
 
@@ -29,21 +33,38 @@ export default class ScoreManager {
         this.multiplier = value;
     }
 
-    loseLife() {
-        console.log("Antes:", this.lives);
-        if (this.lives <= 0) return;
+    loseLife(source = "boss") {
+
+        // Impede dano após o Game Over
+        if (this.gameOverState || this.lives <= 0) {
+            return false;
+        }
+
+        // Apenas inimigos que chegam ao chão
+        // são bloqueados pela invencibilidade
+        if (source === "enemy" && this.invincible) {
+            return false;
+        }
 
         this.lives--;
-
-        console.log("Depois:", this.lives);
-
         this.wordsMissed++;
+
+        console.log("Vida perdida:", source);
+        console.log("Vidas restantes:", this.lives);
 
         this.updateHUD();
 
         if (this.lives <= 0) {
             this.gameOver();
+        } else if (source === "enemy") {
+
+            // Ativa invencibilidade somente após
+            // receber dano de um inimigo
+            this.invincible = true;
+            this.invincibilityTimer = this.invincibilityDuration;
         }
+
+        return true;
     }
 
     gainLife(amount = 1) {
@@ -68,10 +89,28 @@ export default class ScoreManager {
         this.hud.setLives(this.lives);
     }
 
+    update(deltaTime) {
+        if (!this.invincible || this.gameOverState) {
+            return;
+        }
+
+        this.invincibilityTimer -= deltaTime;
+
+        if (this.invincibilityTimer <= 0) {
+            this.invincibilityTimer = 0;
+            this.invincible = false;
+        }
+    }
+
     gameOver() {
         if (this.gameOverState) return;
 
         this.gameOverState = true;
+
+        this.invincible = false;
+        this.invincibilityTimer = 0;
+
+        this.hud.setInvincibility(false);
     }
     getScore() {
         return this.score;
@@ -83,9 +122,14 @@ export default class ScoreManager {
         return this.lives;
     }
 
+    isInvincible() {
+        return this.invincible;
+    }
+
     isGameOver() {
         return this.gameOverState;
     }
+
 
     reset() {
 
@@ -97,6 +141,8 @@ export default class ScoreManager {
         this.multiplier = 1;
 
         this.gameOverState = false;
+        this.invincible = false;
+        this.invincibilityTimer = 0;
 
         this.updateHUD();
 

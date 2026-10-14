@@ -9,6 +9,9 @@ export default class HUD {
         this.lives =
             document.getElementById("lives");
 
+        // Elemento que contém o retângulo e os corações
+        this.livesContainer = this.lives?.parentElement;
+
         this.level =
             document.getElementById("level");
 
@@ -149,5 +152,14 @@ export default class HUD {
 
         this.waveNumber.textContent =
             `WAVE ${this.currentWave}`;
+    }
+
+    setInvincibility(active) {
+        if (!this.livesContainer) return;
+
+        this.livesContainer.classList.toggle(
+            "invincibility-active",
+            active
+        );
     }
 }

@@ -33,6 +33,7 @@ export class Boss {
 
         this.optionRects = [];
         this.wrongOptions = new Set();
+        this.showingTimeoutAnswer = false;
 
         this.selectedOption = 0;
         this.hoveredOption = null;
@@ -47,6 +48,7 @@ export class Boss {
         this.draggingScrollbar = null;
         this.scrollDragOffset = 0;
         this.suppressNextClick = false;
+
     }
 
     getRandomQuestion() {
@@ -92,6 +94,11 @@ export class Boss {
                 this.active = true;
             }
         }
+    }
+
+    revealCorrectAnswer() {
+        this.showingTimeoutAnswer = true;
+        this.selectedOption = this.question.correctAnswer;
     }
 
     wrapText(ctx, text, maxWidth) {
@@ -597,8 +604,16 @@ export class Boss {
                     -drawY
                 );
 
-                
-                if (this.wrongOptions.has(data.index)) {
+
+                if (
+                    this.showingTimeoutAnswer &&
+                    data.index === this.question.correctAnswer
+                ) {
+                    ctx.fillStyle = "rgba(35, 145, 85, 0.95)";
+                    ctx.strokeStyle = "rgba(110, 255, 165, 0.9)";
+                    ctx.lineWidth = 3;
+
+                } else if (this.wrongOptions.has(data.index)) {
                     ctx.fillStyle = "rgba(180, 45, 45, 0.95)";
                     ctx.strokeStyle = "rgba(230, 100, 100, 0.5)";
                     ctx.lineWidth = 2;
@@ -689,6 +704,10 @@ export class Boss {
 
     handleClick(mouseX, mouseY) {
 
+        if (this.showingTimeoutAnswer) {
+            return null;
+        }
+
         if (!this.active)
             return null;
 
@@ -740,7 +759,7 @@ export class Boss {
 
                 console.log("Resposta incorreta!");
 
-                
+
                 this.wrongOptions.add(option.index);
 
                 return {
@@ -850,6 +869,10 @@ export class Boss {
 
     handleKeyDown(event) {
 
+        if (this.showingTimeoutAnswer) {
+            return null;
+        }
+
         if (!this.active)
             return null;
 
@@ -900,6 +923,10 @@ export class Boss {
     }
 
     confirmSelectedOption() {
+
+        if (this.showingTimeoutAnswer) {
+            return null;
+        }
 
         if (!this.active)
             return null;

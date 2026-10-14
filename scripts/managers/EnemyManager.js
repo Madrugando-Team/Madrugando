@@ -22,17 +22,26 @@ export class EnemyManager {
 
             enemy.update(deltaTime);
 
+            // Ignora inimigos que já foram eliminados
+            if (enemy.isDead()) {
+                return;
+            }
+
+            // Verifica se Boo ou Scromblus chegaram ao chão
             if (enemy.y >= this.canvasHeight - 20) {
 
+                // Remove o inimigo normalmente
                 enemy.kill();
-                this.scoreManager.loseLife();
+
+                // O ScoreManager decide se o dano
+                // deve ser aplicado ou ignorado
+                this.scoreManager.loseLife("enemy");
 
             }
 
         });
 
         this.removeDead();
-
     }
 
 
@@ -48,7 +57,7 @@ export class EnemyManager {
 
 
     processWord(word) {
-        
+
         const result = {
             correct: false,
             killed: false,
@@ -95,8 +104,8 @@ export class EnemyManager {
     hasWordStartingWith(prefix) {
 
         return this.enemies.some(enemy =>
-        enemy.word.toLowerCase().startsWith(
-            prefix.toLowerCase())
+            enemy.word.toLowerCase().startsWith(
+                prefix.toLowerCase())
         );
     }
 
