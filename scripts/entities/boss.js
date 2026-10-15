@@ -1,13 +1,11 @@
 import ScienceQuestions from "../data/questions/science/questions.js";
-import EnglishQuestions from "../data/questions/english/questions.js";
-import PortugueseQuestions from "../data/questions/portuguese/questions.js";
+import LanguageQuestions from "../data/questions/language/questions.js";
 import GeographyQuestions from "../data/questions/geography/questions.js";
 import HistoryQuestions from "../data/questions/history/questions.js";
 
 const Questions = {
     science: ScienceQuestions,
-    english: EnglishQuestions,
-    portuguese: PortugueseQuestions,
+    languages: LanguageQuestions,
     geography: GeographyQuestions,
     history: HistoryQuestions
 };

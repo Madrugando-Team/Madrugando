@@ -25,7 +25,7 @@ export const DifficultyConfig = {
         spawnInterval: 2500,
         speed: 1.2,
         maxEnemies: 5,
-        poolLevel: "medium",
+        poolLevel: "hard",
         lives: 2,
         bossTime: 30
 
