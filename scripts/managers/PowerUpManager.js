@@ -1,5 +1,5 @@
 import { PowerUp } from "../entities/powerUp.js";
-import WordPools from "../data/wordpools.js";
+import { getWordsByCategory } from "../data/wordpools.js";
 import { Gelo } from "../powerups/gelo.js";
 import { Despertador } from "../powerups/despertador.js";
 import { Reverso } from "../powerups/reverso.js";
@@ -54,6 +54,20 @@ export class PowerUpManager {
         // ao iniciar uma partida normal.
         this.customDictionary = null;
     }
+    setCustomDictionary(dictionary) {
+        if (!Array.isArray(dictionary) || dictionary.length === 0) {
+            console.warn("Dicionário personalizado inválido.");
+            this.customDictionary = null;
+            return;
+        }
+
+        this.customDictionary = dictionary;
+
+        console.log(
+            `Dicionário personalizado carregado: ${dictionary.length} palavras`
+        );
+    }
+
     getRandomWord(excludeWord = null) {
 
         let pool;
@@ -70,7 +84,7 @@ export class PowerUpManager {
                 Math.floor(Math.random() * levels.length)
             ];
 
-            pool = WordPools.boo[this.category][level];
+            pool = getWordsByCategory(this.category, level);
         }
 
         if (!pool || pool.length === 0) {
@@ -305,6 +319,10 @@ export class PowerUpManager {
 
         this.currentWave = 1;
         this.powerUpsSpawned = 0;
+
+        // Limpa o dicionário da partida anterior
+        this.customDictionary = null;
+
 
         this.gelo.reset();
         this.reverso.reset();

@@ -118,9 +118,12 @@ export class EnemySpawner {
                 this.config.maxEnemies
             )
         ) {
-            this.spawnScromblus();
-            this.scromblusSpawned++;
-            this.scromblusTimer = 0;
+            const spawned = this.spawnScromblus();
+
+            if (spawned) {
+                this.scromblusSpawned++;
+                this.scromblusTimer = 0;
+            }
         }
     }
 
@@ -136,7 +139,9 @@ export class EnemySpawner {
                 customDictionary: this.customDictionary
             }
         );
-
+        if (!enemy) {
+            return;
+        }
         enemy.x = this.findSafeX(
             enemy.word.length * 10
         );
@@ -158,6 +163,9 @@ export class EnemySpawner {
                 scoreManager: this.scoreManager
             }
         );
+        if (!enemy) {
+            return;
+        }
 
         enemy.x = this.findSafeX(
             enemy.word.length * 10
@@ -168,6 +176,7 @@ export class EnemySpawner {
         console.log(
             `Scromblus ${this.scromblusSpawned + 1} de ${this.currentWave} na Wave ${this.currentWave}`
         );
+        return true;
     }
 
     findSafeX(wordWidth = 100) {
@@ -225,6 +234,7 @@ export class EnemySpawner {
 
     setCategory(category) {
         this.enemyConfig.category = category;
+        this.customDictionary = null;
     }
 
     setCustomDictionary(dictionary) {

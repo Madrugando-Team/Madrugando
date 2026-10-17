@@ -270,10 +270,82 @@ const WordPools = {
                 "democratização", "descolonização", "neocolonialismo", "autodeterminação", "geopolítica"
             ]
         },
+        math: {
+            easy: [
+                "soma", "mais", "menos", "vezes", "igual",
+                "conta", "ponto", "linha", "reta", "curva",
+                "plano", "eixo", "lado", "base", "topo",
+                "meio", "par", "zero", "um", "dois",
+                "tres", "quatro", "cinco", "seis", "sete",
+                "oito", "nove", "dez", "cem", "mil",
+                "grau", "raio", "arco", "cubo", "cone",
+                "bloco", "face", "borda", "ponta", "forma",
+                "ordem", "grupo", "classe", "termo", "sinal",
+                "regra", "prova", "dado", "dados", "lista",
+                "moda", "taxa", "peso", "massa", "metro",
+                "litro", "grama", "hora", "dia", "ano",
+                "dobro", "parte", "todo", "resto", "valor",
+                "total", "saldo", "troco", "custo", "lucro",
+                "perda", "ganho", "troca", "sorte", "chance",
+                "sorteio", "jogo", "teste", "parcela", "fator",
+                "produto", "raiz", "seno", "cosseno", "teto",
+                "piso", "soma", "par", "ímpar", "fração",
+                "razão", "área", "ângulo", "média", "série",
+                "preço", "dígito", "número", "cálculo", "vetor"
+            ],
 
+            medium: [
+                "adição", "divisão", "equação", "função", "gráfico",
+                "medida", "álgebra", "matriz", "produto", "fórmula",
+                "teorema", "problema", "resposta", "resultado", "solução",
+                "variável", "constante", "potência", "expoente", "radical",
+                "inteiro", "decimal", "unidade", "centena", "milhar",
+                "dezena", "milésimo", "centésimo", "metade", "terceiro",
+                "quadrado", "triângulo", "círculo", "cilindro", "pirâmide",
+                "losango", "trapézio", "diâmetro", "perímetro", "volume",
+                "altura", "largura", "espessura", "distância", "escala",
+                "tamanho", "posição", "sentido", "direção", "segmento",
+                "paralelo", "simétrico", "oblíquo", "idêntico", "oposto",
+                "inverso", "positivo", "negativo", "finito", "infinito",
+                "conjunto", "subgrupo", "sequência", "intervalo", "domínio",
+                "imagem", "limite", "derivada", "integral", "tangente",
+                "secante", "cossecante", "senoide", "polígono", "vértice",
+                "cateto", "hipotenusa", "binômio", "trinômio", "monômio",
+                "polinômio", "quociente", "divisor", "dividendo", "múltiplo",
+                "fatorial", "frequência", "mediana", "amostra", "evento",
+                "certeza", "aleatório", "estimativa", "precisão", "exatidão",
+                "critério", "método", "processo", "cálculo", "símbolo"
+            ],
 
+            hard: [
+                "multiplicação", "subtração", "trigonometria", "geometria", "estatística",
+                "probabilidade", "matemática", "aritmética", "logaritmo", "logarítmico",
+                "exponencial", "proporcional", "proporção", "porcentagem", "percentual",
+                "equivalência", "desigualdade", "inequação", "diferenciação", "integração",
+                "aproximação", "interpolação", "extrapolação", "simplificação", "fatoração",
+                "racionalização", "normalização", "linearização", "otimização", "minimização",
+                "maximização", "quantificação", "distribuição", "permutação", "combinação",
+                "combinatória", "aleatoriedade", "variabilidade", "variância", "covariância",
+                "correlação", "regressão", "amostragem", "inferência", "estimador",
+                "estimativa", "determinante", "autovalor", "autovetor", "ortogonalidade",
+                "perpendicular", "paralelismo", "congruência", "semelhança", "isometria",
+                "homotetia", "transformação", "translação", "dilatação", "reflexão",
+                "topologia", "criptografia", "algoritmo", "computação", "recursividade",
+                "complexidade", "convergência", "divergência", "continuidade", "descontinuidade"
+            ]
+        }
+    }
+};
+
+export function getWordsByCategory(category, level) {
+    const pools = WordPools.boo;
+
+    if (category === "all") {
+        return Object.values(pools)
+            .flatMap(subject => subject[level] ?? []);
     }
 
-};
+    return pools[category]?.[level] ?? [];
+}
 
 export default WordPools;

@@ -2,12 +2,14 @@ import ScienceQuestions from "../data/questions/science/questions.js";
 import LanguageQuestions from "../data/questions/language/questions.js";
 import GeographyQuestions from "../data/questions/geography/questions.js";
 import HistoryQuestions from "../data/questions/history/questions.js";
+import MathQuestions from "../data/questions/math/questions.js";
 
 const Questions = {
     science: ScienceQuestions,
     languages: LanguageQuestions,
     geography: GeographyQuestions,
-    history: HistoryQuestions
+    history: HistoryQuestions,
+    math: MathQuestions,
 };
 
 export class Boss {
@@ -49,18 +51,53 @@ export class Boss {
 
     }
 
+
     getRandomQuestion() {
 
-        const questions =
-            Questions[this.category];
+        let questions;
 
-        const index =
-            Math.floor(
-                Math.random() * questions.length
+        if (this.category === "all") {
+
+            // Obtém apenas matérias que possuem perguntas.
+            const categories = Object.values(Questions)
+                .filter(pool =>
+                    Array.isArray(pool) && pool.length > 0
+                );
+
+            if (categories.length === 0) {
+                throw new Error(
+                    "Nenhuma pergunta disponível para o Boss."
+                );
+            }
+
+            // Sorteia primeiro uma matéria.
+            const randomCategory =
+                categories[
+                Math.floor(Math.random() * categories.length)
+                ];
+
+            questions = randomCategory;
+
+        } else {
+
+            // Mantém o funcionamento das matérias individuais.
+            questions = Questions[this.category];
+
+        }
+
+        if (!Array.isArray(questions) || questions.length === 0) {
+            throw new Error(
+                `Nenhuma pergunta encontrada para: ${this.category}`
             );
+        }
+
+        // Sorteia uma pergunta da matéria escolhida.
+        const index =
+            Math.floor(Math.random() * questions.length);
 
         return questions[index];
     }
+
 
     startIntro() {
 
