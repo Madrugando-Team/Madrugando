@@ -650,6 +650,8 @@
 
     display: flex;
 
+    flex-wrap: wrap;
+
     align-items: center;
 
     gap: 10px;
@@ -658,15 +660,15 @@
 
 .dictionary-add input {
 
-    width: 220px;
+    width: min(220px, 100%);
 
-    flex: none;
+    flex: 1 1 180px;
 }
 
 
 .dictionary-add button {
 
-    width: 105px;
+    width: auto;
 
     height: 46px;
 
@@ -675,6 +677,119 @@
     padding: 0 12px;
 
     font-size: 12px;
+}
+
+.dictionary-add #open-dictionary-import-button {
+
+    width: auto;
+
+    min-height: 46px;
+
+    padding: 0 16px;
+
+    white-space: nowrap;
+}
+
+.dictionary-import-dialog {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: min(440px, calc(100% - 40px));
+
+    max-height: calc(100% - 40px);
+
+    margin: auto;
+
+    overflow: auto;
+
+    padding: 0;
+
+    border: 1px solid rgba(180, 190, 255, 0.24);
+
+    border-radius: 18px;
+
+    color: #f3f3ff;
+
+    background: #11162f;
+
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
+}
+
+.dictionary-import-dialog::backdrop {
+
+    background: rgba(3, 5, 16, 0.76);
+
+    backdrop-filter: blur(4px);
+}
+
+.dictionary-import-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    padding: 24px;
+}
+
+.dictionary-import-content h3 {
+
+    margin: 0;
+
+    color: #f5f3ff;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid rgba(180, 190, 255, 0.16);
+}
+
+.dictionary-import-content label,
+.dictionary-import-content p {
+
+    color: rgba(235, 233, 255, 0.72);
+
+    font-size: 13px;
+}
+
+.dictionary-import-content select {
+
+    min-height: 44px;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(170, 180, 235, 0.25);
+
+    border-radius: 10px;
+
+    color: #f3f3ff;
+
+    background: #090d20;
+}
+
+.dictionary-import-content p {
+
+    margin: 0;
+}
+
+.dictionary-import-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 8px;
+}
+
+.dictionary-import-actions button {
+
+    min-height: 42px;
+
+    padding: 0 14px;
 }
 
 
@@ -705,6 +820,34 @@
     border-radius: 12px;
 
     background: rgba(4, 7, 22, 0.38);
+}
+
+.clear-dictionary-button {
+
+    height: 46px;
+
+    padding: 0 12px;
+
+    border: 1px solid rgba(255, 120, 140, 0.35);
+
+    border-radius: 10px;
+
+    color: #ffc6ce;
+
+    background: rgba(110, 28, 48, 0.24);
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.clear-dictionary-button:hover {
+
+    border-color: rgba(255, 120, 140, 0.65);
+
+    background: rgba(145, 35, 58, 0.4);
 }
 
 .dictionary-item {

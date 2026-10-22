@@ -9,6 +9,7 @@ import { PowerUpManager } from "./managers/PowerUpManager.js";
 import HUD from "./ui/hud.js";
 import { BossManager } from "./managers/BossManager.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
+import WordPools from "./data/wordpools.js";
 
 
 export default class Game {
@@ -528,6 +529,9 @@ export default class Game {
         this.addWordButton =
             document.getElementById("add-word-button");
 
+        this.clearDictionaryButton =
+            document.getElementById("clear-dictionary-button");
+
         this.questionTextInput =
             document.getElementById("question-text");
 
@@ -536,6 +540,24 @@ export default class Game {
 
         this.dictionaryList =
             document.getElementById("dictionary-list");
+
+        this.openDictionaryImportButton =
+            document.getElementById("open-dictionary-import-button");
+
+        this.dictionaryImportDialog =
+            document.getElementById("dictionary-import-dialog");
+
+        this.dictionarySubjectSelect =
+            document.getElementById("dictionary-subject-select");
+
+        this.dictionaryLevelSelect =
+            document.getElementById("dictionary-level-select");
+
+        this.importDictionaryButton =
+            document.getElementById("import-dictionary-button");
+
+        this.cancelDictionaryImportButton =
+            document.getElementById("cancel-dictionary-import-button");
 
         this.questionList =
             document.getElementById("question-list");
@@ -655,6 +677,31 @@ export default class Game {
 
         });
 
+        this.clearDictionaryButton.addEventListener("click", () => {
+            if (this.customGameDictionary.length === 0)
+                return;
+
+            if (!confirm("Tem certeza de que deseja excluir todas as palavras do dicionário?"))
+                return;
+
+            this.customGameDictionary = [];
+            this.renderDictionary();
+        });
+
+        this.openDictionaryImportButton.addEventListener("click", () => {
+            this.dictionarySubjectSelect.value = "";
+            this.dictionaryLevelSelect.value = "";
+            this.dictionaryImportDialog.showModal();
+        });
+
+        this.cancelDictionaryImportButton.addEventListener("click", () => {
+            this.dictionaryImportDialog.close();
+        });
+
+        this.importDictionaryButton.addEventListener("click", () => {
+            this.importBaseDictionary();
+        });
+
 
         this.addQuestionButton.addEventListener("click", () => {
 
@@ -703,21 +750,62 @@ export default class Game {
 
     addDictionaryWord() {
 
-        const word =
-            this.dictionaryWordInput.value.trim();
+        const word = this.dictionaryWordInput.value;
 
-        if (!word)
+        if (!/^[\p{L}]{1,22}$/u.test(word)) {
+            this.dictionaryWordInput.setCustomValidity(
+                "Use apenas letras (com ou sem acento), com até 22 caracteres e sem espaços."
+            );
+            this.dictionaryWordInput.reportValidity();
             return;
+        }
 
-        if (this.customGameDictionary.includes(word))
+        this.dictionaryWordInput.setCustomValidity("");
+
+        if (this.customGameDictionary.some(
+            existingWord => existingWord.toLocaleLowerCase("pt-BR") === word.toLocaleLowerCase("pt-BR")
+        ))
             return;
 
         this.customGameDictionary.push(word);
 
         this.dictionaryWordInput.value = "";
+        this.dictionaryWordInput.setCustomValidity("");
 
         this.renderDictionary();
 
+    }
+
+    importBaseDictionary() {
+
+        if (!this.dictionarySubjectSelect.reportValidity() ||
+            !this.dictionaryLevelSelect.reportValidity())
+            return;
+
+        const subject = this.dictionarySubjectSelect.value;
+        const level = this.dictionaryLevelSelect.value;
+        const subjectPools = WordPools.boo[subject];
+
+        if (!subjectPools || !subjectPools[level])
+            return;
+
+        const existingWords = new Set(
+            this.customGameDictionary.map(word => word.toLocaleLowerCase("pt-BR"))
+        );
+        const importedWords = subjectPools[level].filter(
+            word => /^[\p{L}]{1,22}$/u.test(word)
+        );
+
+        importedWords.forEach(word => {
+            const normalizedWord = word.toLocaleLowerCase("pt-BR");
+            if (!existingWords.has(normalizedWord)) {
+                this.customGameDictionary.push(word);
+                existingWords.add(normalizedWord);
+            }
+        });
+
+        this.renderDictionary();
+        this.dictionaryImportDialog.close();
     }
 
     renderDictionary() {
@@ -930,6 +1018,20 @@ export default class Game {
 
             return;
 
+        }
+
+        if (name.length > 64) {
+            alert("O nome do jogo deve ter no máximo 64 caracteres.");
+            return;
+        }
+
+        const invalidWord = this.customGameDictionary.find(
+            word => typeof word !== "string" || !/^[\p{L}]{1,22}$/u.test(word)
+        );
+
+        if (invalidWord) {
+            alert("O dicionário só pode conter palavras com letras, sem espaços ou símbolos, e com até 22 caracteres.");
+            return;
         }
 
         if (!difficulty) {
@@ -1807,10 +1909,11 @@ export default class Game {
 
                     if (
                         typeof data.name !== "string" ||
-                        !data.name.trim()
+                        !data.name.trim() ||
+                        data.name.trim().length > 64
                     ) {
                         throw new Error(
-                            "O Custom Game não possui um nome válido."
+                            "O nome do Custom Game deve ter entre 1 e 64 caracteres."
                         );
                     }
 
@@ -1832,6 +1935,14 @@ export default class Game {
                     ) {
                         throw new Error(
                             "O Custom Game precisa possuir pelo menos uma palavra."
+                        );
+                    }
+
+                    if (data.dictionary.some(
+                        word => typeof word !== "string" || !/^[\p{L}]{1,22}$/u.test(word)
+                    )) {
+                        throw new Error(
+                            "O dicionário deve conter apenas palavras com letras e até 22 caracteres."
                         );
                     }
 
@@ -1903,9 +2014,9 @@ export default class Game {
                             data.difficulty,
 
                         dictionary:
-                            data.dictionary
-                                .map(word => word.trim())
-                                .filter(word => word),
+                            [...new Set(data.dictionary.map(
+                                word => word.toLocaleLowerCase("pt-BR")
+                            ))],
 
                         questions:
                             data.questions.map(

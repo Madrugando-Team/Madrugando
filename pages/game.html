@@ -202,7 +202,7 @@
                             Nome do jogo
                         </label>
 
-                        <input type="text" id="custom-game-name" placeholder="Digite o nome do jogo">
+                        <input type="text" id="custom-game-name" maxlength="64" placeholder="Digite o nome do jogo">
 
                     </div>
 
@@ -248,13 +248,48 @@
 
                         <div class="dictionary-add">
 
-                            <input type="text" id="dictionary-word" placeholder="Digite uma palavra...">
+                            <input type="text" id="dictionary-word" maxlength="22" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]{1,22}" title="Use apenas letras, com até 22 caracteres." placeholder="Digite uma palavra">
 
                             <button id="add-word-button">
                                 Adicionar
                             </button>
 
+                            <button id="open-dictionary-import-button" type="button">
+                                Usar dicionário padrão
+                            </button>
+
+                            <button id="clear-dictionary-button" class="clear-dictionary-button" type="button">
+                                Excluir tudo
+                            </button>
+
                         </div>
+
+                        <dialog id="dictionary-import-dialog" class="dictionary-import-dialog">
+                            <form method="dialog" class="dictionary-import-content">
+                                <h3>Importar dicionário padrão</h3>
+                                <label for="dictionary-subject-select">Matéria</label>
+                                <select id="dictionary-subject-select" required>
+                                    <option value="" selected disabled>Selecione uma matéria</option>
+                                    <option value="science">Ciências</option>
+                                    <option value="languages">Linguagens</option>
+                                    <option value="geography">Geografia</option>
+                                    <option value="history">História</option>
+                                    <option value="math">Matemática</option>
+                                </select>
+                                <label for="dictionary-level-select">Dificuldade das palavras</label>
+                                <select id="dictionary-level-select" required>
+                                    <option value="" selected disabled>Selecione uma dificuldade</option>
+                                    <option value="easy">Fácil</option>
+                                    <option value="medium">Médio</option>
+                                    <option value="hard">Difícil</option>
+                                </select>
+                                <p>As palavras padrão da matéria serão adicionadas ao dicionário atual.</p>
+                                <div class="dictionary-import-actions">
+                                    <button id="cancel-dictionary-import-button" type="button">Cancelar</button>
+                                    <button id="import-dictionary-button" type="button">Importar palavras</button>
+                                </div>
+                            </form>
+                        </dialog>
 
 
                         <div id="dictionary-list" class="dictionary-list">
