@@ -1,129 +1,185 @@
 // BANNER CARROSSEL
-
 document.addEventListener('DOMContentLoaded', () => {
   const carrosselBanner = document.querySelector('.banner-carrossel ul');
+  if (!carrosselBanner) return;
 
   const itensBanner = carrosselBanner.querySelectorAll('li');
-
   if (itensBanner.length <= 1) return;
 
-  let indexAtual = [...itensBanner].findIndex(item => item.classList.contains('ativo'));
-  if (indexAtual === -1) indexAtual = 0;
+  let indexAtual = Math.max(0, [...itensBanner].findIndex(item => item.classList.contains('ativo')));
 
-  const TEMPO_CARROSSEL = 3000;
-
-  function proximoCarrossel() {
+  setInterval(() => {
     itensBanner[indexAtual].classList.remove('ativo');
     indexAtual = (indexAtual + 1) % itensBanner.length;
     itensBanner[indexAtual].classList.add('ativo');
-  }
-
-  setInterval(proximoCarrossel, TEMPO_CARROSSEL);
+  }, 3000);
 });
+
 
 // CARROSSEL FANTASMAS
 document.addEventListener('DOMContentLoaded', () => {
-  const carrosselFant = document.querySelector('.carrossel-fantasmas ul');
-  const itensFant = carrosselFant.querySelectorAll('li');
-  const setaAntes = document.querySelector('.carrossel-fantasmas .seta.antes');
-  const setaDepois = document.querySelector('.carrossel-fantasmas .seta.depois');
-  const containerBolinhas = document.querySelector('.carrossel-fantasmas .bolinhas');
+  const carrossel = document.querySelector('.carrossel-fantasmas');
+  if (!carrossel) return;
+
+  const itens = carrossel.querySelectorAll('ul li');
   const nomeFantasma = document.querySelector('.nomeFant');
   const textoFantasma = document.querySelector('.textoFant');
+  const containerBolinhas = carrossel.querySelector('.bolinhas');
 
-  if (itensFant.length <= 1) return;
+  if (itens.length <= 1) return;
 
-  let indexAtualFant = [...itensFant].findIndex(item => item.classList.contains('ativo'));
-  if (indexAtualFant === -1) indexAtualFant = 0;
+  const TEMPO = 10000;
+  let index = Math.max(0, [...itens].findIndex(li => li.classList.contains('ativo')));
+  let intervalo;
 
-  const TEMPO_CARROSSEL = 10000;
-
-  itensFant.forEach((_, i) => {
-    const bolinha = document.createElement('button');
-    bolinha.classList.add('bolinha');
-    if (i === indexAtualFant) bolinha.classList.add('ativa');
-    bolinha.addEventListener('click', () => irParaSlide(i));
-    containerBolinhas.appendChild(bolinha);
+  const bolinhas = [...itens].map((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'bolinha';
+    b.addEventListener('click', () => irPara(i));
+    containerBolinhas.appendChild(b);
+    return b;
   });
 
-  const bolinhas = containerBolinhas.querySelectorAll('.bolinha');
-
-  function atualizarBolinhas() {
-    bolinhas.forEach(b => b.classList.remove('ativa'));
-    bolinhas[indexAtualFant].classList.add('ativa');
+  function irPara(i, reiniciar = true) {
+    itens[index].classList.remove('ativo');
+    bolinhas[index].classList.remove('ativa');
+    index = (i + itens.length) % itens.length;
+    itens[index].classList.add('ativo');
+    bolinhas[index].classList.add('ativa');
+    nomeFantasma.textContent = itens[index].dataset.nome;
+    textoFantasma.textContent = itens[index].dataset.texto;
+    if (reiniciar) iniciar();
   }
 
-  function atualizarTexto() {
-    const item = itensFant[indexAtualFant];
-    if (item.dataset.nome) nomeFantasma.textContent = item.dataset.nome;
-    if (item.dataset.texto) {
-      const topicos = item.dataset.texto.split('|');
-      textoFantasma.innerHTML = topicos
-        .map(t => `<li>${t.replace(/^\*/, '').trim()}</li>`)
-        .join('');
-    }
-  }
-
-  function proximoCarrosselFant() {
-    itensFant[indexAtualFant].classList.remove('ativo');
-    indexAtualFant = (indexAtualFant + 1) % itensFant.length;
-    itensFant[indexAtualFant].classList.add('ativo');
-    atualizarBolinhas();
-    atualizarTexto();
-  }
-
-  function anteriorCarrosselFant() {
-    itensFant[indexAtualFant].classList.remove('ativo');
-    indexAtualFant = (indexAtualFant - 1 + itensFant.length) % itensFant.length;
-    itensFant[indexAtualFant].classList.add('ativo');
-    atualizarBolinhas();
-    atualizarTexto();
-  }
-
-  function irParaSlide(i) {
-    itensFant[indexAtualFant].classList.remove('ativo');
-    indexAtualFant = i;
-    itensFant[indexAtualFant].classList.add('ativo');
-    atualizarBolinhas();
-    atualizarTexto();
-    reiniciarIntervalo();
-  }
-
-  function reiniciarIntervalo() {
+  function iniciar() {
     clearInterval(intervalo);
-    intervalo = setInterval(proximoCarrosselFant, TEMPO_CARROSSEL);
+    intervalo = setInterval(() => irPara(index + 1, false), TEMPO);
   }
 
-  atualizarTexto();
+  carrossel.querySelector('.seta.depois').addEventListener('click', () => irPara(index + 1));
+  carrossel.querySelector('.seta.antes').addEventListener('click', () => irPara(index - 1));
 
-  let intervalo = setInterval(proximoCarrosselFant, TEMPO_CARROSSEL);
-
-  setaDepois.addEventListener('click', () => {
-    proximoCarrosselFant();
-    reiniciarIntervalo();
-  });
-
-  setaAntes.addEventListener('click', () => {
-    anteriorCarrosselFant();
-    reiniciarIntervalo();
-  });
+  irPara(index);   // estado inicial (já chama iniciar())
 });
+
 
 // BANNER BAIXO FADE
 document.addEventListener('DOMContentLoaded', () => {
   const elementos = document.querySelectorAll('.banner-baixo');
+  if (!elementos.length) return;
 
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('ativo');
-      } else {
-        entry.target.classList.remove('ativo');
-      }
-    });
-  }, {
-    threshold: 0.2
-  });
+    entries.forEach(entry => entry.target.classList.toggle('ativo', entry.isIntersecting));
+  }, { threshold: 0.2 });
 
   elementos.forEach(el => observer.observe(el));
 });
+
+
+// ANIMAÇÃO X
+{
+  const x = document.querySelector('.x-lapis');
+  if (x) {
+    const tracos = x.querySelectorAll('path');
+    const reduzir = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const rabiscar = () => {
+      tracos.forEach((p, i) => {
+        p.getAnimations().forEach(a => a.cancel());
+        p.animate(
+          [{ strokeDashoffset: 200 }, { strokeDashoffset: 0 }],
+          { duration: 600, delay: 300 + i * 500, fill: 'forwards', easing: 'ease-out' }
+        );
+      });
+    };
+
+    if (reduzir) {
+      tracos.forEach(p => p.style.strokeDashoffset = 0);
+    } else {
+      rabiscar();
+      setInterval(() => { if (!document.hidden) rabiscar(); }, 10000);
+    }
+  }
+}
+
+
+// MUDANÇA MATÉRIA
+{
+  const el = document.querySelector('.materia');
+  if (el) {
+    const materias = [
+      { nome: 'MATEMÁTICA', cor: '--red' },
+      { nome: 'HISTÓRIA',   cor: '--amarelo' },
+      { nome: 'INGLÊS',     cor: '--roxo' },
+      { nome: 'CIÊNCIAS',   cor: '--azul' },
+      { nome: 'GEOGRAFIA',  cor: '--laranja' },
+      { nome: 'GEOMETRIA',  cor: '--red' },
+      { nome: 'PORTUGUÊS',  cor: '--roxo' },
+    ];
+    let m = 0;
+    el.style.color = `var(${materias[0].cor})`;
+
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setInterval(() => {
+        if (document.hidden) return;
+        el.classList.add('saindo');
+        setTimeout(() => {
+          m = (m + 1) % materias.length;
+          el.textContent = materias[m].nome;
+          el.style.color = `var(${materias[m].cor})`;
+          el.classList.remove('saindo');
+        }, 300);
+      }, 4000);
+    }
+  }
+}
+
+
+// CARROSSEL GENÉRICO (COMO JOGAR)
+function iniciarCarrossel(root) {
+  const itens = root.querySelectorAll('ul > li');
+  const bolinhasBox = root.querySelector('.bolinhas');
+  if (itens.length <= 1 || !bolinhasBox) return;
+
+  const TEMPO = Number(root.dataset.tempo) || 10000;
+  let index = Math.max(0, [...itens].findIndex(li => li.classList.contains('ativo')));
+  let intervalo;
+
+  const bolinhas = [...itens].map((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'bolinha';
+    b.setAttribute('aria-label', `Ir para o slide ${i + 1}`);
+    b.addEventListener('click', () => irPara(i));
+    bolinhasBox.appendChild(b);
+    return b;
+  });
+
+  function irPara(i, reiniciar = true) {
+    itens[index].classList.remove('ativo');
+    bolinhas[index].classList.remove('ativa');
+    index = (i + itens.length) % itens.length;
+    itens[index].classList.add('ativo');
+    bolinhas[index].classList.add('ativa');
+    if (reiniciar) iniciar();
+  }
+
+  function iniciar() {
+    clearInterval(intervalo);
+    intervalo = setInterval(() => irPara(index + 1, false), TEMPO);
+  }
+
+  root.querySelector('.seta.depois').addEventListener('click', () => irPara(index + 1));
+  root.querySelector('.seta.antes').addEventListener('click', () => irPara(index - 1));
+
+  irPara(index);
+}
+
+function iniciarTodos() {
+  document.querySelectorAll('.carrossel').forEach(iniciarCarrossel);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', iniciarTodos);
+} else {
+  iniciarTodos();
+}

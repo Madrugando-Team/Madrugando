@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content = "TeamMadrugueiros"> <!---->
+    <meta name="author" content = "TeamMadrugueiros"> 
 
 
-    <meta property="og:title" content="Madrugando... | JOGUE AGORA!" /> <!---->
-    <meta property="og:description" content="Jogue e aprenda enfrentando fantasmas!" /> <!---->
-    <!--<meta property="og:image" content="https://ricardopcp.github.io/Portfolio-RicardoPCP/assets/logo.png" />
-    <meta property="og:url" content="https://ricardopcp.github.io/Portfolio-RicardoPCP/" /> -->
+    <meta property="og:title" content="Madrugando | JOGUE AGORA!" /> 
+    <meta property="og:description" content="Estudar não precisa ser assustador!" /> 
+    <meta property="og:image" content="https://madrugando-team.github.io/Madrugando/assets/landingpage/logo.png" />
+    <meta property="og:url" content="https://madrugando-team.github.io/Madrugando/" /> 
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
-    <meta name ="description" content = "Madrugando: O jogo onde você aprende digitando!"> <!---->
+    <meta name ="description" content = "Madrugando: um Typing Game educativo para testar seus conhecimentos e habilidades enquanto se diverte!"> 
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,23 +24,40 @@
 
 
     <link rel="stylesheet" href="./styles/ladingpage/style.css">
-    <!--<link rel="icon" href="favicon.ico" />-->
+    <link rel="apple-touch-icon" sizes="180x180" href=".\assets\landingpage\icons\apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href=".\assets\landingpage\icons\favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href=".\assets\landingpage\icons\favicon-16x16.png">
+    <link rel="manifest" href=".\assets\landingpage\icons\site.webmanifest">
+
+    
     <script src="./scripts/ladingpage/frontpage" defer></script>
 
     <title>MADRUGANDO...</title>
     
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="lapis" x="-10%" y="-10%" width="120%" height="120%">
+    <!-- traço tremido -->
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3" result="ondulacao"/>
+    <feDisplacementMap in="SourceGraphic" in2="ondulacao" scale="10" result="tremido"/>
+    <!-- granulado de grafite -->
+    <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed="8" result="grao"/>
+    <feColorMatrix in="grao" type="matrix"
+      values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 0 0 0 -0.3" result="mascara"/>
+    <feComposite in="tremido" in2="mascara" operator="in"/>
+  </filter>
+</svg>
 
     <nav>
         <ul class="navbar-pc">
             <li><img src="./assets/landingpage/logo.png" alt="Logo Madrugando" class="nav-logo"></li>
 
-            <li><a href="#">INÍCIO</a></li>
-            <li><a href="#">SOBRE</a></li>
-            <li><a href="#">COMO JOGAR?</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">SUPORTE</a></li>
+            <li><a href="./index.html">INÍCIO</a></li>
+            <li><a href="./pages/sobre.html">SOBRE</a></li>
+            <li><a href="./pages/regras.html">COMO JOGAR?</a></li>
+            <li><a href="./pages/faq.html">FAQ</a></li>
+            <li><a href="https://forms.gle/wA4erLPUZ9waBrim6" target="_blank">FEEDBACK</a></li>
             <li><button class="btn-jogar"><a class="linkbtn" href="./pages/game.html">JOGAR AGORA!</a></button></li>
         </ul>
     </nav>
@@ -73,14 +92,24 @@
     
     <div class="banner-conteudo">
 
-        <img src="./assets/landingpage//logo.png" alt="Logo Madrugando" class="banner-logo">
-      <h1 class="banner-titulo">ESTUDAR PODE SER <span class="destaque-amarelo">ASSUSTADOR!</span>
+        <!-- <img src="./assets/landingpage//logo.png" alt="Logo Madrugando" class="banner-logo"> -->
+      <h1 class="banner-titulo">ESTUDAR <span class="risco-banner"> NÃO <svg class="x-lapis" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
+    <g filter="url(#lapis)">
+      <path d="M5 9 C28 18, 62 38, 97 52" />
+      <path d="M95 7 C66 24, 33 42, 3 55" />
+      <path class="traco-extra" d="M8 14 C34 24, 64 36, 94 47" />
+    </g>
+  </svg> </span>
+       PRECISA SER <span class="destaque-amarelo">ASSUSTADOR!</span>
       </h1>
 
-      <p class="banner-desc">Fantasmas estão tentando atrapalhar seu sono, hora de mostrar a eles quem é que manda! Digite rapidamente e responda questões para derrotá-los.</p>
+      <p class="banner-desc">Depois de uma longa revisão para a prova, fantasmas estão tentando atrapalhar seu sono usando... <span class="materia" aria-live="off" >MATEMÁTICA</span>?!
+    <br> Digite rapidamente e responda questões para derrotá-los.</p>
 
+    <div class="banner-btns">
       <button class="btn-jogar"><a href="./pages/game.html">JOGAR AGORA!</a></button>
-      <button class="btn-jogar">COMO JOGAR?</button>
+      <button class="btn-jogar"><a href="./pages/regras.html">COMO JOGAR?</a></button>
+    </div>
 
     </div>
 
@@ -110,7 +139,7 @@
                 <div class="corpo-texto">
                     <h2>DERROTE OS FANTASMAS!</h2>
 
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt placeat omnis esse! Ex et, qui nam ullam cumque maiores vero ab corporis veniam. Eum, cum inventore! Quod accusamus ipsum quas aperiam deleniti facere earum animi voluptatum eligendi quia debitis soluta, rerum eius at similique consequuntur sequi ut.</p>
+                    <p>Depois de estudar tanto, chegou a hora de enfrentar seu maior pesadelo! Derrote os fantasmas que tentam atrapalhar seu descanso digitando palavras e responda às questões antes que o tempo acabe. Mostre que você está preparado para qualquer desafio (e qualquer prova)!</p>
                 </div>
             </div>
 
@@ -122,7 +151,7 @@
 
                 <div class="corpo-texto">
                     <h2>TESTE SEU CONHECIMENTO!</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt placeat omnis esse! Ex et, qui nam ullam cumque maiores vero ab corporis veniam. Eum, cum inventore! Quod accusamus ipsum quas aperiam deleniti facere earum animi voluptatum eligendi quia debitis soluta, rerum eius at similique consequuntur sequi ut.</p>
+                    <p>Responda questionários de diferentes matérias, como Matemática, História, Ciências e muito mais! Teste seus conhecimentos e descubra até onde você consegue chegar. Cada pergunta é uma nova oportunidade de aprender!</p>
                 </div>
 
                 <div class="corpo-img">
@@ -145,7 +174,7 @@
 
                 <div class="corpo-texto">
                     <h2>JOGUE DO SEU JEITO!</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt placeat omnis esse! Ex et, qui nam ullam cumque maiores vero ab corporis veniam. Eum, cum inventore! Quod accusamus ipsum quas aperiam deleniti facere earum animi voluptatum eligendi quia debitis soluta, rerum eius at similique consequuntur sequi ut.</p>
+                    <p>Personalize e compartilhe suas partidas, escolha sua matéria favorita e adapte os desafios ao seu ritmo. Você decide como encarar os fantasmas e tornar cada partida uma experiência única!</p>
                 </div>
             </div>
 
@@ -163,17 +192,17 @@
 
             <ul class="fant-carrossel">
 
-            <li class="ativo" data-nome="BOO" data-texto="Já tentou assombrar um dicionário (não conseguiu)|Inimigo mais comum|Meio atrapalhado"><img src="./assets/landingpage//logo.png" alt="a"></li>
+            <li class="ativo" data-nome="BOO" data-texto="Inimigo mais comum que segue fielmente seus líderes coloridos. Já tentou assombrar um dicionário (não conseguiu)."><img src="./assets/landingpage//logo.png" alt="a"></li>
 
-            <li data-nome="BOCÓ" data-texto="Uma vez ficou com tanta raiva que explodiu|Líder da galera|Era um professor de matemática"><img src="./assets/landingpage//vermelho.png" alt="a"></li>
+            <li data-nome="BOCÓ" data-texto="Líder do grupo. Deu a ideia de atazanar o protagonista nos sonhos porque ficou com raiva ao ver ele dormir no meio dos estudos. Uma vez ficou com tanta raiva que quase explodiu."><img src="./assets/landingpage//vermelho.png" alt="a"></li>
 
-            <li data-nome="BIG" data-texto="Curte novela mexicana|Mais velho do grupo|Adora contar histórias"><img src="./assets/landingpage//amarelo.png" alt="a"></li>
+            <li data-nome="BIG" data-texto="Mais velho do grupo, por conta de sua experiência, ajuda o Bocó a pensar em planos melhores. Adora contar histórias e curte novela mexicana."><img src="./assets/landingpage//amarelo.png" alt="a"></li>
 
-            <li data-nome="BLU" data-texto="Chorou muito quando pisou numa formiga|Gosta de olhar a natureza|É vegano"><img src="./assets/landingpage//azul.png" alt="a"></li>
+            <li data-nome="BLU" data-texto="Adora a natureza e estar perto dos amigos, normalmente se preocupa demais com os outros. É vegano. Uma vez, pisou numa formiga e chorou por dias."><img src="./assets/landingpage//azul.png" alt="a"></li>
 
-            <li data-nome="BOB" data-texto="Viajou o mundo (no Minecraft)|Mais novo do grupo|Pensou uma vez, não recomenda"><img src="./assets/landingpage//laranja.png" alt="a"></li>
+            <li data-nome="BOB" data-texto="Mais novo do grupo, normalmente faz as coisas sem pensar por conta de sua inocência. Uma vez, viajou pelo mundo (no Minecraft)."><img src="./assets/landingpage//laranja.png" alt="a"></li>
 
-            <li data-nome="SCROMBLUS" data-texto="Só apareceu no grupo|Não fala muito|????"><img src="./assets/landingpage//verde.png" alt="a"></li>
+            <li data-nome="SCROMBLUS" data-texto="Simplesmente apareceu do nada e todo mundo concordou em manter ele no grupo, de longe o cara mais prestativo. Não sabe falar, só emite sons estranhos que aparentemente todo mundo consegue entender. "><img src="./assets/landingpage//verde.png" alt="a"></li>
             </ul>
 
                 <button class="seta depois">❯</button>
@@ -202,7 +231,7 @@
 
             <div class="footer-contato">
             <h3>CONTATO</h3>
-            <p>Se estiver interessado em nos contatar, CLIQUE AQUI.</p>
+            <p>Se estiver interessado em nos contatar, <a href="./pages/sobre.html">CLIQUE AQUI</a>.</p>
             </div>
         
             <div class="footer-classificacao">

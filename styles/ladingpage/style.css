@@ -1,5 +1,5 @@
 @import url('./main.css');
-
+@import url('./sobre.css');
 
 
 *{
@@ -29,6 +29,11 @@
 
   /* EXTRA */
   --janela: #2B1407;
+  --red: #D7564E;
+  --azul: #5FCDE4;
+  --roxo: #A15FC1;
+  --laranja: #DE602D;
+  --amarelo: #FDE673;
 }
 
 body{
@@ -55,6 +60,7 @@ nav{
 }
 main{
     grid-area: main;
+    padding: 90px 0 0 0;
 }
 footer{
     grid-area: footer;
@@ -134,18 +140,24 @@ button {
     font-weight: 700; 
     font-size: 20px;
     background: linear-gradient(180deg, var(--btns) 0%, var(--btns-grad) 100%);
-    padding: 1rem 2rem; 
     border-radius: 5px;
     outline: 2px solid rgb(0, 0, 0);
     box-shadow: 0 10px 0 var(--bg2);
+    padding: 0;
 
     transition: transform .15s ease, box-shadow .15s ease;
+    a{
+        font: inherit;
+        color: inherit;
+        display: block;
+        text-decoration: none;
+        padding: 1rem 2rem; 
+    }
 }
 
-.btn-jogar:hover:not(nav .btn-jogar){ 
+.btn-jogar:hover{ 
     transform:translateY(-3px); 
     box-shadow: 0 13px 0 var(--btn-lamp), 0 22px 34px var(--btn-luz); 
-    color: var(--btn-lamp);
     text-shadow: 0 0 10px var(--btn-luz);
 }
 

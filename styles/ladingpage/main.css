@@ -27,7 +27,7 @@ nav{
       height: 90px;
     }
 
-    a{
+    a:not(.linkbtn){
       height: 100%;
       padding: 0 1rem;
       text-decoration: none;
@@ -61,6 +61,7 @@ nav{
       display: flex;
       align-items: center;
     }
+
 }
 
 
@@ -82,7 +83,7 @@ nav{
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  padding: 0 6%;
+  padding: 0 6% 0;
 
   .banner-conteudo{ 
   max-width: 740px; 
@@ -108,6 +109,32 @@ nav{
   text-align: left;
 }
 
+.risco-banner{
+  position: relative;
+  display: inline;
+  white-space: nowrap;
+}
+.x-lapis{
+  position: absolute;
+  inset: -12% -8%;
+  width: 116%;
+  height: 124%;
+  overflow: visible;
+  pointer-events: none;
+}
+.x-lapis path{
+  fill: none;
+  stroke: var(--red);   
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+}
+.x-lapis .traco-extra{
+  stroke-width: 2.5;
+  opacity: .6;
+}
+
 .destaque-amarelo{
   background: linear-gradient(to bottom, var(--text-comum), var(--btn-lamp));
   -webkit-background-clip: text;
@@ -119,10 +146,24 @@ nav{
 
 .banner-desc{
   color:var(--text-secundario);
-  max-width: 530px;
-  margin-bottom: 3rem;
+  max-width: 550px;
+  margin-bottom: 2rem;
   font-weight: 600;
-  text-align: justify;
+  text-align: left;
+}
+
+.banner-btns{
+  margin-bottom: 1rem;
+}
+
+.materia{
+  display: inline-block;
+  font-weight: 700;
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+  &.saindo{
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 }
 
@@ -406,7 +447,7 @@ nav{
 .banner-baixo{
   margin-top: -15%;
   width: 100%;
-  background-image: url(/assets/landingpage/banner.png);
+  background-image: url(../../assets/landingpage/banner.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -441,9 +482,11 @@ footer{
   background-color: rgba(0,0,0,0.75);
   backdrop-filter: blur(2px);
   width: 100%;
-  position: absolute;
-  bottom: 0;
   opacity: 0.8;
+
+  a{
+    color: inherit;
+  }
 
   .footer-div{
   justify-items: center;
