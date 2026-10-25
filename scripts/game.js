@@ -9,6 +9,7 @@ import { PowerUpManager } from "./managers/PowerUpManager.js";
 import HUD from "./ui/hud.js";
 import { BossManager } from "./managers/BossManager.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
+import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
 
 
@@ -42,6 +43,14 @@ export default class Game {
 
         this.customGameManager =
             new CustomGameManager();
+
+        this.leaderboardManager =
+            new LeaderboardManager();
+
+        this.playerName = "";
+        this.currentRunRecordId = null;
+        this.gameOverOverlayDisplayed = false;
+        this.leaderboardPreviousScreen = null;
 
         this.customGameDictionary = [];
 
@@ -493,6 +502,45 @@ export default class Game {
         this.mainMenu =
             document.getElementById("main-menu");
 
+        this.leaderboardMenu =
+            document.getElementById("leaderboard-menu");
+
+        this.leaderboardRows =
+            document.getElementById("leaderboard-rows");
+
+        this.leaderboardEmpty =
+            document.getElementById("leaderboard-empty");
+
+        this.leaderboardSubjectFilter =
+            document.getElementById("leaderboard-subject-filter");
+
+        this.leaderboardDifficultyFilter =
+            document.getElementById("leaderboard-difficulty-filter");
+
+        this.gameOverOverlay =
+            document.getElementById("game-over-overlay");
+
+        this.gameOverPanel =
+            this.gameOverOverlay.querySelector(".game-over-panel");
+
+        this.gameOverTableWrap =
+            this.gameOverOverlay.querySelector(".game-over-table-wrap");
+
+        this.gameOverScore =
+            document.getElementById("game-over-score");
+
+        this.gameOverLeaderboardRows =
+            document.getElementById("game-over-leaderboard-rows");
+
+        this.gameOverLeaderboardEmpty =
+            document.getElementById("game-over-leaderboard-empty");
+
+        this.leaderboardButton =
+            document.getElementById("leaderboard-button");
+
+        this.playerNameInput =
+            document.getElementById("player-name");
+
         this.gameConfig =
             document.getElementById("game-config");
 
@@ -585,6 +633,49 @@ export default class Game {
 
         });
 
+        this.leaderboardButton.addEventListener("click", () => {
+            const menuScreens = [
+                this.mainMenu,
+                this.gameConfig,
+                this.customGameMenu,
+                this.customGameConfig
+            ];
+            this.leaderboardPreviousScreen = menuScreens.find(
+                screen => getComputedStyle(screen).display !== "none"
+            ) || this.mainMenu;
+
+            this.mainMenu.style.display = "none";
+            this.gameConfig.style.display = "none";
+            this.customGameMenu.style.display = "none";
+            this.customGameConfig.style.display = "none";
+            this.leaderboardMenu.style.display = "flex";
+            this.renderLeaderboard();
+        });
+
+        this.leaderboardSubjectFilter.addEventListener("change", () => {
+            this.renderLeaderboard();
+        });
+
+        this.leaderboardDifficultyFilter.addEventListener("change", () => {
+            this.renderLeaderboard();
+        });
+
+        document.getElementById("game-over-replay-button").addEventListener("click", () => {
+            this.replayGame();
+        });
+
+        document.getElementById("game-over-menu-button").addEventListener("click", () => {
+            this.returnToMenu();
+        });
+
+        document.getElementById("game-over-feedback-button").addEventListener("click", () => {
+            window.open(
+                "https://docs.google.com/forms/d/e/1FAIpQLSfwjlcUTLN0vOwwBRd5dYCP5cnkZp1jPoY1F-7u2ZMgYKhtqQ/viewform?usp=publish-editor",
+                "_blank",
+                "noopener,noreferrer"
+            );
+        });
+
 
         this.createCustomGameButton.addEventListener("click", () => {
 
@@ -607,6 +698,9 @@ export default class Game {
         this.gameConfigBackButton =
             this.gameConfig.querySelector("back-button");
 
+        this.leaderboardBackButton =
+            this.leaderboardMenu.querySelector("back-button");
+
         this.customGameBackButton =
             this.customGameMenu.querySelector("back-button");
 
@@ -620,6 +714,14 @@ export default class Game {
 
             this.mainMenu.style.display = "flex";
 
+        });
+
+        this.leaderboardBackButton.addEventListener("back", () => {
+            this.leaderboardMenu.style.display = "none";
+            const previousScreen =
+                this.leaderboardPreviousScreen || this.mainMenu;
+            previousScreen.style.display = "flex";
+            this.leaderboardPreviousScreen = null;
         });
 
 
@@ -659,9 +761,20 @@ export default class Game {
             const difficulty =
                 this.difficultySelect.value;
 
+            const playerName = this.playerNameInput.value.trim();
+
+            if (!playerName) {
+                this.playerNameInput.setCustomValidity("Digite seu nome para iniciar.");
+                this.playerNameInput.reportValidity();
+                return;
+            }
+
+            this.playerNameInput.setCustomValidity("");
+
             if (!subject || !difficulty)
                 return;
 
+            this.playerName = playerName;
             this.selectedSubject = subject;
 
             this.selectedDifficulty = difficulty;
@@ -1157,6 +1270,10 @@ export default class Game {
     startGame() {
 
         this.isCustomGame = false;
+        this.currentCustomGame = null;
+        this.currentRunRecordId = null;
+        this.gameOverOverlayDisplayed = false;
+        this.gameOverOverlay.style.display = "none";
 
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
@@ -1407,170 +1524,163 @@ export default class Game {
 
     }
 
-    drawGameOver(ctx) {
-        const width = this.canvas.width;
-        const height = this.canvas.height;
+    drawGameOver() {
+        if (this.gameOverOverlayDisplayed)
+            return;
 
-        ctx.save();
+        if (this.isCustomGame) {
+            this.gameOverPanel.classList.add("custom-game-over");
+            this.gameOverTableWrap.style.display = "none";
+        } else {
+            this.gameOverPanel.classList.remove("custom-game-over");
+            this.gameOverTableWrap.style.display = "";
+            this.recordCurrentRun();
+            this.renderGameOverLeaderboard();
+        }
 
-        // Fundo escurecido
-        ctx.fillStyle = "rgba(5, 8, 20, 0.82)";
-        ctx.fillRect(0, 0, width, height);
+        this.gameOverScore.textContent =
+            `Pontuação: ${this.scoreManager.getScore()}`;
+        this.gameOverOverlay.style.display = "flex";
+        this.gameOverOverlayDisplayed = true;
+    }
 
-        const boxWidth = 460;
-        const boxHeight = 420;
-        const boxX = (width - boxWidth) / 2;
-        const boxY = (height - boxHeight) / 2;
+    getSubjectLabel() {
+        if (this.isCustomGame && this.currentCustomGame)
+            return `Personalizado: ${this.currentCustomGame.name}`;
 
-        // Janela de Game Over
-        const panelGradient = ctx.createLinearGradient(
-            boxX, boxY, boxX + boxWidth, boxY + boxHeight
-        );
+        const labels = {
+            science: "Ciências",
+            languages: "Linguagens",
+            geography: "Geografia",
+            history: "História",
+            math: "Matemática",
+            all: "Todas as Matérias"
+        };
 
-        panelGradient.addColorStop(0, "#101936");
-        panelGradient.addColorStop(0.5, "#151b3d");
-        panelGradient.addColorStop(1, "#090d24");
+        return labels[this.selectedSubject] || "Não informado";
+    }
 
-        ctx.fillStyle = panelGradient;
-        ctx.strokeStyle = "rgba(160, 170, 230, 0.28)";
-        ctx.lineWidth = 1;
+    formatLeaderboardDate(value) {
+        return new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short"
+        }).format(new Date(value));
+    }
 
-        ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
-        ctx.shadowBlur = 35;
-        ctx.shadowOffsetY = 15;
+    recordCurrentRun() {
+        if (this.currentRunRecordId || !this.playerName)
+            return;
 
-        ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 25);
-        ctx.fill();
-        ctx.stroke();
+        const record = {
+            id: crypto.randomUUID(),
+            name: this.playerName,
+            subject: this.getSubjectLabel(),
+            difficulty: this.selectedDifficulty,
+            score: this.scoreManager.getScore(),
+            createdAt: new Date().toISOString()
+        };
 
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
+        this.currentRunRecordId = record.id;
+        this.leaderboardManager.add(record);
+    }
 
-        // Título
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+    getDifficultyLabel(difficulty) {
+        return {
+            easy: "Fácil",
+            medium: "Médio",
+            hard: "Difícil"
+        }[difficulty] || "Não informado";
+    }
 
-        ctx.font = "bold 50px Arial";
-        ctx.fillStyle = "#f5f3ff";
+    getDifficultyClass(difficulty) {
+        return ["easy", "medium", "hard"].includes(difficulty)
+            ? `difficulty-${difficulty}`
+            : "difficulty-unknown";
+    }
 
-        ctx.shadowColor = "rgba(150, 140, 255, 0.35)";
-        ctx.shadowBlur = 20;
+    renderGameOverLeaderboard() {
+        const records = this.leaderboardManager.getAll();
+        this.gameOverLeaderboardRows.replaceChildren();
+        this.gameOverLeaderboardEmpty.hidden = records.length > 0;
 
-        ctx.fillText("GAME OVER", width / 2, boxY + 65);
+        records.forEach((record, index) => {
+            const row = document.createElement("tr");
+            row.classList.add(this.getDifficultyClass(record.difficulty));
+            if (record.id === this.currentRunRecordId)
+                row.classList.add("current-run");
 
-        ctx.shadowBlur = 0;
+            const values = [
+                `#${index + 1}`,
+                record.name,
+                record.subject,
+                this.getDifficultyLabel(record.difficulty),
+                String(record.score),
+                this.formatLeaderboardDate(record.createdAt)
+            ];
 
-        // Pontuação
-        ctx.font = "22px Arial";
-        ctx.fillStyle = "#eeeef8";
-
-        ctx.fillText(
-            `Pontuação: ${this.scoreManager.getScore()}`,
-            width / 2,
-            boxY + 125
-        );
-
-        const buttons = [
-            { text: "Jogar Novamente", action: "replay" },
-            { text: "Voltar ao Menu", action: "menu" },
-            { text: "Enviar Feedback", action: "feedback" }
-        ];
-
-        this.gameOverButtons = [];
-
-
-
-        buttons.forEach((button, index) => {
-            const x = boxX + 60;
-            const y = boxY + 175 + index * 65;
-            const w = boxWidth - 120;
-            const h = 48;
-
-            const isHovered = this.gameOverHoveredButton === index;
-
-            // Transição suave de aproximadamente 0,2s
-            const target = isHovered ? 1 : 0;
-            const progress = this.gameOverHoverProgress[index];
-
-            this.gameOverHoverProgress[index] =
-                progress + (target - progress) * 0.18;
-
-            const hover = this.gameOverHoverProgress[index];
-            const offsetY = -4 * hover;
-
-            // Gradiente do botão
-            const gradient = ctx.createLinearGradient(
-                x, y, x + w, y + h
-            );
-
-            // Interpolação gradual entre as cores normais e as do hover
-            const lerp = (start, end, t) =>
-                Math.round(start + (end - start) * t);
-
-            const color1 = `rgb(
-    ${lerp(48, 85, hover)},
-    ${lerp(54, 92, hover)},
-    ${lerp(91, 155, hover)}
-)`;
-
-            const color2 = `rgb(
-    ${lerp(28, 54, hover)},
-    ${lerp(32, 59, hover)},
-    ${lerp(60, 112, hover)}
-)`;
-
-            gradient.addColorStop(0, color1);
-            gradient.addColorStop(1, color2);
-
-            ctx.save();
-
-            ctx.translate(0, offsetY);
-
-            ctx.fillStyle = gradient;
-            ctx.strokeStyle = isHovered
-                ? "rgba(210, 215, 255, 0.6)"
-                : "rgba(170, 175, 220, 0.30)";
-
-            ctx.lineWidth = 1;
-
-            ctx.shadowColor = isHovered
-                ? "rgba(120, 120, 230, 0.35)"
-                : "rgba(0, 0, 0, 0.4)";
-
-            ctx.shadowBlur = isHovered ? 20 : 14;
-            ctx.shadowOffsetY = isHovered ? 10 : 6;
-
-            ctx.beginPath();
-            ctx.roundRect(x, y, w, h, 11);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-
-            ctx.font = "600 19px Arial";
-            ctx.fillStyle = "#eeeef8";
-
-            ctx.fillText(
-                button.text,
-                x + w / 2,
-                y + h / 2
-            );
-
-            ctx.restore();
-
-            // Área clicável acompanha a animação
-            this.gameOverButtons.push({
-                x,
-                y: y + offsetY,
-                w,
-                h,
-                action: button.action
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
             });
-        });
 
-        ctx.restore();
+            this.gameOverLeaderboardRows.appendChild(row);
+        });
+    }
+
+    renderLeaderboard() {
+        const records = this.leaderboardManager.getAll();
+        const selectedSubject = this.leaderboardSubjectFilter.value;
+        const selectedDifficulty = this.leaderboardDifficultyFilter.value;
+
+        const subjects = [...new Set(records.map(record => record.subject))]
+            .sort((first, second) => first.localeCompare(second, "pt-BR"));
+        this.leaderboardSubjectFilter.replaceChildren();
+        const allSubjectsOption = document.createElement("option");
+        allSubjectsOption.value = "all";
+        allSubjectsOption.textContent = "Todas";
+        this.leaderboardSubjectFilter.appendChild(allSubjectsOption);
+
+        subjects.forEach(subject => {
+            const option = document.createElement("option");
+            option.value = subject;
+            option.textContent = subject;
+            this.leaderboardSubjectFilter.appendChild(option);
+        });
+        this.leaderboardSubjectFilter.value = subjects.includes(selectedSubject)
+            ? selectedSubject
+            : "all";
+
+        const filteredRecords = records.filter(record =>
+            (this.leaderboardSubjectFilter.value === "all" ||
+                record.subject === this.leaderboardSubjectFilter.value) &&
+            (selectedDifficulty === "all" ||
+                record.difficulty === selectedDifficulty)
+        );
+
+        this.leaderboardRows.replaceChildren();
+        this.leaderboardEmpty.hidden = filteredRecords.length > 0;
+
+        filteredRecords.forEach((record, index) => {
+            const row = document.createElement("tr");
+            row.classList.add(this.getDifficultyClass(record.difficulty));
+            const values = [
+                `#${index + 1}`,
+                record.name,
+                record.subject,
+                this.getDifficultyLabel(record.difficulty),
+                String(record.score),
+                this.formatLeaderboardDate(record.createdAt)
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            this.leaderboardRows.appendChild(row);
+        });
     }
 
     replayGame() {
@@ -1589,6 +1699,8 @@ export default class Game {
     returnToMenu() {
 
         this.gameStarted = false;
+        this.gameOverOverlayDisplayed = false;
+        this.gameOverOverlay.style.display = "none";
 
         this.gameOverButtons = [];
 
@@ -1621,6 +1733,8 @@ export default class Game {
         this.hud.hide();
 
         this.mainMenu.style.display = "flex";
+
+        this.leaderboardMenu.style.display = "none";
 
         this.gameConfig.style.display = "none";
 
@@ -1747,6 +1861,11 @@ export default class Game {
     }
 
     startCustomGame(game) {
+
+        this.playerName = "";
+        this.currentRunRecordId = null;
+        this.gameOverOverlayDisplayed = false;
+        this.gameOverOverlay.style.display = "none";
 
         this.isCustomGame = true;
         this.currentCustomGame = game;

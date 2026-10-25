@@ -50,6 +50,14 @@
 
         <div id="game-menu">
 
+            <div class="main-menu-tools">
+                <button id="settings-button" type="button" aria-label="Configurações" title="Configurações em breve" disabled>
+                    ⚙️
+                </button>
+                <button id="leaderboard-button" type="button" aria-label="Abrir placar" title="Placar">
+                    🏆
+                </button>
+            </div>
 
             <!-- MENU PRINCIPAL -->
 
@@ -71,6 +79,41 @@
 
             </div>
 
+            <!-- PLACAR -->
+            <div id="leaderboard-menu" class="menu-content">
+                <back-button></back-button>
+                <h2 data-text="Placar">Placar</h2>
+                <div class="leaderboard-filters">
+                    <label for="leaderboard-subject-filter">Matéria</label>
+                    <select id="leaderboard-subject-filter">
+                        <option value="all">Todas</option>
+                    </select>
+                    <label for="leaderboard-difficulty-filter">Dificuldade</label>
+                    <select id="leaderboard-difficulty-filter">
+                        <option value="all">Todas</option>
+                        <option value="easy">Fácil</option>
+                        <option value="medium">Médio</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+                <div class="leaderboard-table-wrap">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Matéria</th>
+                                <th>Dificuldade</th>
+                                <th>Pontuação</th>
+                                <th>Data e hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-rows"></tbody>
+                    </table>
+                    <p id="leaderboard-empty" class="leaderboard-empty" hidden>Nenhuma partida registrada ainda.</p>
+                </div>
+            </div>
+
             <!-- CONFIGURAÇÃO DO JOGO -->
 
             <div id="game-config" class="menu-content">
@@ -80,6 +123,12 @@
                 <h2 data-text="Configurar Jogo">
                     Configurar Jogo
                 </h2>
+
+                <label for="player-name">
+                    Seu nome
+                </label>
+
+                <input type="text" id="player-name" maxlength="32" autocomplete="nickname" placeholder="Digite seu nome">
 
                 <label for="subject-select">
                     Matéria
@@ -402,6 +451,34 @@
 
             </div>
 
+        </div>
+
+        <div id="game-over-overlay" class="game-over-overlay">
+            <section class="game-over-panel">
+                <h2>GAME OVER</h2>
+                <p id="game-over-score" class="game-over-score"></p>
+                <div class="game-over-table-wrap">
+                    <table class="leaderboard-table game-over-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Matéria</th>
+                                <th>Dificuldade</th>
+                                <th>Pontuação</th>
+                                <th>Data e hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="game-over-leaderboard-rows"></tbody>
+                    </table>
+                    <p id="game-over-leaderboard-empty" class="leaderboard-empty" hidden>Nenhuma pontuação registrada.</p>
+                </div>
+                <div class="game-over-actions">
+                    <button id="game-over-replay-button" type="button">Jogar Novamente</button>
+                    <button id="game-over-menu-button" type="button">Voltar ao Menu</button>
+                    <button id="game-over-feedback-button" type="button">Enviar Feedback</button>
+                </div>
+            </section>
         </div>
 
 
