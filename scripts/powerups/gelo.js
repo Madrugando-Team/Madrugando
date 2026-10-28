@@ -19,6 +19,9 @@ export class Gelo {
             return;
         }
 
+        // Garante que inimigos que surgirem enquanto o efeito estiver ativo também sejam congelados.
+        this.enemyManager.freezeAll();
+
         this.timer -= deltaTime;
 
         if (this.timer <= 0) {

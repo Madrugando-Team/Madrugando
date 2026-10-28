@@ -404,6 +404,19 @@ export default class Game {
 
         });
 
+        // Pausa automaticamente quando o jogador troca de aba ou minimiza o navegador
+        document.addEventListener("visibilitychange", () => {
+            if (
+                document.hidden &&
+                this.gameStarted &&
+                !this.gamePaused &&
+                !this.scoreManager.isGameOver() &&
+                this.waveManager.getState() === "playing"
+            ) {
+                this.pauseGame();
+            }
+        });
+
         window.addEventListener("keydown", (event) => {
 
             if (this.scoreManager.gameOverState) {
@@ -1314,8 +1327,8 @@ export default class Game {
 
     loop(timestamp) {
 
-        const deltaTime =
-            timestamp - this.lastTime;
+        // Limita o deltaTime para evitar "saltos" após troca de aba ou travamentos
+        const deltaTime = Math.min(timestamp - this.lastTime, 50);
 
         this.lastTime = timestamp;
 
