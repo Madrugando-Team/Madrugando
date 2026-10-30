@@ -11,6 +11,7 @@ import { BossManager } from "./managers/BossManager.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
 import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
+import { AudioManager } from "./managers/AudioManager.js";
 
 
 export default class Game {
@@ -46,6 +47,8 @@ export default class Game {
 
         this.leaderboardManager =
             new LeaderboardManager();
+
+        this.audioManager = new AudioManager();
 
         this.playerName = "";
         this.currentRunRecordId = null;
@@ -112,6 +115,25 @@ export default class Game {
             document.getElementById("pause-menu-button");
 
         this.playButton = document.getElementById("play-button");
+
+        // Botões de som (menu principal e menu de pausa)
+        this.audioToggleButtons =
+            document.querySelectorAll("[data-audio-toggle]");
+
+        this.audioToggleButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                this.audioManager.toggleMuted();
+                this.updateAudioButtons();
+
+                // Tira o foco para o Enter/Espaço não acionar o botão de novo
+                button.blur();
+            });
+        });
+
+        this.updateAudioButtons();
+
+        // Começa a música do menu (toca após a primeira interação do usuário)
+        this.audioManager.playMusic("menu");
 
         this.resumeButton.addEventListener("click", () => {
 
@@ -1313,6 +1335,8 @@ export default class Game {
 
         this.hud.show();
 
+        this.audioManager.playMusic("gameplay");
+
         this.lastTime = performance.now();
 
     }
@@ -1349,6 +1373,8 @@ export default class Game {
 
         this.inputManager.setPaused(true);
 
+        this.audioManager.pauseMusic();
+
     }
 
     resumeGame() {
@@ -1358,6 +1384,28 @@ export default class Game {
         this.pauseMenu.style.display = "none";
 
         this.inputManager.setPaused(false);
+
+        this.audioManager.resumeMusic();
+
+    }
+
+    updateAudioButtons() {
+
+        const muted = this.audioManager.isMuted();
+
+        this.audioToggleButtons.forEach(button => {
+            const icon = muted ? "🔇" : "🔊";
+
+            button.textContent = button.hasAttribute("data-audio-label")
+                ? `${icon} Som: ${muted ? "desligado" : "ligado"}`
+                : icon;
+
+            button.setAttribute(
+                "aria-label",
+                muted ? "Ligar som" : "Desligar som"
+            );
+            button.title = muted ? "Ligar som" : "Desligar som";
+        });
 
     }
 
@@ -1555,6 +1603,7 @@ export default class Game {
             `Pontuação: ${this.scoreManager.getScore()}`;
         this.gameOverOverlay.style.display = "flex";
         this.gameOverOverlayDisplayed = true;
+        this.audioManager.stopMusic();
     }
 
     getSubjectLabel() {
@@ -1755,6 +1804,8 @@ export default class Game {
 
         this.customGameConfig.style.display = "none";
 
+        this.audioManager.playMusic("menu", { restart: false });
+
 
     }
 
@@ -1916,6 +1967,8 @@ export default class Game {
             "none";
 
         this.hud.show();
+
+        this.audioManager.playMusic("gameplay");
 
         this.lastTime =
             performance.now();

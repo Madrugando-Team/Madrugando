@@ -51,8 +51,12 @@
         <div id="game-menu">
 
             <div class="main-menu-tools">
-                <button id="settings-button" type="button" aria-label="Configurações" title="Configurações em breve" disabled>
+                <button id="settings-button" type="button" aria-label="Configurações" title="Configurações em breve"
+                    disabled>
                     ⚙️
+                </button>
+                <button id="mute-button" type="button" data-audio-toggle aria-label="Desligar som" title="Desligar som">
+                    🔊
                 </button>
                 <button id="leaderboard-button" type="button" aria-label="Abrir placar" title="Placar">
                     🏆
@@ -128,7 +132,8 @@
                     Seu nome
                 </label>
 
-                <input type="text" id="player-name" maxlength="32" autocomplete="nickname" placeholder="Digite seu nome">
+                <input type="text" id="player-name" maxlength="32" autocomplete="nickname"
+                    placeholder="Digite seu nome">
 
                 <label for="subject-select">
                     Matéria
@@ -297,7 +302,8 @@
 
                         <div class="dictionary-add">
 
-                            <input type="text" id="dictionary-word" maxlength="22" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]{1,22}" title="Use apenas letras, com até 22 caracteres." placeholder="Digite uma palavra">
+                            <input type="text" id="dictionary-word" maxlength="22" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]{1,22}"
+                                title="Use apenas letras, com até 22 caracteres." placeholder="Digite uma palavra">
 
                             <button id="add-word-button">
                                 Adicionar
@@ -471,7 +477,8 @@
                         </thead>
                         <tbody id="game-over-leaderboard-rows"></tbody>
                     </table>
-                    <p id="game-over-leaderboard-empty" class="leaderboard-empty" hidden>Nenhuma pontuação registrada.</p>
+                    <p id="game-over-leaderboard-empty" class="leaderboard-empty" hidden>Nenhuma pontuação registrada.
+                    </p>
                 </div>
                 <div class="game-over-actions">
                     <button id="game-over-replay-button" type="button">Jogar Novamente</button>
@@ -536,6 +543,10 @@
 
                 <button id="resume-button">
                     Continuar
+                </button>
+
+                <button id="pause-mute-button" type="button" data-audio-toggle data-audio-label>
+                    🔊 Som: ligado
                 </button>
 
                 <button id="pause-menu-button">
