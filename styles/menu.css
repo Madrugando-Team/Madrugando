@@ -407,6 +407,10 @@
     padding: 40px 48px;
 
     flex-direction: column;
+
+    transform: scale(0.95);
+
+    transform-origin: center;
 }
 
 #leaderboard-menu h2 {
@@ -878,6 +882,12 @@
     width: 950px;
     height: 650px;
 
+    min-height: 0;
+
+    max-height: calc(100% - 24px);
+
+    box-sizing: border-box;
+
     padding: 40px 55px 35px;
 
     flex-direction: column;
@@ -895,6 +905,8 @@
 #custom-game-config::-webkit-scrollbar-track {
 
     background: transparent;
+
+    margin-block: 14px;
 }
 
 
