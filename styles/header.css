@@ -1,16 +1,138 @@
-.game-header {
-    height: 70px;
+.game-page {
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    min-height: 100vh;
 
-    padding: 0 40px;
+    background-color: #080b18;
 
-    background: #222;
+    background-image:
+        radial-gradient(circle at 4% 17%, rgba(255, 255, 255, 0.78) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 13% 49%, rgba(175, 184, 255, 0.82) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 22% 83%, rgba(255, 255, 255, 0.62) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 31% 29%, rgba(193, 188, 255, 0.72) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 42% 68%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 57% 14%, rgba(185, 194, 255, 0.7) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 68% 44%, rgba(255, 255, 255, 0.76) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 79% 78%, rgba(183, 175, 255, 0.8) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 91% 24%, rgba(255, 255, 255, 0.68) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 97% 62%, rgba(196, 202, 255, 0.76) 0 1px, transparent 1.8px),
+        linear-gradient(180deg, #0a0d1b 0%, #10152a 54%, #080b18 100%);
+
+    background-attachment: fixed;
 }
 
-.back-button {
-    color: white;
+.game-header {
+    position: relative;
+
+    height: 88px;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    padding: 0 42px;
+
+    overflow: hidden;
+
+    isolation: isolate;
+
+    background: transparent;
+}
+
+.game-header::before {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: -1;
+
+    content: "";
+
+    opacity: 0.7;
+
+    background-image:
+        radial-gradient(circle at 3% 55%, rgba(210, 207, 255, 0.9) 0 1px, transparent 2px),
+        radial-gradient(circle at 6% 18%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 12% 82%, rgba(170, 183, 255, 0.82) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 8% 27%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 19% 72%, rgba(180, 190, 255, 0.8) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 71% 24%, rgba(255, 255, 255, 0.75) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 84% 67%, rgba(180, 190, 255, 0.75) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 95% 31%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.7px),
+        radial-gradient(circle at 88% 14%, rgba(210, 207, 255, 0.9) 0 1px, transparent 2px),
+        radial-gradient(circle at 94% 83%, rgba(170, 183, 255, 0.82) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 98% 58%, rgba(255, 255, 255, 0.72) 0 1px, transparent 1.8px);
+}
+
+.game-navigation {
+
+    position: relative;
+
+    z-index: 1;
+}
+
+.game-header .back-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 11px 17px;
+
+    color: #f1efff;
+
     text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.2px;
+
+    background: linear-gradient(135deg, rgba(49, 56, 97, 0.84), rgba(22, 29, 59, 0.92));
+
+    border: 1px solid rgba(176, 183, 255, 0.3);
+
+    border-radius: 999px;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(8px);
+
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-header .back-button:hover {
+
+    color: #fff;
+
+    background: linear-gradient(135deg, rgba(81, 87, 145, 0.96), rgba(39, 46, 88, 0.98));
+
+    border-color: rgba(213, 216, 255, 0.58);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 9px 24px rgba(0, 0, 0, 0.42), 0 0 18px rgba(126, 116, 240, 0.18);
+}
+
+@media (max-width: 640px) {
+
+    .game-header {
+
+        height: 76px;
+
+        padding: 0 18px;
+    }
+
+    .game-header .back-button {
+
+        padding: 9px 13px;
+
+        font-size: 13px;
+    }
 }
