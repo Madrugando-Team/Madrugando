@@ -668,6 +668,10 @@ export default class Game {
 
         });
 
+        document.getElementById("how-to-play-button").addEventListener("click", () => {
+            window.location.href = "./regras.html";
+        });
+
         this.leaderboardButton.addEventListener("click", () => {
             const menuScreens = [
                 this.mainMenu,
