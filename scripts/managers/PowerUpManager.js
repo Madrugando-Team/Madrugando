@@ -1,5 +1,8 @@
 import { PowerUp } from "../entities/powerUp.js";
-import { getWordsByCategory } from "../data/wordpools.js";
+import {
+    getWordsByCategory,
+    getRandomWordLevel
+} from "../data/wordpools.js";
 import { Gelo } from "../powerups/gelo.js";
 import { Despertador } from "../powerups/despertador.js";
 import { Reverso } from "../powerups/reverso.js";
@@ -24,6 +27,7 @@ export class PowerUpManager {
 
         // O "science" é só um valor inicial de segurança. Antes da partida começar, ele será substituído pela escolha do jogador.
         this.category = "science";
+        this.difficulty = "easy";
 
         this.currentWave = 1;
         this.powerUpsSpawned = 0;
@@ -54,6 +58,10 @@ export class PowerUpManager {
         // ao iniciar uma partida normal.
         this.customDictionary = null;
     }
+
+    setDifficulty(difficulty) {
+        this.difficulty = difficulty;
+    }
     setCustomDictionary(dictionary) {
         if (!Array.isArray(dictionary) || dictionary.length === 0) {
             console.warn("Dicionário personalizado inválido.");
@@ -78,12 +86,7 @@ export class PowerUpManager {
 
         } else {
 
-            const levels = ["easy", "medium"];
-
-            const level = levels[
-                Math.floor(Math.random() * levels.length)
-            ];
-
+            const level = getRandomWordLevel(this.difficulty);
             pool = getWordsByCategory(this.category, level);
         }
 

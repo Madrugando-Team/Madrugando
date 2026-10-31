@@ -348,4 +348,35 @@ export function getWordsByCategory(category, level) {
     return pools[category]?.[level] ?? [];
 }
 
+export function getRandomWordLevel(difficulty) {
+    const distribution = {
+        easy: [
+            ["easy", 75],
+            ["medium", 25]
+        ],
+        medium: [
+            ["easy", 50],
+            ["medium", 40],
+            ["hard", 10]
+        ],
+        hard: [
+            ["easy", 20],
+            ["medium", 50],
+            ["hard", 30]
+        ]
+    }[difficulty] || [["medium", 100]];
+
+    const roll = Math.random() * 100;
+    let cumulativeChance = 0;
+
+    for (const [level, chance] of distribution) {
+        cumulativeChance += chance;
+        if (roll < cumulativeChance) {
+            return level;
+        }
+    }
+
+    return distribution[distribution.length - 1][0];
+}
+
 export default WordPools;

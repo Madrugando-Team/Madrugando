@@ -1,11 +1,15 @@
 
 import { Enemy } from "./enemy.js";
-import { getWordsByCategory } from "../data/wordpools.js";
+import {
+    getWordsByCategory,
+    getRandomWordLevel
+} from "../data/wordpools.js";
 
 export function createScromblus(x, y, config) {
 
     const {
         category = "science",
+        difficulty,
         speed = 1.1,
         poolLevel = "medium",
         customDictionary,
@@ -17,7 +21,10 @@ export function createScromblus(x, y, config) {
     // A categoria "all" reúne todas as matérias.
     const pool = customDictionary
         ? customDictionary
-        : getWordsByCategory(category, poolLevel);
+        : getWordsByCategory(
+            category,
+            difficulty ? getRandomWordLevel(difficulty) : poolLevel
+        );
 
     // Verifica se existem palavras disponíveis.
     if (!Array.isArray(pool) || pool.length === 0) {

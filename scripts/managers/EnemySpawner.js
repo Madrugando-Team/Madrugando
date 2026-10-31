@@ -13,8 +13,8 @@ export const DifficultyConfig = {
 
     },
     medium: {
-        spawnInterval: 2750,
-        speed: 1.1,
+        spawnInterval: 2950,
+        speed: 1.05,
         maxEnemies: 4,
         poolLevel: "medium",
         lives: 3,
@@ -22,8 +22,8 @@ export const DifficultyConfig = {
 
     },
     hard: {
-        spawnInterval: 2500,
-        speed: 1.2,
+        spawnInterval: 2900,
+        speed: 1.1,
         maxEnemies: 5,
         poolLevel: "hard",
         lives: 2,
@@ -65,6 +65,7 @@ export class EnemySpawner {
 
         this.currentWave = 1;
         this.scromblusSpawned = 0;
+        this.scromblusQuota = this.getScromblusQuota();
     }
 
     pauseSpawning(duration = 500) {
@@ -72,7 +73,23 @@ export class EnemySpawner {
     }
 
     setDifficulty(level) {
+        this.difficulty = level;
         this.config = DifficultyConfig[level];
+        if (this.currentWave) {
+            this.scromblusQuota = this.getScromblusQuota();
+        }
+    }
+
+    getScromblusQuota() {
+        if (this.difficulty === "easy") {
+            return Math.random() < 0.5 ? 1 : 0;
+        }
+
+        if (this.difficulty === "medium") {
+            return 1;
+        }
+
+        return Math.max(1, this.currentWave || 1);
     }
 
     update(deltaTime) {
@@ -90,6 +107,7 @@ export class EnemySpawner {
             this.currentWave = wave;
             this.scromblusSpawned = 0;
             this.scromblusTimer = 0;
+            this.scromblusQuota = this.getScromblusQuota();
         }
 
         // Geração normal de Boos
@@ -108,10 +126,8 @@ export class EnemySpawner {
         // Geração de Scromblus
         this.scromblusTimer += deltaTime;
 
-        const maxScromblus = this.currentWave;
-
         if (
-            this.scromblusSpawned < maxScromblus &&
+            this.scromblusSpawned < this.scromblusQuota &&
             !this.enemyManager.hasScromblus() &&
             this.scromblusTimer >= this.scromblusInterval &&
             this.enemyManager.hasSpace(
@@ -135,6 +151,7 @@ export class EnemySpawner {
             {
                 speed: this.config.speed,
                 category: this.enemyConfig.category,
+                difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
                 customDictionary: this.customDictionary
             }
@@ -158,6 +175,7 @@ export class EnemySpawner {
             {
                 speed: this.config.speed,
                 category: this.enemyConfig.category,
+                difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
                 customDictionary: this.customDictionary,
                 scoreManager: this.scoreManager
@@ -228,6 +246,7 @@ export class EnemySpawner {
         this.scromblusTimer = 0;
         this.currentWave = 1;
         this.scromblusSpawned = 0;
+        this.scromblusQuota = this.getScromblusQuota();
         this.customDictionary = null;
 
     }

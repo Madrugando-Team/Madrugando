@@ -195,9 +195,6 @@ export default class Game {
                 if (this.scoreManager.isGameOver()) {
                     return;
                 }
-
-                this.bossManager.startTimeoutReveal();
-
                 return;
             }
 
@@ -509,9 +506,6 @@ export default class Game {
                 if (this.scoreManager.isGameOver()) {
                     return;
                 }
-
-                this.bossManager.startTimeoutReveal();
-
                 return;
             }
 
@@ -1320,6 +1314,9 @@ export default class Game {
         this.enemySpawner.setDifficulty(
             this.selectedDifficulty
         );
+        this.powerUpManager.setDifficulty(
+            this.selectedDifficulty
+        );
 
         this.enemySpawner.setCategory(
             this.selectedSubject
@@ -1947,6 +1944,9 @@ export default class Game {
         this.selectedSubject = null;
 
         this.enemySpawner.setDifficulty(
+            game.difficulty
+        );
+        this.powerUpManager.setDifficulty(
             game.difficulty
         );
 
