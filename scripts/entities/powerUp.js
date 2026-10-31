@@ -23,7 +23,8 @@ export class PowerUp {
     }
 
     draw(ctx) {
-
+        ctx.save();
+        ctx.fillStyle = "#f5f3ff";
         const icons = {
             despertador: "⏰",
             gelo: "❄️",
@@ -44,6 +45,7 @@ export class PowerUp {
             this.x,
             this.y + 30
         );
+        ctx.restore();
     }
 
     registerCorrectWord() {
