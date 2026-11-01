@@ -1314,14 +1314,7 @@ export default class Game {
         this.enemySpawner.setDifficulty(
             this.selectedDifficulty
         );
-        this.powerUpManager.setDifficulty(
-            this.selectedDifficulty
-        );
-
         this.enemySpawner.setCategory(
-            this.selectedSubject
-        );
-        this.powerUpManager.setCategory(
             this.selectedSubject
         );
 
@@ -1946,15 +1939,7 @@ export default class Game {
         this.enemySpawner.setDifficulty(
             game.difficulty
         );
-        this.powerUpManager.setDifficulty(
-            game.difficulty
-        );
-
         this.enemySpawner.setCustomDictionary(
-            game.dictionary
-        );
-
-        this.powerUpManager.setCustomDictionary(
             game.dictionary
         );
 

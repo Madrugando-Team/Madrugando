@@ -6,7 +6,7 @@ export class PowerUp {
         this.speed = speed;
         this.word = word;
         this.correctWords = 0;
-        this.requiredWords = 3;
+        this.requiredWords = 1;
         this.unlocked = false;
 
         this.alive = true;

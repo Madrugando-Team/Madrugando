@@ -70,7 +70,19 @@ export class InputManager {
         }
 
 
-        if (/[a-zà-ÿ]/i.test(key)) {
+        const isLetter = /[a-zà-ÿ]/i.test(key);
+        const isValidHyphen = key === "-" &&
+            this.currentInput.length > 0 &&
+            (
+                this.enemyManager.hasWordStartingWith(
+                    `${this.currentInput}-`
+                ) ||
+                this.powerUpManager.hasWordStartingWith(
+                    `${this.currentInput}-`
+                )
+            );
+
+        if (isLetter || isValidHyphen) {
 
             this.currentInput += key;
 

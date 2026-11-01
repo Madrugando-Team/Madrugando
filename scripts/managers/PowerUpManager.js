@@ -1,8 +1,5 @@
 import { PowerUp } from "../entities/powerUp.js";
-import {
-    getWordsByCategory,
-    getRandomWordLevel
-} from "../data/wordpools.js";
+import PowerUpWordPools from "../data/powerupWordPools.js";
 import { Gelo } from "../powerups/gelo.js";
 import { Despertador } from "../powerups/despertador.js";
 import { Reverso } from "../powerups/reverso.js";
@@ -25,13 +22,8 @@ export class PowerUpManager {
         this.scoreManager = scoreManager;
         this.waveManager = waveManager;
 
-        // O "science" é só um valor inicial de segurança. Antes da partida começar, ele será substituído pela escolha do jogador.
-        this.category = "science";
-        this.difficulty = "easy";
-
         this.currentWave = 1;
         this.powerUpsSpawned = 0;
-        this.customDictionary = null;
 
 
 
@@ -51,64 +43,15 @@ export class PowerUpManager {
         ];
     }
 
-    setCategory(category) {
-        this.category = category;
-
-        // Desativa o dicionário personalizado
-        // ao iniciar uma partida normal.
-        this.customDictionary = null;
-    }
-
-    setDifficulty(difficulty) {
-        this.difficulty = difficulty;
-    }
-    setCustomDictionary(dictionary) {
-        if (!Array.isArray(dictionary) || dictionary.length === 0) {
-            console.warn("Dicionário personalizado inválido.");
-            this.customDictionary = null;
-            return;
-        }
-
-        this.customDictionary = dictionary;
-
-        console.log(
-            `Dicionário personalizado carregado: ${dictionary.length} palavras`
-        );
-    }
-
-    getRandomWord(excludeWord = null) {
-
-        let pool;
-
-        if (this.customDictionary !== null) {
-
-            pool = this.customDictionary;
-
-        } else {
-
-            const level = getRandomWordLevel(this.difficulty);
-            pool = getWordsByCategory(this.category, level);
-        }
-
-        if (!pool || pool.length === 0) {
+    getRandomWord(type) {
+        const pool = PowerUpWordPools[type] ?? [];
+        if (pool.length === 0) {
             return null;
         }
 
-        // Evita repetir a palavra anterior,
-        // desde que existam alternativas.
-        const alternatives = pool.filter(
-            word => word.toLowerCase() !==
-                excludeWord?.toLowerCase()
-        );
-
-        const availableWords = alternatives.length > 0
-            ? alternatives
-            : pool;
-
-        return availableWords[
-            Math.floor(Math.random() * availableWords.length)
+        return pool[
+            Math.floor(Math.random() * pool.length)
         ];
-
     }
 
     update(deltaTime) {
@@ -177,7 +120,7 @@ export class PowerUpManager {
             )
             ];
 
-        const word = this.getRandomWord();
+        const word = this.getRandomWord(type);
 
         if (word === null) {
             return;
@@ -262,19 +205,6 @@ export class PowerUpManager {
                 return;
             }
 
-            // Ainda não chegou em 3
-            // Escolhe uma nova palavra
-            const oldWord = powerUp.word;
-
-            const newWord = this.getRandomWord(oldWord);
-
-            if (newWord !== null) {
-                powerUp.word = newWord;
-            }
-
-            console.log(
-                `Nova palavra do Power-up: ${newWord}`
-            );
         });
 
         this.removeDead();
@@ -322,10 +252,6 @@ export class PowerUpManager {
 
         this.currentWave = 1;
         this.powerUpsSpawned = 0;
-
-        // Limpa o dicionário da partida anterior
-        this.customDictionary = null;
-
 
         this.gelo.reset();
         this.reverso.reset();
