@@ -1,15 +1,23 @@
 export class Despertador {
 
-    constructor(enemyManager, enemySpawner) {
+    constructor(enemyManager, enemySpawner, scoreManager, waveManager) {
 
         this.enemyManager = enemyManager;
         this.enemySpawner = enemySpawner;
+        this.scoreManager = scoreManager;
+        this.waveManager = waveManager;
 
     }
 
     activate() {
-        // Matando todos os inimigos na tela
-        this.enemyManager.killAll();
+        // Elimina os inimigos e pontua cada eliminação.
+        const enemiesKilled = this.enemyManager.killAll();
+
+        for (let index = 0; index < enemiesKilled; index++) {
+            this.scoreManager.addScore(10);
+            this.waveManager.wordCorrect();
+        }
+
         // Pausando o spawn de inimigos por 750ms
         this.enemySpawner.pauseSpawning(750);
 

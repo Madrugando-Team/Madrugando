@@ -29,7 +29,12 @@ export class PowerUpManager {
 
         this.timer = 0;
         this.gelo = new Gelo(this.enemyManager);
-        this.despertador = new Despertador(this.enemyManager, this.enemySpawner);
+        this.despertador = new Despertador(
+            this.enemyManager,
+            this.enemySpawner,
+            this.scoreManager,
+            this.waveManager
+        );
         this.reverso = new Reverso(this.enemyManager);
         this.duplicador = new Duplicador(this.scoreManager);
         // Por enquanto, apenas para teste

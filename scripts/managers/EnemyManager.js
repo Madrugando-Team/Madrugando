@@ -123,12 +123,17 @@ export class EnemyManager {
     }
 
     killAll() {
+        const enemiesToKill = this.enemies.filter(
+            enemy => !enemy.isDead()
+        );
 
-        this.enemies.forEach(enemy => {
+        enemiesToKill.forEach(enemy => {
             enemy.kill();
         });
 
         this.removeDead();
+
+        return enemiesToKill.length;
 
     }
     freezeAll() {

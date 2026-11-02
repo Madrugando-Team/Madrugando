@@ -1322,6 +1322,8 @@ export default class Game {
             difficulty.lives
         );
 
+        this.inputManager.reset();
+        this.inputManager.setEnabled(true);
         this.gameStarted = true;
 
 
@@ -1595,6 +1597,8 @@ export default class Game {
 
         this.gameOverScore.textContent =
             `Pontuação: ${this.scoreManager.getScore()}`;
+        this.inputManager.setEnabled(false);
+        this.inputManager.reset();
         this.gameOverOverlay.style.display = "flex";
         this.gameOverOverlayDisplayed = true;
         this.audioManager.stopMusic();
@@ -1755,6 +1759,7 @@ export default class Game {
     returnToMenu() {
 
         this.gameStarted = false;
+        this.inputManager.setEnabled(false);
         this.gameOverOverlayDisplayed = false;
         this.gameOverOverlay.style.display = "none";
 
@@ -1950,6 +1955,8 @@ export default class Game {
         this.customGameQuestions =
             game.questions;
 
+        this.inputManager.reset();
+        this.inputManager.setEnabled(true);
         this.gameStarted = true;
 
         this.menu.style.display =

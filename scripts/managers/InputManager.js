@@ -8,6 +8,7 @@ export class InputManager {
         this.powerUpManager = powerUpManager;
 
         this.paused = false;
+        this.enabled = false;
 
         this.currentInput = "";
         this.state = "normal";
@@ -23,6 +24,10 @@ export class InputManager {
 
         this.paused = value;
 
+    }
+
+    setEnabled(value) {
+        this.enabled = value;
     }
 
     update(deltaTime) {
@@ -45,11 +50,7 @@ export class InputManager {
 
     handleInput(event) {
 
-        if (this.paused) {
-            return;
-        }
-
-        if (this.state !== "normal") {
+        if (this.paused || !this.enabled) {
             return;
         }
 
@@ -61,6 +62,10 @@ export class InputManager {
             this.currentInput =
                 this.currentInput.slice(0, -1);
 
+            return;
+        }
+
+        if (this.state !== "normal") {
             return;
         }
 
@@ -107,10 +112,6 @@ export class InputManager {
 
         // A palavra ainda pode ser de inimigo ou PowerUp
         if (!enemyPossible && !powerUpPossible) {
-
-            this.state = "error";
-            this.stateTimer = 90;
-
             return;
         }
 
@@ -163,6 +164,26 @@ export class InputManager {
 
         return this.currentInput;
 
+    }
+
+    getValidInputLength() {
+        let validLength = 0;
+
+        for (let index = 1; index <= this.currentInput.length; index++) {
+            const prefix = this.currentInput.slice(0, index);
+            const matchesEnemy =
+                this.enemyManager.hasWordStartingWith(prefix);
+            const matchesPowerUp =
+                this.powerUpManager.hasWordStartingWith(prefix);
+
+            if (!matchesEnemy && !matchesPowerUp) {
+                break;
+            }
+
+            validLength = index;
+        }
+
+        return validLength;
     }
 
 

@@ -151,6 +151,9 @@ export class InputBar {
         const text =
             this.inputManager.getInput();
 
+        const validLength =
+            this.inputManager.getValidInputLength();
+
 
         ctx.font =
             "28px Arial";
@@ -161,7 +164,7 @@ export class InputBar {
 
 
         let textColor =
-            "#e9e7ff";
+            "#4DFF88";
 
 
         switch (state) {
@@ -182,18 +185,10 @@ export class InputBar {
                 break;
 
 
-            case "error":
-
-                textColor =
-                    "#FF5364";
-
-                break;
-
-
             default:
 
                 textColor =
-                    "#e9e7ff";
+                    "#4DFF88";
 
                 break;
 
@@ -208,32 +203,47 @@ export class InputBar {
                 : 12;
 
 
-        ctx.fillStyle =
-            textColor;
+        if (state === "success" || state === "combo") {
+            ctx.fillStyle = textColor;
+            ctx.shadowColor = textColor;
+            ctx.fillText(text, 28, y + this.height / 2);
+        } else {
+            const validText = text.slice(0, validLength);
+            const invalidText = text.slice(validLength);
 
+            ctx.fillStyle = "#4DFF88";
+            ctx.shadowColor = "#4DFF88";
+            ctx.fillText(validText, 28, y + this.height / 2);
 
-        ctx.fillText(
-            text,
-            28,
-            y + this.height / 2
-        );
+            if (invalidText) {
+                ctx.fillStyle = "#FF5364";
+                ctx.shadowColor = "#FF5364";
+                ctx.fillText(
+                    invalidText,
+                    28 + ctx.measureText(validText).width,
+                    y + this.height / 2
+                );
+            }
+        }
 
 
         ctx.shadowBlur = 0;
 
         if (this.cursorVisible) {
 
-            const x =
-                28 +
-                ctx.measureText(text).width;
+            const x = 28 + ctx.measureText(text).width;
+
+            const cursorColor = validLength < text.length
+                ? "#FF5364"
+                : textColor;
 
 
             ctx.fillStyle =
-                textColor;
+                cursorColor;
 
 
             ctx.shadowColor =
-                textColor;
+                cursorColor;
 
             ctx.shadowBlur = 8;
 
