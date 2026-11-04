@@ -94,7 +94,8 @@ export default class Game {
             this.enemyManager,
             this.scoreManager,
             this.waveManager,
-            this.powerUpManager
+            this.powerUpManager,
+            this.audioManager
         );
 
         this.inputBar = new InputBar(
@@ -134,6 +135,14 @@ export default class Game {
 
         // Começa a música do menu (toca após a primeira interação do usuário)
         this.audioManager.playMusic("menu");
+
+        // Clique nas caixas de seleção dos menus (matéria, dificuldade,
+        // filtros do placar e alternativa correta no Custom Game)
+        document.addEventListener("change", (event) => {
+            if (event.target.matches("select, input[type='radio']")) {
+                this.audioManager.playSfx("clique");
+            }
+        });
 
         this.resumeButton.addEventListener("click", () => {
 
@@ -190,6 +199,8 @@ export default class Game {
 
             if (result.result === "wrong") {
 
+                this.audioManager.playSfx("derrota");
+
                 this.scoreManager.loseLife();
 
                 if (this.scoreManager.isGameOver()) {
@@ -199,6 +210,8 @@ export default class Game {
             }
 
             if (result.result === "correct") {
+
+                this.audioManager.playSfx("acerto");
 
                 this.waveManager.nextWave();
 
@@ -409,10 +422,18 @@ export default class Game {
                 (event.clientY - rect.top) *
                 scaleY;
 
+            const previousOption =
+                this.bossManager.boss.selectedOption;
+
             this.bossManager.handleMouseMove(
                 mouseX,
                 mouseY
             );
+
+            // Clique quando o mouse passa para outra alternativa
+            if (this.bossManager.boss?.selectedOption !== previousOption) {
+                this.audioManager.playSfx("clique");
+            }
 
         });
 
@@ -488,10 +509,21 @@ export default class Game {
             }
 
 
+            const previousOption =
+                this.bossManager.boss.selectedOption;
+
             const result =
                 this.bossManager.handleKeyDown(
                     event
                 );
+
+            // Clique ao mover a seleção com as setas
+            if (
+                !result &&
+                this.bossManager.boss?.selectedOption !== previousOption
+            ) {
+                this.audioManager.playSfx("clique");
+            }
 
 
             if (!result) {
@@ -501,15 +533,16 @@ export default class Game {
 
             if (result.result === "wrong") {
 
+                this.audioManager.playSfx("derrota");
+
                 this.scoreManager.loseLife();
 
-                if (this.scoreManager.isGameOver()) {
-                    return;
-                }
                 return;
             }
 
             if (result.result === "correct") {
+
+                this.audioManager.playSfx("acerto");
 
                 this.waveManager.nextWave();
 

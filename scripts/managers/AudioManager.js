@@ -1,4 +1,4 @@
-// Centraliza a reprodução das músicas do jogo.
+// Centraliza a reprodução das músicas e dos efeitos sonoros do jogo.
 // Os caminhos são resolvidos a partir deste arquivo (import.meta.url),
 // então funcionam independentemente da página que carrega o jogo.
 
@@ -18,14 +18,66 @@ export const MUSIC_TRACKS = {
     }
 };
 
+// Efeitos sonoros. volume vai de 0 a 1; pitchVariation varia levemente
+// o tom a cada execução para sons repetitivos não cansarem.
+export const SFX_SOUNDS = {
+    acerto: {
+        src: audioPath("sfx/acerto.mp3"),
+        volume: 0.5,
+        pitchVariation: 0.06
+    },
+    scromblusDerrotado: {
+        src: audioPath("sfx/scromblus-derrotado.mp3"),
+        volume: 0.8
+    },
+    despertador: {
+        src: audioPath("sfx/despertador.mp3"),
+        volume: 0.8
+    },
+    gelo: {
+        src: audioPath("sfx/gelo.mp3"),
+        volume: 0.7
+    },
+    reverso: {
+        src: audioPath("sfx/reverso.mp3"),
+        volume: 0.7
+    },
+    duplicador: {
+        src: audioPath("sfx/duplicador.mp3"),
+        volume: 0.7
+    },
+    // Caixas de seleção do menu e troca de alternativa no Boss
+    clique: {
+        src: audioPath("sfx/clique.mp3"),
+        volume: 0.45
+    },
+    // Alternativa errada no Boss
+    derrota: {
+        src: audioPath("sfx/derrota.mp3"),
+        volume: 0.8
+    }
+};
+
 const STORAGE_KEY = "madrugando_audio";
 const FADE_DURATION = 600; // ms
 
 export class AudioManager {
 
-    constructor(tracks = MUSIC_TRACKS) {
+    constructor(tracks = MUSIC_TRACKS, sfx = SFX_SOUNDS) {
 
         this.tracks = tracks;
+        this.sfx = sfx;
+
+        // Efeitos usam a Web Audio API: menor latência e permite
+        // tocar o mesmo som várias vezes ao mesmo tempo.
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        this.audioContext = AudioContextClass
+            ? new AudioContextClass()
+            : null;
+
+        this.sfxBuffers = {};
 
         // Um elemento <audio> por trilha, criado sob demanda.
         this.musicElements = {};
@@ -39,6 +91,7 @@ export class AudioManager {
 
         this.bindUnlock();
         this.bindVisibility();
+        this.loadSfx();
     }
 
     // ---------- Configurações (localStorage) ----------
@@ -73,6 +126,8 @@ export class AudioManager {
 
             window.removeEventListener("pointerdown", unlock, true);
             window.removeEventListener("keydown", unlock, true);
+
+            this.audioContext?.resume();
 
             this.syncCurrentMusic();
         };
@@ -244,6 +299,66 @@ export class AudioManager {
         }
 
         this.fadeTo(element, targetVolume);
+    }
+
+    // ---------- Efeitos sonoros ----------
+
+    // Baixa e decodifica todos os efeitos uma vez, no início.
+    // Um arquivo ausente só gera um aviso: o restante continua funcionando.
+    loadSfx() {
+
+        if (!this.audioContext)
+            return;
+
+        Object.entries(this.sfx).forEach(async ([name, sound]) => {
+            try {
+                const response = await fetch(sound.src);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.arrayBuffer();
+
+                this.sfxBuffers[name] =
+                    await this.audioContext.decodeAudioData(data);
+
+            } catch (error) {
+                console.warn(
+                    `Efeito sonoro "${name}" não carregado (${sound.src}):`,
+                    error.message
+                );
+            }
+        });
+    }
+
+    playSfx(name) {
+
+        const sound = this.sfx[name];
+        const buffer = this.sfxBuffers[name];
+
+        if (!sound || !buffer || this.muted || !this.audioContext)
+            return;
+
+        if (this.audioContext.state === "suspended") {
+            this.audioContext.resume();
+        }
+
+        const source = this.audioContext.createBufferSource();
+        source.buffer = buffer;
+
+        if (sound.pitchVariation) {
+            source.playbackRate.value =
+                1 + (Math.random() * 2 - 1) * sound.pitchVariation;
+        }
+
+        const gain = this.audioContext.createGain();
+        gain.gain.value = sound.volume ?? 1;
+
+        source.connect(gain);
+        gain.connect(this.audioContext.destination);
+
+        source.start();
     }
 
     // ---------- Mudo ----------

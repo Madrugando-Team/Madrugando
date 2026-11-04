@@ -62,7 +62,8 @@ export class EnemyManager {
             correct: false,
             killed: false,
             enemy: null,
-            enemiesHit: 0
+            enemiesHit: 0,
+            scromblusDefeated: false
         };
 
         this.enemies.forEach(enemy => {
@@ -77,6 +78,10 @@ export class EnemyManager {
             if (enemy.type === "scromblus") {
                 const completed = enemy.advanceWord();
                 result.killed = completed;
+
+                if (completed) {
+                    result.scromblusDefeated = true;
+                }
             } else {
                 enemy.kill();
                 result.killed = true;
