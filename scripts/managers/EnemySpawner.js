@@ -198,6 +198,10 @@ export class EnemySpawner {
             enemy.word.length * 10
         );
 
+        // O Scromblus nasce com o corpo inteiro visível (a palavra fica
+        // no balão acima dele), então ele entra deslizando de cima
+        enemy.startEntry();
+
         this.enemyManager.add(enemy);
 
         console.log(

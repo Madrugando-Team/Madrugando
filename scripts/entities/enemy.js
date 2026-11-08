@@ -71,6 +71,9 @@ const HIT_BLINK_INTERVAL = 200; // ms (visível / invisível)
 const PHASE_HIT_DURATION = 300; // ms
 const KILL_SPIN_TURNS = 2;      // voltas completas até sumir
 
+// Scromblus: entrada deslizando de cima da tela ao surgir
+const ENTRY_DURATION = 700;     // ms
+
 const isLoaded = (image) =>
     image && image.complete && image.naturalWidth > 0;
 
@@ -95,6 +98,9 @@ export class Enemy {
         // Frame de hit do Scromblus ao trocar de fase
         this.phaseHitTimer = 0;
 
+        // Animação de entrada (apenas visual)
+        this.entryTimer = 0;
+
     }
 
 
@@ -104,6 +110,11 @@ export class Enemy {
 
 
     update(deltaTime) {
+
+        // A entrada é só visual: não interfere no movimento nem no chão
+        if (this.entryTimer > 0) {
+            this.entryTimer = Math.max(this.entryTimer - deltaTime, 0);
+        }
 
         // Durante a derrota o inimigo fica parado e some ao fim da animação
         if (this.isHit()) {
@@ -161,6 +172,18 @@ export class Enemy {
         return { width: height * ratio, height };
     }
 
+    // Centro horizontal do inimigo. É fixado no primeiro desenho para o
+    // sprite não "andar" para os lados quando a palavra muda de tamanho
+    // (troca de fase do Scromblus). Só a placa/balão se ajusta à palavra.
+    getCenterX(wordWidth) {
+
+        if (this.anchorX === undefined) {
+            this.anchorX = this.x + wordWidth / 2;
+        }
+
+        return this.anchorX;
+    }
+
     // Centro vertical da placa (Boo) ou do balão (Scromblus)
     getPlateCenterY() {
         return this.y - 7;
@@ -211,13 +234,20 @@ export class Enemy {
         }
 
         const wordWidth = this.getWordWidth(ctx);
-        const centerX = this.x + wordWidth / 2;
+        const centerX = this.getCenterX(wordWidth);
         const plateCenterY = this.getPlateCenterY();
 
         const { width, height } = this.getSpriteSize(sprite);
         const spriteTop = this.getSpriteTop();
 
         ctx.save();
+
+        // Entrada: desenha o inimigo mais acima e o aproxima da posição real,
+        // desacelerando no final (ease-out)
+        if (this.entryTimer > 0) {
+            const remaining = this.entryTimer / ENTRY_DURATION;
+            ctx.translate(0, -this.entryDistance * remaining ** 3);
+        }
 
         // Scromblus derrotado: gira e encolhe em torno do próprio centro
         if (this.type === "scromblus" && this.isHit()) {
@@ -404,6 +434,16 @@ export class Enemy {
 
     unreverse() {
         this.reversed = false;
+    }
+
+
+    // Faz o inimigo surgir deslizando de cima da tela, em vez de aparecer
+    // de uma vez. A distância cobre tudo o que estaria visível ao nascer.
+    startEntry() {
+
+        this.entryDistance = Math.max(this.getBottom(), 0) + 10;
+        this.entryTimer = ENTRY_DURATION;
+
     }
 
 
