@@ -2,7 +2,8 @@
 import { Enemy } from "./enemy.js";
 import {
     getWordsByCategory,
-    getRandomWordLevel
+    getRandomWordLevel,
+    getRandomCustomWord
 } from "../data/wordpools.js";
 
 export function createBoo(x, y, config) {
@@ -18,24 +19,25 @@ export function createBoo(x, y, config) {
     // Prioriza o dicionário personalizado.
     // Caso contrário, busca as palavras da matéria
     // selecionada ou de todas as matérias.
-    const pool = customDictionary
-        ? customDictionary
-        : getWordsByCategory(
+    let word;
+    if (customDictionary) {
+        word = getRandomCustomWord(customDictionary, difficulty);
+    } else {
+        const pool = getWordsByCategory(
             category,
             difficulty ? getRandomWordLevel(difficulty) : poolLevel
         );
+        word = Array.isArray(pool) && pool.length
+            ? pool[Math.floor(Math.random() * pool.length)]
+            : null;
+    }
 
-    // Verifica se existem palavras disponíveis.
-    if (!Array.isArray(pool) || pool.length === 0) {
+    if (!word) {
         console.error(
             `Nenhuma palavra encontrada para ${category} (${poolLevel})`
         );
         return null;
     }
-
-    const word = pool[
-        Math.floor(Math.random() * pool.length)
-    ];
 
     return new Enemy({
         x,

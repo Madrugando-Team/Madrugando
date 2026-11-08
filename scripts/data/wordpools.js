@@ -379,4 +379,92 @@ export function getRandomWordLevel(difficulty) {
     return distribution[distribution.length - 1][0];
 }
 
+const CUSTOM_WORD_DISTRIBUTIONS = {
+    easy: { easy: 75, medium: 25, hard: 0 },
+    medium: { easy: 50, medium: 40, hard: 10 },
+    hard: { easy: 20, medium: 50, hard: 30 }
+};
+
+const WORD_LEVEL_ORDER = ["easy", "medium", "hard"];
+
+export function classifyCustomWords(dictionary = []) {
+    const groups = { easy: [], medium: [], hard: [] };
+    for (const word of dictionary) {
+        if (typeof word !== "string" || !word.trim()) continue;
+        // NFC keeps an accented letter (including decomposed accents) as one character.
+        const length = Array.from(word.normalize("NFC")).length;
+        const level = length <= 5 ? "easy" : length <= 9 ? "medium" : "hard";
+        groups[level].push(word);
+    }
+    return groups;
+}
+
+function nearestAvailableLevel(level, availableLevels) {
+    return availableLevels.reduce((closest, candidate) => {
+        const distance = Math.abs(
+            WORD_LEVEL_ORDER.indexOf(candidate) -
+            WORD_LEVEL_ORDER.indexOf(level)
+        );
+        const closestDistance = Math.abs(
+            WORD_LEVEL_ORDER.indexOf(closest) -
+            WORD_LEVEL_ORDER.indexOf(level)
+        );
+        return distance < closestDistance ||
+            (distance === closestDistance &&
+                WORD_LEVEL_ORDER.indexOf(candidate) <
+                WORD_LEVEL_ORDER.indexOf(closest))
+            ? candidate
+            : closest;
+    }, availableLevels[0]);
+}
+
+export function getRandomCustomWord(dictionary, difficulty) {
+    const groups = classifyCustomWords(dictionary);
+    const availableLevels = WORD_LEVEL_ORDER.filter(level => groups[level].length);
+    if (!availableLevels.length) return null;
+
+    const distribution = CUSTOM_WORD_DISTRIBUTIONS[difficulty] ||
+        CUSTOM_WORD_DISTRIBUTIONS.medium;
+    const effectiveWeights = { easy: 0, medium: 0, hard: 0 };
+    for (const level of WORD_LEVEL_ORDER) {
+        const weight = distribution[level];
+        if (!weight) continue;
+        const destination = availableLevels.includes(level)
+            ? level
+            : nearestAvailableLevel(level, availableLevels);
+        effectiveWeights[destination] += weight;
+    }
+
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+    let selectedLevel = availableLevels[availableLevels.length - 1];
+    for (const level of WORD_LEVEL_ORDER) {
+        cumulative += effectiveWeights[level];
+        if (roll < cumulative) {
+            selectedLevel = level;
+            break;
+        }
+    }
+
+    const words = groups[selectedLevel];
+    return words[Math.floor(Math.random() * words.length)];
+}
+
+export function getCustomWordsForLevels(dictionary, requestedLevels) {
+    const groups = classifyCustomWords(dictionary);
+    const availableLevels = WORD_LEVEL_ORDER.filter(level => groups[level].length);
+    const selected = [];
+    for (const requestedLevel of requestedLevels) {
+        if (!availableLevels.length) break;
+        const level = availableLevels.includes(requestedLevel)
+            ? requestedLevel
+            : nearestAvailableLevel(requestedLevel, availableLevels);
+        const candidates = groups[level].filter(word => !selected.includes(word));
+        if (candidates.length) {
+            selected.push(candidates[Math.floor(Math.random() * candidates.length)]);
+        }
+    }
+    return selected;
+}
+
 export default WordPools;

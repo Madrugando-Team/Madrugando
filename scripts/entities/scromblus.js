@@ -2,7 +2,8 @@
 import { Enemy } from "./enemy.js";
 import {
     getWordsByCategory,
-    getRandomWordLevel
+    getRandomWordLevel,
+    getCustomWordsForLevels
 } from "../data/wordpools.js";
 
 export function createScromblus(x, y, config) {
@@ -19,29 +20,73 @@ export function createScromblus(x, y, config) {
     // Utiliza o dicionário personalizado ou
     // busca palavras da matéria selecionada.
     // A categoria "all" reúne todas as matérias.
+    // O Scromblus usa uma composição fixa de níveis por dificuldade,
+    // em vez de sortear o nível de cada palavra de forma independente.
+    const levelComposition = {
+        easy: ["easy", "easy", "medium"],
+        medium: ["easy", "medium", "medium"],
+        hard: ["easy", "medium", "hard"]
+    }[difficulty] || [
+        difficulty ? getRandomWordLevel(difficulty) : poolLevel,
+        difficulty ? getRandomWordLevel(difficulty) : poolLevel,
+        difficulty ? getRandomWordLevel(difficulty) : poolLevel
+    ];
+
     const pool = customDictionary
         ? customDictionary
-        : getWordsByCategory(
-            category,
-            difficulty ? getRandomWordLevel(difficulty) : poolLevel
-        );
+        : null;
 
-    // Verifica se existem palavras disponíveis.
-    if (!Array.isArray(pool) || pool.length === 0) {
+    // Verifica se o dicionário personalizado tem palavras disponíveis.
+    if (customDictionary && (!Array.isArray(pool) || pool.length === 0)) {
         console.error(
             `Nenhuma palavra encontrada para ${category} (${poolLevel})`
         );
         return null;
     }
 
-    // Remove palavras duplicadas.
-    const uniqueWords = [
-        ...new Set(
-            pool.filter(
-                word => typeof word === "string" && word.trim()
-            )
-        )
-    ];
+    const cleanWords = words => [...new Set(
+        words.filter(word => typeof word === "string" && word.trim())
+    )];
+
+    // No modo base, seleciona exatamente os níveis pedidos. Se uma matéria
+    // não tiver palavras suficientes em algum nível, completa com outros
+    // níveis disponíveis para não impedir o aparecimento do chefe.
+    let uniqueWords;
+    if (pool) {
+        uniqueWords = getCustomWordsForLevels(pool, levelComposition);
+        if (uniqueWords.length < 3) {
+            const remaining = cleanWords(pool).filter(
+                word => !uniqueWords.includes(word)
+            );
+            while (uniqueWords.length < 3 && remaining.length) {
+                const index = Math.floor(Math.random() * remaining.length);
+                uniqueWords.push(remaining.splice(index, 1)[0]);
+            }
+        }
+    } else {
+        const selected = [];
+        for (const level of levelComposition) {
+            const available = cleanWords(
+                getWordsByCategory(category, level)
+            ).filter(word => !selected.includes(word));
+            if (available.length) {
+                selected.push(available[Math.floor(Math.random() * available.length)]);
+            }
+        }
+
+        if (selected.length < 3) {
+            const fallback = cleanWords([
+                ...getWordsByCategory(category, "easy"),
+                ...getWordsByCategory(category, "medium"),
+                ...getWordsByCategory(category, "hard")
+            ]).filter(word => !selected.includes(word));
+            while (selected.length < 3 && fallback.length) {
+                const index = Math.floor(Math.random() * fallback.length);
+                selected.push(fallback.splice(index, 1)[0]);
+            }
+        }
+        uniqueWords = selected;
+    }
 
     // O Scromblus precisa de 3 palavras diferentes.
     if (uniqueWords.length < 3) {
