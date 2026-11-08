@@ -2093,3 +2093,14 @@
     box-shadow:
         0 8px 20px rgba(0, 0, 0, 0.4);
 }
+
+/* Ícone de troféu (botão do placar e HUD) */
+.trophy-icon {
+    width: auto;
+    height: 30px;
+
+    user-select: none;
+    pointer-events: none;
+
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}

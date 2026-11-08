@@ -84,13 +84,16 @@ export function createScromblus(x, y, config) {
 
             scoreManager?.gainLife(1);
 
-            this.kill();
+            // Gira e encolhe antes de sumir
+            this.hit();
 
             return true;
         }
 
-        // Avança para a próxima palavra.
+        // Avança para a próxima palavra e mostra o frame de hit
         this.word = this.words[this.currentWordIndex];
+
+        this.startPhaseHit();
 
         return false;
     };

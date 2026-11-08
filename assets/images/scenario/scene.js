@@ -1,9 +1,20 @@
-    export class Scene {
+// Imagem de fundo do jogo (1280×720, mesmo tamanho do canvas)
+const BACKGROUND = new Image();
+BACKGROUND.src = new URL("./fundo.webp", import.meta.url).href;
+
+export class Scene {
 
     render(ctx, w, h) {
 
         ctx.clearRect(0, 0, w, h);
 
+        // Usa a imagem de fundo quando ela já estiver carregada
+        if (BACKGROUND.complete && BACKGROUND.naturalWidth > 0) {
+            ctx.drawImage(BACKGROUND, 0, 0, w, h);
+            return;
+        }
+
+        // Enquanto a imagem carrega (ou se falhar), mantém o cenário desenhado
         // Parede
         const wall = ctx.createLinearGradient(0, 0, 0, h);
         wall.addColorStop(0, "#232a44");

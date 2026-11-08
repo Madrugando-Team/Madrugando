@@ -56,6 +56,9 @@
 
 #lives {
 
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 24px;
 
     letter-spacing: 4px;
@@ -296,4 +299,26 @@
 /* Retângulo e corações piscando juntos */
 .invincibility-active {
     animation: invincibilityBlink 0.5s ease-in-out infinite;
+}
+
+/* Corações das vidas */
+.life-heart {
+    width: auto;
+    height: 28px;
+
+    user-select: none;
+    pointer-events: none;
+
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+}
+
+/* Coração vazio é preto: um contorno claro suave o destaca no fundo escuro */
+.life-heart.empty {
+    filter:
+        drop-shadow(0 0 1px rgba(255, 255, 255, 0.55)) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+}
+
+/* Troféu ao lado da pontuação */
+.hud-trophy {
+    height: 30px;
 }

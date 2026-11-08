@@ -1,6 +1,15 @@
 import { createBoo } from "../entities/boo.js";
 import { createScromblus } from "../entities/scromblus.js";
 
+// O dano acontece quando os pés do Boo tocam o chão (e não mais a palavra),
+// o que encurta o percurso em ~5%. Reduzir a velocidade na mesma proporção
+// mantém o tempo de queda igual ao de antes dos sprites.
+const BOO_SPEED_MULTIPLIER = 0.95;
+
+// Mesmo ajuste para o Scromblus. Como a palavra fica no balão acima da
+// cabeça, os pés ficam ~145px abaixo dela e o percurso encurta ~21%.
+const SCROMBLUS_SPEED_MULTIPLIER = 0.79;
+
 export const DifficultyConfig = {
 
     easy: {
@@ -149,7 +158,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.config.speed,
+                speed: this.config.speed * BOO_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
@@ -173,7 +182,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.config.speed * 0.5,
+                speed: this.config.speed * 0.5 * SCROMBLUS_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,

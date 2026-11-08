@@ -17,3 +17,27 @@ canvas {
 
     background: black;
 }
+
+/* ---------- Tela cheia ---------- */
+/* O bloco do jogo é ampliado proporcionalmente (--game-scale é
+   calculado em scripts/ui/FullscreenToggle.js). */
+
+.is-fullscreen {
+    overflow: hidden;
+    background: #000;
+}
+
+.is-fullscreen .game-header {
+    display: none;
+}
+
+.is-fullscreen .game-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+
+    margin: 0;
+
+    transform: translate(-50%, -50%) scale(var(--game-scale, 1));
+    transform-origin: center center;
+}

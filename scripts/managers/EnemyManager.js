@@ -22,13 +22,13 @@ export class EnemyManager {
 
             enemy.update(deltaTime);
 
-            // Ignora inimigos que já foram eliminados
-            if (enemy.isDead()) {
+            // Ignora inimigos eliminados ou na animação de hit
+            if (!enemy.isActive()) {
                 return;
             }
 
             // Verifica se Boo ou Scromblus chegaram ao chão
-            if (enemy.y >= this.canvasHeight - 20) {
+            if (enemy.getBottom() >= this.canvasHeight - 20) {
 
                 // Remove o inimigo normalmente
                 enemy.kill();
@@ -67,6 +67,11 @@ export class EnemyManager {
         };
 
         this.enemies.forEach(enemy => {
+            // Boo já atingido (piscando) não pode ser acertado de novo
+            if (!enemy.isActive()) {
+                return;
+            }
+
             if (enemy.word.toLowerCase() !== word.toLowerCase()) {
                 return;
             }
@@ -83,7 +88,8 @@ export class EnemyManager {
                     result.scromblusDefeated = true;
                 }
             } else {
-                enemy.kill();
+                // Boo para e pisca antes de sumir
+                enemy.hit();
                 result.killed = true;
             }
         });
@@ -94,7 +100,10 @@ export class EnemyManager {
 
     hasSpace(maxEnemies) {
 
-        return this.enemies.length < maxEnemies;
+        // Boos piscando após o hit não ocupam vaga
+        return this.enemies.filter(
+            enemy => enemy.isActive()
+        ).length < maxEnemies;
 
     }
 
@@ -109,6 +118,7 @@ export class EnemyManager {
     hasWordStartingWith(prefix) {
 
         return this.enemies.some(enemy =>
+            enemy.isActive() &&
             enemy.word.toLowerCase().startsWith(
                 prefix.toLowerCase())
         );
@@ -122,18 +132,20 @@ export class EnemyManager {
     hasScromblus() {
 
         return this.enemies.some(
-            enemy => enemy.type === "scromblus"
+            enemy => enemy.type === "scromblus" && enemy.isActive()
         );
 
     }
 
     killAll() {
+        // Boos já atingidos não contam de novo
         const enemiesToKill = this.enemies.filter(
-            enemy => !enemy.isDead()
+            enemy => enemy.isActive()
         );
 
+        // Boos mostram a animação de hit; o Scromblus some na hora
         enemiesToKill.forEach(enemy => {
-            enemy.kill();
+            enemy.hit();
         });
 
         this.removeDead();

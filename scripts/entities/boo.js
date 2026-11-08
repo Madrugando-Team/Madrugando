@@ -1,5 +1,5 @@
 
-import { Enemy } from "./enemy.js";
+import { Enemy, BOO_VARIANT_COUNT } from "./enemy.js";
 import {
     getWordsByCategory,
     getRandomWordLevel
@@ -42,6 +42,8 @@ export function createBoo(x, y, config) {
         y,
         word,
         speed,
-        type: "boo"
+        type: "boo",
+        // Sorteia uma das variações visuais do Boo
+        variant: Math.floor(Math.random() * BOO_VARIANT_COUNT)
     });
 }

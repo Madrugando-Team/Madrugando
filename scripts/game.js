@@ -12,6 +12,7 @@ import { CustomGameManager } from "./managers/CustomGameManager.js";
 import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
 import { AudioManager } from "./managers/AudioManager.js";
+import { FullscreenToggle } from "./ui/FullscreenToggle.js";
 
 
 export default class Game {
@@ -141,6 +142,24 @@ export default class Game {
         document.addEventListener("change", (event) => {
             if (event.target.matches("select, input[type='radio']")) {
                 this.audioManager.playSfx("clique");
+            }
+        });
+
+        // Tela cheia (botões no menu principal e no menu de pausa)
+        this.fullscreen = new FullscreenToggle({
+            container: document.querySelector(".game-container"),
+            buttons: document.querySelectorAll("[data-fullscreen-toggle]"),
+
+            // Sair da tela cheia (inclusive pelo Esc) pausa a partida
+            onExit: () => {
+                if (
+                    this.gameStarted &&
+                    !this.gamePaused &&
+                    !this.scoreManager.isGameOver() &&
+                    this.waveManager.getState() === "playing"
+                ) {
+                    this.pauseGame();
+                }
             }
         });
 

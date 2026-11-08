@@ -1,3 +1,15 @@
+// Imagens das vidas (caminho resolvido a partir deste arquivo)
+const HEART_FULL = new URL(
+    "../../assets/images/hud/coracao-cheio.webp",
+    import.meta.url
+).href;
+
+const HEART_EMPTY = new URL(
+    "../../assets/images/hud/coracao-vazio.webp",
+    import.meta.url
+).href;
+
+const MAX_LIVES = 3;
 
 export default class HUD {
 
@@ -66,11 +78,46 @@ export default class HUD {
 
     setLives(value) {
 
-        if (this.lives) {
-            this.lives.textContent =
-                "❤️".repeat(value) +
-                "🖤".repeat(3 - value);
+        if (!this.lives)
+            return;
+
+        const lives = Math.max(0, Math.min(value, MAX_LIVES));
+
+        // Cria as imagens dos corações uma única vez
+        if (!this.heartImages) {
+
+            this.heartImages = [];
+
+            for (let i = 0; i < MAX_LIVES; i++) {
+
+                const heart = document.createElement("img");
+
+                heart.className = "life-heart";
+                heart.alt = "";
+                heart.draggable = false;
+
+                this.heartImages.push(heart);
+            }
+
+            this.lives.replaceChildren(...this.heartImages);
         }
+
+        // Só troca a imagem dos corações que mudaram
+        this.heartImages.forEach((heart, index) => {
+
+            const src = index < lives ? HEART_FULL : HEART_EMPTY;
+
+            if (heart.src !== src) {
+                heart.src = src;
+            }
+
+            heart.classList.toggle("empty", index >= lives);
+        });
+
+        this.lives.setAttribute(
+            "aria-label",
+            `${lives} de ${MAX_LIVES} vidas`
+        );
     }
 
     setLevel(value) {

@@ -30,9 +30,7 @@
         <nav class="game-navigation">
 
             <a href="../index.html" class="back-button">
-
                 ⬅ Voltar
-
             </a>
 
         </nav>
@@ -56,11 +54,15 @@
                     disabled>
                     ⚙️
                 </button>
+                <button id="fullscreen-button" type="button" data-fullscreen-toggle aria-label="Tela cheia"
+                    title="Tela cheia">
+                    ⛶
+                </button>
                 <button id="mute-button" type="button" data-audio-toggle aria-label="Desligar som" title="Desligar som">
                     🔊
                 </button>
                 <button id="leaderboard-button" type="button" aria-label="Abrir placar" title="Placar">
-                    🏆
+                    <img class="trophy-icon" src="../assets/images/hud/trofeu.webp" alt="" draggable="false">
                 </button>
             </div>
 
@@ -68,7 +70,7 @@
 
             <div id="main-menu" class="menu-content">
 
-                <img src="../assets/images/logo.png" alt="Madrugando" class="game-logo">
+                <img src="../assets/images/logo.webp" alt="Madrugando" class="game-logo">
 
                 <button id="play-button">
                     Jogar
@@ -496,10 +498,7 @@
 
             <div class="hud-box">
 
-                <span id="lives">
-                    ❤️❤️❤️
-                </span>
-
+                <span id="lives" role="img" aria-label="3 de 3 vidas"></span>
             </div>
 
 
@@ -524,7 +523,8 @@
 
             <div class="hud-box">
 
-                🏆
+                <img class="trophy-icon hud-trophy" src="../assets/images/hud/trofeu.webp" alt="Pontuação"
+                    draggable="false">
 
                 <span id="score">
                     0
@@ -545,7 +545,9 @@
                 <button id="resume-button">
                     Continuar
                 </button>
-
+                <button id="pause-fullscreen-button" type="button" data-fullscreen-toggle data-fullscreen-label>
+                    ⛶ Tela cheia
+                </button>
                 <button id="pause-mute-button" type="button" data-audio-toggle data-audio-label>
                     🔊 Som: ligado
                 </button>
