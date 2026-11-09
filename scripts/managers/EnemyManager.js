@@ -68,6 +68,7 @@ export class EnemyManager {
             killed: false,
             enemy: null,
             enemiesHit: 0,
+            enemiesKilled: 0,
             scromblusDefeated: false,
             // Acertos que valem pontos (Boo e Scromblus)
             scoredHits: 0,
@@ -101,11 +102,18 @@ export class EnemyManager {
 
                 if (completed) {
                     result.scromblusDefeated = true;
+                    result.enemiesKilled++;
                 }
             } else {
                 // Boo para e pisca antes de sumir
                 enemy.hit();
                 result.killed = true;
+
+                // O Boozarro some, mas não conta como inimigo eliminado
+                // (não dá pontos nem progresso de onda)
+                if (enemy.type !== "boozarro") {
+                    result.enemiesKilled++;
+                }
             }
         });
 

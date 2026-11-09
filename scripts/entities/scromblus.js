@@ -25,7 +25,7 @@ export function createScromblus(x, y, config) {
     const levelComposition = {
         easy: ["easy", "easy", "medium"],
         medium: ["easy", "medium", "medium"],
-        hard: ["easy", "medium", "hard"]
+        hard: ["medium", "medium", "hard"]
     }[difficulty] || [
         difficulty ? getRandomWordLevel(difficulty) : poolLevel,
         difficulty ? getRandomWordLevel(difficulty) : poolLevel,
