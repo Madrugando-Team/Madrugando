@@ -140,8 +140,8 @@ export class InputManager {
             return;
         }
 
-        // Acertou inimigo
-        if (enemyResult.correct) {
+        // Acertou inimigo (Boo ou Scromblus)
+        if (enemyResult.scoredHits > 0) {
 
             this.scoreManager.addScore(10);
 
@@ -153,6 +153,16 @@ export class InputManager {
                     ? "scromblusDerrotado"
                     : "acerto"
             );
+        }
+
+        // Digitou a palavra errada do Boozarro: perde uma vida
+        if (enemyResult.boozarroHits > 0) {
+
+            this.audioManager?.playSfx("derrota");
+
+            for (let i = 0; i < enemyResult.boozarroHits; i++) {
+                this.scoreManager.loseLife("boozarro");
+            }
         }
 
         // Acertou PowerUp
@@ -174,12 +184,12 @@ export class InputManager {
         this.currentInput = "";
 
         if (enemyResult.enemiesHit > 1) {
-        this.state = "combo";
-        this.stateTimer = 360;
-    } else {
-        this.state = "success";
-        this.stateTimer = 90;
-    }
+            this.state = "combo";
+            this.stateTimer = 360;
+        } else {
+            this.state = "success";
+            this.stateTimer = 90;
+        }
     }
 
     getInput() {
