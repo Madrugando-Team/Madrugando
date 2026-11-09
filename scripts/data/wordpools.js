@@ -89,7 +89,7 @@ const WordPools = {
                 "smile", "laugh", "bom", "bem", "mal",
                 "paz", "voz", "cor", "som", "mar",
                 "flor", "luz", "ar", "rei", "lei",
-                "lar", "pai", "mae", "tio", "tia",
+                "lar", "pai", "mãe", "tio", "tia",
                 "frase", "letra", "rima", "verso", "conto",
                 "sinal"
             ],
@@ -276,7 +276,7 @@ const WordPools = {
                 "conta", "ponto", "linha", "reta", "curva",
                 "plano", "eixo", "lado", "base", "topo",
                 "meio", "par", "zero", "um", "dois",
-                "tres", "quatro", "cinco", "seis", "sete",
+                "três", "quatro", "cinco", "seis", "sete",
                 "oito", "nove", "dez", "cem", "mil",
                 "grau", "raio", "arco", "cubo", "cone",
                 "bloco", "face", "borda", "ponta", "forma",

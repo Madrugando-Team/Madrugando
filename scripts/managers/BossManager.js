@@ -6,6 +6,7 @@ export class BossManager {
     constructor() {
 
         this.boss = null;
+        this.customQuestions = null;
 
         this.timeLimit = 45;
         this.timeRemaining = 45;
@@ -83,7 +84,59 @@ export class BossManager {
         return this.boss !== null && this.timeRemaining <= 0;
     }
 
+    addTime(seconds) {
+        if (!this.boss || !this.timerActive || seconds <= 0) return false;
+        this.timeRemaining += seconds;
+        return true;
+    }
+
+    eliminateWrongOption() {
+        if (!this.boss || !this.timerActive) return false;
+        return this.boss.eliminateWrongOption();
+    }
+
+    canEliminateWrongOption() {
+        return Boolean(
+            this.boss &&
+            this.timerActive &&
+            this.boss.canEliminateWrongOption()
+        );
+    }
+
+    canSwitchQuestion() {
+        if (!this.boss || !this.timerActive) return false;
+        if (this.customQuestions) {
+            return this.customQuestions.some(
+                question => question.question !== this.boss.question.question
+            );
+        }
+        return Boolean(this.boss.getAlternateQuestion());
+    }
+
+    switchQuestion() {
+        if (!this.canSwitchQuestion()) return false;
+
+        if (this.customQuestions) {
+            const alternatives = this.customQuestions.filter(
+                question => question.question !== this.boss.question.question
+            );
+            const next = alternatives[
+                Math.floor(Math.random() * alternatives.length)
+            ];
+            return this.boss.setQuestion(
+                this.randomizeQuestion(next),
+                null
+            );
+        }
+
+        const category = this.boss.questionCategory;
+        const question = this.boss.getAlternateQuestion(category);
+        return this.boss.setQuestion(question, category);
+    }
+
     spawn(category, difficulty = "medium") {
+
+        this.customQuestions = null;
 
         this.boss = new Boss({
 
@@ -103,6 +156,8 @@ export class BossManager {
 
         if (!questions || questions.length === 0)
             return;
+
+        this.customQuestions = questions;
 
         const question =
             questions[

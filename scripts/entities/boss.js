@@ -80,6 +80,7 @@ export class Boss {
 
         this.optionRects = [];
         this.wrongOptions = new Set();
+        this.eliminatedOptions = new Set();
         this.showingTimeoutAnswer = false;
 
         this.selectedOption = 0;
@@ -99,11 +100,12 @@ export class Boss {
     }
 
 
-    getRandomQuestion() {
+    getRandomQuestion(categoryOverride = null) {
 
         let questions;
+        const category = categoryOverride ?? this.category;
 
-        if (this.category === "all") {
+        if (category === "all") {
 
             // Obtém apenas matérias que possuem perguntas.
             const categories = Object.keys(Questions)
@@ -132,13 +134,14 @@ export class Boss {
         } else {
 
             // Mantém o funcionamento das matérias individuais.
-            questions = Questions[this.category];
+            this.questionCategory = category;
+            questions = Questions[category];
 
         }
 
         if (!Array.isArray(questions) || questions.length === 0) {
             throw new Error(
-                `Nenhuma pergunta encontrada para: ${this.category}`
+                `Nenhuma pergunta encontrada para: ${category}`
             );
         }
 
@@ -147,6 +150,58 @@ export class Boss {
             Math.floor(Math.random() * questions.length);
 
         return questions[index];
+    }
+
+    getAlternateQuestion(category = this.questionCategory) {
+        if (!category || category === "all") return null;
+        const alternatives = (Questions[category] || []).filter(
+            question => question.question !== this.question.question
+        );
+        if (!alternatives.length) return null;
+        return alternatives[Math.floor(Math.random() * alternatives.length)];
+    }
+
+    setQuestion(question, category = this.questionCategory) {
+        if (!question) return false;
+        this.question = question;
+        this.questionCategory = category;
+        this.selectedOption = 0;
+        this.hoveredOption = null;
+        this.wrongOptions.clear();
+        this.eliminatedOptions.clear();
+        this.showingTimeoutAnswer = false;
+        this.questionScroll = 0;
+        this.questionScrollMax = 0;
+        this.optionScrolls = [];
+        this.optionScrollData = [];
+        this.optionRects = [];
+        return true;
+    }
+
+    isOptionUnavailable(index) {
+        return this.wrongOptions.has(index) ||
+            this.eliminatedOptions.has(index);
+    }
+
+    eliminateWrongOption() {
+        const candidates = this.question.options
+            .map((_, index) => index)
+            .filter(index =>
+                index !== this.question.correctAnswer &&
+                !this.isOptionUnavailable(index)
+            );
+        if (!candidates.length) return false;
+        const index = candidates[Math.floor(Math.random() * candidates.length)];
+        this.eliminatedOptions.add(index);
+        if (this.selectedOption === index) this.selectNextOption(1);
+        return true;
+    }
+
+    canEliminateWrongOption() {
+        return this.question.options.some((_, index) =>
+            index !== this.question.correctAnswer &&
+            !this.isOptionUnavailable(index)
+        );
     }
 
 
@@ -691,9 +746,7 @@ export class Boss {
 
                 const isSelected =
                     this.selectedOption === data.index &&
-                    !this.wrongOptions.has(
-                        data.index
-                    );
+                    !this.isOptionUnavailable(data.index);
 
                 const scale =
                     isSelected
@@ -736,6 +789,10 @@ export class Boss {
                     ctx.fillStyle = "rgba(180, 45, 45, 0.95)";
                     ctx.strokeStyle = "rgba(230, 100, 100, 0.5)";
                     ctx.lineWidth = 2;
+                } else if (this.eliminatedOptions.has(data.index)) {
+                    ctx.fillStyle = "rgba(65, 72, 84, 0.9)";
+                    ctx.strokeStyle = "rgba(170, 180, 195, 0.35)";
+                    ctx.lineWidth = 2;
 
                 } else if (isSelected) {
                     ctx.fillStyle = "rgba(55, 75, 105, 1)";
@@ -775,7 +832,9 @@ export class Boss {
                 ctx.clip();
 
                 ctx.font = "17px Arial";
-                ctx.fillStyle = "#f5f3ff";
+                ctx.fillStyle = this.eliminatedOptions.has(data.index)
+                    ? "#9aa1ad"
+                    : "#f5f3ff";
 
                 const textStartY =
                     y +
@@ -850,7 +909,7 @@ export class Boss {
             ) {
 
                 if (
-                    this.wrongOptions.has(option.index)
+                    this.isOptionUnavailable(option.index)
                 ) {
 
                     return null;
@@ -915,7 +974,7 @@ export class Boss {
             if (index < 0)
                 index = total - 1;
 
-            if (!this.wrongOptions.has(index)) {
+            if (!this.isOptionUnavailable(index)) {
 
                 this.selectedOption =
                     index;
@@ -939,7 +998,7 @@ export class Boss {
                 : current - 2;
 
         if (
-            !this.wrongOptions.has(
+            !this.isOptionUnavailable(
                 target
             )
         ) {
@@ -959,7 +1018,7 @@ export class Boss {
             rowMate >= 0 &&
             rowMate <
             this.question.options.length &&
-            !this.wrongOptions.has(
+            !this.isOptionUnavailable(
                 rowMate
             )
         ) {
@@ -977,7 +1036,7 @@ export class Boss {
         ) {
 
             if (
-                !this.wrongOptions.has(i)
+                !this.isOptionUnavailable(i)
             ) {
 
                 this.selectedOption = i;
@@ -1054,7 +1113,7 @@ export class Boss {
             this.selectedOption;
 
         if (
-            this.wrongOptions.has(index)
+            this.isOptionUnavailable(index)
         ) {
 
             return null;
@@ -1228,9 +1287,7 @@ export class Boss {
                 ) {
 
                     if (
-                        !this.wrongOptions.has(
-                            option.index
-                        )
+                        !this.isOptionUnavailable(option.index)
                     ) {
 
                         this.hoveredOption =
