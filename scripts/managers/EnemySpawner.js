@@ -1,5 +1,11 @@
 import { createBoo } from "../entities/boo.js";
 import { createScromblus } from "../entities/scromblus.js";
+import { createBoozarro } from "../entities/boozarro.js";
+
+// Chance de um Boo nascer como Boozarro (palavra errada que não deve
+// ser digitada) e quantos podem estar na tela ao mesmo tempo
+const BOOZARRO_CHANCE = 0.15;
+const MAX_BOOZARROS = 1;
 
 // O dano acontece quando os pés do Boo tocam o chão (e não mais a palavra),
 // o que encurta o percurso em ~5%. Reduzir a velocidade na mesma proporção
@@ -154,6 +160,11 @@ export class EnemySpawner {
 
     spawn() {
 
+        if (this.shouldSpawnBoozarro()) {
+            this.spawnBoozarro();
+            return;
+        }
+
         const enemy = createBoo(
             0,
             0,
@@ -174,6 +185,29 @@ export class EnemySpawner {
 
         this.enemyManager.add(enemy);
 
+    }
+
+    shouldSpawnBoozarro() {
+
+        const boozarrosOnScreen = this.enemyManager.enemies.filter(
+            enemy => enemy.type === "boozarro" && enemy.isActive()
+        ).length;
+
+        return boozarrosOnScreen < MAX_BOOZARROS &&
+            Math.random() < BOOZARRO_CHANCE;
+    }
+
+    spawnBoozarro() {
+
+        const enemy = createBoozarro(0, 0, {
+            speed: this.config.speed * BOO_SPEED_MULTIPLIER
+        });
+
+        enemy.x = this.findSafeX(
+            enemy.word.length * 10
+        );
+
+        this.enemyManager.add(enemy);
     }
 
     spawnScromblus() {

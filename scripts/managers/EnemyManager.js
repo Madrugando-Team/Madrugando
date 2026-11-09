@@ -33,6 +33,11 @@ export class EnemyManager {
                 // Remove o inimigo normalmente
                 enemy.kill();
 
+                // O Boozarro deve chegar ao chão: não causa dano
+                if (enemy.type === "boozarro") {
+                    return;
+                }
+
                 // O ScoreManager decide se o dano
                 // deve ser aplicado ou ignorado
                 this.scoreManager.loseLife("enemy");
@@ -64,7 +69,11 @@ export class EnemyManager {
             enemy: null,
             enemiesHit: 0,
             enemiesKilled: 0,
-            scromblusDefeated: false
+            scromblusDefeated: false,
+            // Acertos que valem pontos (Boo e Scromblus)
+            scoredHits: 0,
+            // Boozarros digitados (cada um tira uma vida)
+            boozarroHits: 0
         };
 
         this.enemies.forEach(enemy => {
@@ -81,6 +90,12 @@ export class EnemyManager {
             result.enemy = enemy;
             result.enemiesHit++;
 
+            if (enemy.type === "boozarro") {
+                result.boozarroHits++;
+            } else {
+                result.scoredHits++;
+            }
+
             if (enemy.type === "scromblus") {
                 const completed = enemy.advanceWord();
                 result.killed = completed;
@@ -93,7 +108,12 @@ export class EnemyManager {
                 // Boo para e pisca antes de sumir
                 enemy.hit();
                 result.killed = true;
-                result.enemiesKilled++;
+
+                // O Boozarro some, mas não conta como inimigo eliminado
+                // (não dá pontos nem progresso de onda)
+                if (enemy.type !== "boozarro") {
+                    result.enemiesKilled++;
+                }
             }
         });
 
@@ -132,6 +152,14 @@ export class EnemyManager {
         this.enemies = [];
 
     }
+    hasBoozarro() {
+
+        return this.enemies.some(
+            enemy => enemy.type === "boozarro" && enemy.isActive()
+        );
+
+    }
+
     hasScromblus() {
 
         return this.enemies.some(
@@ -153,7 +181,10 @@ export class EnemyManager {
 
         this.removeDead();
 
-        return enemiesToKill.length;
+        // O Boozarro some, mas não conta pontos
+        return enemiesToKill.filter(
+            enemy => enemy.type !== "boozarro"
+        ).length;
 
     }
     freezeAll() {

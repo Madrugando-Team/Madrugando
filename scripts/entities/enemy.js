@@ -18,6 +18,13 @@ const SPRITES = {
         hit: loadSprite("boo", "boo-hit.webp"),
         frozen: loadSprite("boo", "boo-congelado.webp")
     },
+    boozarro: {
+        variants: [
+            loadSprite("boozarro", "boozarro.webp")
+        ],
+        hit: loadSprite("boozarro", "boozarro-hit.webp")
+        // frozen: usa o do Boo (definido abaixo)
+    },
     scromblus: {
         // Uma imagem por fase (1ª, 2ª e 3ª palavra)
         phases: [
@@ -34,6 +41,9 @@ const SPRITES = {
     }
 };
 
+// O Boozarro congelado usa o mesmo sprite do Boo
+SPRITES.boozarro.frozen = SPRITES.boo.frozen;
+
 // O Scromblus usa o último frame de hit na animação de derrota
 SPRITES.scromblus.kill = SPRITES.scromblus.phaseHits[1];
 
@@ -46,6 +56,13 @@ const TYPE_CONFIG = {
         platePosition: 0.62,   // altura da placa no corpo (0 = topo, 1 = base)
         textColor: "#ffffff",
         deathDuration: 800     // ms piscando antes de sumir
+    },
+    // Mesmo tamanho e placa do Boo
+    boozarro: {
+        height: 110,
+        platePosition: 0.62,
+        textColor: "#ffffff",
+        deathDuration: 800
     },
     scromblus: {
         height: 130,
@@ -215,8 +232,8 @@ export class Enemy {
 
     draw(ctx) {
 
-        // Boo pisca durante a derrota
-        if (this.type === "boo" && this.isHit()) {
+        // Boo e Boozarro piscam durante a derrota
+        if (this.type !== "scromblus" && this.isHit()) {
             const elapsed = this.getConfig().deathDuration - this.hitTimer;
             const visible =
                 Math.floor(elapsed / HIT_BLINK_INTERVAL) % 2 === 0;
@@ -313,7 +330,7 @@ export class Enemy {
             return sprites.phases[phase];
         }
 
-        // Boo
+        // Boo e Boozarro
         if (this.frozen)
             return sprites.frozen;
 
