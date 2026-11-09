@@ -57,6 +57,12 @@ export class BossItems {
         this.hoveredItem = null;
     }
 
+    beginBossRound() {
+        this.usedThisRound = false;
+        this.shieldArmed = false;
+        this.hoveredItem = null;
+    }
+
     getButtons() {
         const groupWidth = ITEM_DEFINITIONS.length * this.buttonSize +
             (ITEM_DEFINITIONS.length - 1) * this.gap;

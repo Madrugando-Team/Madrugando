@@ -1572,7 +1572,7 @@ export default class Game {
             this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
-            this.bossItems.reset();
+            this.bossItems.beginBossRound();
             this.enemyManager.reset();
 
             if (this.isCustomGame) {
