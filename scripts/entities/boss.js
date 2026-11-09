@@ -12,6 +12,41 @@ const Questions = {
     math: MathQuestions,
 };
 
+// ---------- Sprites dos bosses (prévia, até chegarem os animados) ----------
+
+const loadBossSprite = (file) => {
+    const image = new Image();
+    image.src = new URL(
+        `../../assets/images/bosses/${file}`,
+        import.meta.url
+    ).href;
+    return image;
+};
+
+const BOSS_SPRITES = {
+    boco: loadBossSprite("boco.webp"),
+    big: loadBossSprite("big.webp"),
+    blu: loadBossSprite("blu.webp"),
+    bob: loadBossSprite("bob.webp")
+};
+
+// Boss de cada matéria
+const SUBJECT_BOSS = {
+    math: "boco",
+    history: "big",
+    science: "blu",
+    geography: "bob",
+    // TODO: trocar pelo Roxo quando o sprite dele for entregue
+    languages: "boco"
+};
+
+// Área do sprite: entre o cronômetro e o retângulo da pergunta
+const BOSS_SPRITE_BOTTOM = 286;   // px do canvas
+const BOSS_SPRITE_HEIGHT = 196;
+const BOSS_SPRITE_MAX_WIDTH = 300;
+const BOSS_FLOAT_AMPLITUDE = 4;   // px de flutuação
+const BOSS_FLOAT_PERIOD = 2200;   // ms por ciclo
+
 export class Boss {
 
     constructor({ x, y, category, question }) {
@@ -20,9 +55,21 @@ export class Boss {
         this.y = y;
         this.category = category;
 
+        // Matéria da pergunta sorteada (no modo "all" é definida
+        // em getRandomQuestion; no Custom Game fica indefinida)
+        this.questionCategory =
+            category && category !== "all" ? category : null;
+
         this.question =
             question ??
             this.getRandomQuestion();
+
+        // Boss da matéria; no Custom Game é sorteado
+        const bossNames = Object.keys(BOSS_SPRITES);
+
+        this.bossName =
+            SUBJECT_BOSS[this.questionCategory] ??
+            bossNames[Math.floor(Math.random() * bossNames.length)];
 
         this.alive = true;
         this.active = false;
@@ -59,9 +106,10 @@ export class Boss {
         if (this.category === "all") {
 
             // Obtém apenas matérias que possuem perguntas.
-            const categories = Object.values(Questions)
-                .filter(pool =>
-                    Array.isArray(pool) && pool.length > 0
+            const categories = Object.keys(Questions)
+                .filter(key =>
+                    Array.isArray(Questions[key]) &&
+                    Questions[key].length > 0
                 );
 
             if (categories.length === 0) {
@@ -70,13 +118,16 @@ export class Boss {
                 );
             }
 
-            // Sorteia primeiro uma matéria.
+            // Sorteia primeiro uma matéria e guarda qual foi,
+            // para mostrar o boss correspondente.
             const randomCategory =
                 categories[
                 Math.floor(Math.random() * categories.length)
                 ];
 
-            questions = randomCategory;
+            this.questionCategory = randomCategory;
+
+            questions = Questions[randomCategory];
 
         } else {
 
@@ -109,7 +160,8 @@ export class Boss {
         const sound =
             new Audio("../assets/sounds/boss.mp3");
 
-        sound.play();
+        // O arquivo ainda não existe: evita o erro no console até a trilha chegar
+        sound.play().catch(() => { });
     }
 
     update(deltaTime) {
@@ -233,6 +285,43 @@ export class Boss {
         ctx.fill();
     }
 
+    // Desenha o boss acima do retângulo da pergunta, flutuando levemente
+    drawBossSprite(ctx, centerX) {
+
+        const sprite = BOSS_SPRITES[this.bossName];
+
+        if (!sprite || !sprite.complete || sprite.naturalWidth === 0)
+            return;
+
+        const scale = Math.min(
+            BOSS_SPRITE_HEIGHT / sprite.naturalHeight,
+            BOSS_SPRITE_MAX_WIDTH / sprite.naturalWidth
+        );
+
+        const width = sprite.naturalWidth * scale;
+        const height = sprite.naturalHeight * scale;
+
+        const float =
+            Math.sin(performance.now() / BOSS_FLOAT_PERIOD * Math.PI * 2) *
+            BOSS_FLOAT_AMPLITUDE;
+
+        ctx.save();
+
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 6;
+
+        ctx.drawImage(
+            sprite,
+            centerX - width / 2,
+            BOSS_SPRITE_BOTTOM - height + float,
+            width,
+            height
+        );
+
+        ctx.restore();
+    }
+
     draw(ctx) {
 
         if (!this.introStarted)
@@ -257,18 +346,13 @@ export class Boss {
         const centerX =
             ctx.canvas.width / 2;
 
+        this.drawBossSprite(ctx, centerX);
+
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         ctx.font = "bold 28px Arial";
         ctx.fillStyle = "#f5f3ff";
-
-        ctx.fillText(
-            "BOSS",
-            centerX,
-            250
-        );
-
         ctx.font = "20px Arial";
 
         const questionMaxWidth = 800;
