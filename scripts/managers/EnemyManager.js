@@ -63,6 +63,7 @@ export class EnemyManager {
             killed: false,
             enemy: null,
             enemiesHit: 0,
+            enemiesKilled: 0,
             scromblusDefeated: false
         };
 
@@ -86,11 +87,13 @@ export class EnemyManager {
 
                 if (completed) {
                     result.scromblusDefeated = true;
+                    result.enemiesKilled++;
                 }
             } else {
                 // Boo para e pisca antes de sumir
                 enemy.hit();
                 result.killed = true;
+                result.enemiesKilled++;
             }
         });
 

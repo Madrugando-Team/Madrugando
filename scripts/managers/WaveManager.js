@@ -8,13 +8,13 @@ export default class WaveManager {
 
     }
 
-    wordCorrect() {
+    wordCorrect(count = 1) {
 
         if (this.state !== "playing") {
             return;
         }
 
-        this.wordsCorrect++;
+        this.wordsCorrect += Math.max(0, Math.floor(count));
 
         console.log(
             `Wave ${this.currentWave}: ${this.wordsCorrect} / ${this.getWordsRequired()}`
@@ -30,7 +30,7 @@ export default class WaveManager {
 
     getWordsRequired() {
 
-        return 15 + ((this.currentWave - 1) * 10);
+        return 10 + ((this.currentWave - 1) * 5);
 
     }
 

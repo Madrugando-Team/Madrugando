@@ -143,9 +143,10 @@ export class InputManager {
         // Acertou inimigo
         if (enemyResult.correct) {
 
-            this.scoreManager.addScore(10);
-
-            this.waveManager.wordCorrect();
+            if (enemyResult.enemiesKilled > 0) {
+                this.scoreManager.addScore(10 * enemyResult.enemiesKilled);
+                this.waveManager.wordCorrect(enemyResult.enemiesKilled);
+            }
 
             // Derrotar o Scromblus tem som próprio no lugar do acerto comum
             this.audioManager?.playSfx(
@@ -173,13 +174,13 @@ export class InputManager {
 
         this.currentInput = "";
 
-        if (enemyResult.enemiesHit > 1) {
-        this.state = "combo";
-        this.stateTimer = 360;
-    } else {
-        this.state = "success";
-        this.stateTimer = 90;
-    }
+        if (enemyResult.enemiesKilled > 1) {
+            this.state = "combo";
+            this.stateTimer = 360;
+        } else {
+            this.state = "success";
+            this.stateTimer = 90;
+        }
     }
 
     getInput() {

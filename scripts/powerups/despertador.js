@@ -15,8 +15,8 @@ export class Despertador {
 
         for (let index = 0; index < enemiesKilled; index++) {
             this.scoreManager.addScore(10);
-            this.waveManager.wordCorrect();
         }
+        this.waveManager.wordCorrect(enemiesKilled);
 
         // Pausando o spawn de inimigos por 750ms
         this.enemySpawner.pauseSpawning(750);
