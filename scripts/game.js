@@ -8,6 +8,7 @@ import WaveManager from "./managers/WaveManager.js";
 import { PowerUpManager } from "./managers/PowerUpManager.js";
 import HUD from "./ui/hud.js";
 import { BossManager } from "./managers/BossManager.js";
+import { BossItems } from "./ui/BossItems.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
 import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
@@ -40,6 +41,8 @@ export default class Game {
         this.waveManager = new WaveManager();
 
         this.bossManager = new BossManager();
+
+        this.bossItems = new BossItems(this.canvas);
 
         this.hud = new HUD();
 
@@ -207,6 +210,15 @@ export default class Game {
             const mouseY =
                 (event.clientY - rect.top) * scaleY;
 
+            if (this.bossItems.handleClick(
+                mouseX,
+                mouseY,
+                this.bossManager
+            )) {
+                this.audioManager.playSfx("clique");
+                return;
+            }
+
             const result =
                 this.bossManager.handleClick(
                     mouseX,
@@ -218,9 +230,7 @@ export default class Game {
 
             if (result.result === "wrong") {
 
-                this.audioManager.playSfx("derrota");
-
-                this.scoreManager.loseLife();
+                this.handleWrongBossAnswer();
 
                 if (this.scoreManager.isGameOver()) {
                     return;
@@ -318,6 +328,7 @@ export default class Game {
 
         this.canvas.addEventListener("mouseleave", () => {
             this.gameOverHoveredButton = null;
+            this.bossItems.hoveredItem = null;
             this.canvas.style.cursor = "default";
         });
 
@@ -441,6 +452,19 @@ export default class Game {
                 (event.clientY - rect.top) *
                 scaleY;
 
+            if (this.bossItems.containsPoint(mouseX, mouseY)) {
+                const hoveredButton = this.bossItems.getButtons().find(item =>
+                    Math.hypot(
+                        mouseX - (item.x + item.size / 2),
+                        mouseY - (item.y + item.size / 2)
+                    ) <= item.size / 2 + 5
+                );
+                this.bossItems.hoveredItem = hoveredButton?.id ?? null;
+                this.canvas.style.cursor = "pointer";
+                return;
+            }
+            this.bossItems.hoveredItem = null;
+
             const previousOption =
                 this.bossManager.boss.selectedOption;
 
@@ -474,6 +498,10 @@ export default class Game {
             ) {
                 this.pauseGame();
             }
+        });
+
+        window.addEventListener("pagehide", () => {
+            this.recordRunOnExit();
         });
 
         window.addEventListener("keydown", (event) => {
@@ -552,9 +580,7 @@ export default class Game {
 
             if (result.result === "wrong") {
 
-                this.audioManager.playSfx("derrota");
-
-                this.scoreManager.loseLife();
+                this.handleWrongBossAnswer();
 
                 return;
             }
@@ -1354,6 +1380,8 @@ export default class Game {
 
     startGame() {
 
+        this.bossItems.reset();
+
         this.isCustomGame = false;
         this.currentCustomGame = null;
         this.currentRunRecordId = null;
@@ -1544,6 +1572,7 @@ export default class Game {
             this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
+            this.bossItems.beginBossRound();
             this.enemyManager.reset();
 
             if (this.isCustomGame) {
@@ -1601,6 +1630,13 @@ export default class Game {
         this.enemyManager.draw(ctx);
         this.bossManager.draw(ctx);
 
+        if (
+            this.waveManager.getState() === "question" &&
+            this.bossManager.hasBoss()
+        ) {
+            this.bossItems.draw(ctx, this.bossManager);
+        }
+
         if (this.waveManager.getState() === "playing") {
             this.powerUpManager.draw(ctx);
             this.inputBar.draw(ctx);
@@ -1624,6 +1660,16 @@ export default class Game {
             this.hud.hideBossTimer();
 
         }
+    }
+
+    handleWrongBossAnswer() {
+        if (this.bossItems.blockNextWrongAnswer()) {
+            this.audioManager.playSfx("clique");
+            return;
+        }
+
+        this.audioManager.playSfx("derrota");
+        this.scoreManager.loseLife();
     }
 
     updateHUD() {
@@ -1700,6 +1746,11 @@ export default class Game {
 
         this.currentRunRecordId = record.id;
         this.leaderboardManager.add(record);
+    }
+
+    recordRunOnExit() {
+        if (!this.gameStarted || this.isCustomGame) return;
+        this.recordCurrentRun();
     }
 
     getDifficultyLabel(difficulty) {
@@ -1815,6 +1866,8 @@ export default class Game {
     }
 
     returnToMenu() {
+
+        this.recordRunOnExit();
 
         this.gameStarted = false;
         this.inputManager.setEnabled(false);
@@ -1982,6 +2035,8 @@ export default class Game {
     }
 
     startCustomGame(game) {
+
+        this.bossItems.reset();
 
         this.playerName = "";
         this.currentRunRecordId = null;
