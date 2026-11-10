@@ -1586,6 +1586,12 @@ export default class Game {
             return;
         }
 
+         // Efeitos dos power-ups: por cima do fundo e atrás dos inimigos
+        if (this.waveManager.getState() === "playing") {
+            this.powerUpManager.duplicador.drawOverlay(ctx, width, height);
+            this.powerUpManager.reverso.drawOverlay(ctx, width, height);
+        }
+
         // Renderiza o Game Over antes de qualquer outro elemento
         if (this.scoreManager.isGameOver()) {
             this.drawGameOver(ctx);
