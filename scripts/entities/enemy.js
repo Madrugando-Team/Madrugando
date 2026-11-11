@@ -222,6 +222,17 @@ export class Enemy {
         return this.getPlateCenterY() - height * platePosition;
     }
 
+    // Centro do sprite na tela (usado pelo "PUF!" do Despertador)
+    getCenter() {
+
+        const x = this.anchorX ?? this.x + this.word.length * 5;
+
+        return {
+            x,
+            y: this.getSpriteTop() + this.getConfig().height / 2
+        };
+    }
+
     // Base do sprite, usada para saber quando o inimigo toca o chão
     getBottom() {
         return this.getSpriteTop() + this.getConfig().height;

@@ -80,6 +80,7 @@ export class PowerUpManager {
         this.gelo.update(deltaTime);
         this.reverso.update(deltaTime);
         this.duplicador.update(deltaTime);
+        this.despertador.update(deltaTime);
 
 
         // Só conta o tempo quando NÃO existe
@@ -248,6 +249,7 @@ export class PowerUpManager {
 
     clear() {
         this.powerUps = [];
+        this.despertador.reset();
     }
 
     reset() {
@@ -261,6 +263,7 @@ export class PowerUpManager {
         this.gelo.reset();
         this.reverso.reset();
         this.duplicador.reset();
+        this.despertador.reset();
 
     }
 

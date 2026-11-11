@@ -1614,8 +1614,13 @@ export default class Game {
         if (!this.gameStarted) {
             return;
         }
+        if (this.waveManager.getState() === "playing") {
+            this.powerUpManager.despertador.drawEffects(ctx);
+            this.powerUpManager.draw(ctx);
+            this.inputBar.draw(ctx);
+        }
 
-         // Efeitos dos power-ups: por cima do fundo e atrás dos inimigos
+        // Efeitos dos power-ups: por cima do fundo e atrás dos inimigos
         if (this.waveManager.getState() === "playing") {
             this.powerUpManager.duplicador.drawOverlay(ctx, width, height);
             this.powerUpManager.reverso.drawOverlay(ctx, width, height);
