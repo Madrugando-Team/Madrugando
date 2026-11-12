@@ -91,7 +91,7 @@
                 <back-button></back-button>
                 <h2 data-text="Placar">Placar</h2>
                 <div class="leaderboard-filters">
-                    <label for="leaderboard-subject-filter">Matéria</label>
+                    <label for="leaderboard-subject-filter">Disciplina</label>
                     <select id="leaderboard-subject-filter">
                         <option value="all">Todas</option>
                     </select>
@@ -109,7 +109,7 @@
                             <tr>
                                 <th>Posição</th>
                                 <th>Nome</th>
-                                <th>Matéria</th>
+                                <th>Disciplina</th>
                                 <th>Dificuldade</th>
                                 <th>Pontuação</th>
                                 <th>Data e hora</th>
@@ -139,13 +139,17 @@
                     placeholder="Digite seu nome">
 
                 <label for="subject-select">
-                    Matéria
+                    Disciplina
                 </label>
 
                 <select id="subject-select">
 
                     <option value="" selected disabled>
-                        Selecione uma matéria
+                        Selecione uma Disciplina
+                    </option>
+
+                    <option value="all">
+                        Todas as Disciplinas
                     </option>
 
                     <option value="science">
@@ -168,9 +172,6 @@
                         Matemática
                     </option>
 
-                    <option value="all">
-                        Todas as Matérias
-                    </option>
                 </select>
 
 
@@ -181,7 +182,7 @@
                 <select id="difficulty-select">
 
                     <option value="" selected disabled>
-                        Selecione uma dificuldade
+                        Selecione uma Dificuldade
                     </option>
 
                     <option value="easy">
@@ -325,9 +326,9 @@
                         <dialog id="dictionary-import-dialog" class="dictionary-import-dialog">
                             <form method="dialog" class="dictionary-import-content">
                                 <h3>Importar dicionário padrão</h3>
-                                <label for="dictionary-subject-select">Matéria</label>
+                                <label for="dictionary-subject-select">Disciplina</label>
                                 <select id="dictionary-subject-select" required>
-                                    <option value="" selected disabled>Selecione uma matéria</option>
+                                    <option value="" selected disabled>Selecione uma disciplina</option>
                                     <option value="science">Ciências</option>
                                     <option value="languages">Linguagens</option>
                                     <option value="geography">Geografia</option>
@@ -341,7 +342,7 @@
                                     <option value="medium">Médio</option>
                                     <option value="hard">Difícil</option>
                                 </select>
-                                <p>As palavras padrão da matéria serão adicionadas ao dicionário atual.</p>
+                                <p>As palavras padrões da disciplina serão adicionadas ao dicionário atual.</p>
                                 <div class="dictionary-import-actions">
                                     <button id="cancel-dictionary-import-button" type="button">Cancelar</button>
                                     <button id="import-dictionary-button" type="button">Importar palavras</button>
@@ -464,7 +465,7 @@
 
         <div id="game-over-overlay" class="game-over-overlay">
             <section class="game-over-panel">
-                <h2>GAME OVER</h2>
+                <h2>GAME OVER!</h2>
                 <p id="game-over-score" class="game-over-score"></p>
                 <div class="game-over-table-wrap">
                     <table class="leaderboard-table game-over-table">
@@ -472,7 +473,7 @@
                             <tr>
                                 <th>Posição</th>
                                 <th>Nome</th>
-                                <th>Matéria</th>
+                                <th>Disciplina</th>
                                 <th>Dificuldade</th>
                                 <th>Pontuação</th>
                                 <th>Data e hora</th>
