@@ -1,3 +1,4 @@
+import { wordsMatch, wordStartsWith } from "../utils/typing.js";
 import { PowerUp } from "../entities/powerUp.js";
 import PowerUpWordPools from "../data/powerupWordPools.js";
 import { Gelo } from "../powerups/gelo.js";
@@ -154,8 +155,7 @@ export class PowerUpManager {
         }
 
         return this.powerUps.some(powerUp =>
-            powerUp.word.toLowerCase().startsWith(
-                prefix.toLowerCase())
+            wordStartsWith(powerUp.word, prefix)
         );
     }
 
@@ -168,7 +168,7 @@ export class PowerUpManager {
 
         this.powerUps.forEach(powerUp => {
 
-            if (powerUp.word.toLowerCase() !== word.toLowerCase()) {
+            if (!wordsMatch(word, powerUp.word)) {
                 return;
             }
 

@@ -1,3 +1,5 @@
+import { wordsMatch, wordStartsWith } from "../utils/typing.js";
+
 export class EnemyManager {
 
     constructor(scoreManager, canvasHeight) {
@@ -82,7 +84,7 @@ export class EnemyManager {
                 return;
             }
 
-            if (enemy.word.toLowerCase() !== word.toLowerCase()) {
+            if (!wordsMatch(word, enemy.word)) {
                 return;
             }
 
@@ -142,8 +144,7 @@ export class EnemyManager {
 
         return this.enemies.some(enemy =>
             enemy.isActive() &&
-            enemy.word.toLowerCase().startsWith(
-                prefix.toLowerCase())
+            wordStartsWith(enemy.word, prefix)
         );
     }
 

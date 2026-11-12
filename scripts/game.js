@@ -14,6 +14,7 @@ import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
 import { AudioManager } from "./managers/AudioManager.js";
 import { FullscreenToggle } from "./ui/FullscreenToggle.js";
+import { setIgnoreAccents } from "./utils/typing.js";
 
 
 export default class Game {
@@ -1391,6 +1392,9 @@ export default class Game {
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
 
+        // No fácil os acentos são opcionais ao digitar
+        setIgnoreAccents(this.selectedDifficulty === "easy");
+
         this.enemySpawner.setDifficulty(
             this.selectedDifficulty
         );
@@ -2058,6 +2062,9 @@ export default class Game {
             game.difficulty;
 
         this.selectedSubject = null;
+
+        // No fácil os acentos são opcionais ao digitar
+        setIgnoreAccents(game.difficulty === "easy");
 
         this.enemySpawner.setDifficulty(
             game.difficulty

@@ -27,7 +27,8 @@ const BOSS_SPRITES = {
     boco: loadBossSprite("boco.webp"),
     big: loadBossSprite("big.webp"),
     blu: loadBossSprite("blu.webp"),
-    bob: loadBossSprite("bob.webp")
+    bob: loadBossSprite("bob.webp"),
+    bina: loadBossSprite("bina.webp")
 };
 
 // Boss de cada matéria
@@ -36,8 +37,8 @@ const SUBJECT_BOSS = {
     history: "big",
     science: "blu",
     geography: "bob",
-    // TODO: trocar pelo Roxo quando o sprite dele for entregue
-    languages: "boco"
+    // TODO: trocar pelo Bina quando o sprite dele for entregue
+    languages: "bina"
 };
 
 // Área do sprite: entre o cronômetro e o retângulo da pergunta
