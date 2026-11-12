@@ -7,7 +7,7 @@ const WIND_FRAME_COUNT = 72;
 const WIND_FPS = 24;                 // quadros por segundo (72 quadros = 3 s em loop)
 const WIND_LEFT_WIDTH = 210;         // largura da faixa esquerda
 const WIND_RIGHT_WIDTH = 202;        // largura da faixa direita
-const WIND_OPACITY = 0.7;            // linhas um pouco transparentes
+const WIND_OPACITY = 0.25;            // linhas um pouco transparentes
 const WIND_FADE_IN = 300;            // ms
 const WIND_FADE_OUT = 600;           // ms
 

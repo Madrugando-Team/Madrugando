@@ -347,11 +347,16 @@ nav{
         list-style: none;
         &.fant-carrossel{
           img{
-            background-color: rgb(182, 182, 182); /* placeholder */
+            background-color: #8ab7ff;
+                background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.12), transparent 60%),
+      linear-gradient(135deg, #869bc0 0%, #658bc7 60%, #172640 100%);
             border: none;
             outline: none;
-            box-shadow: none;
-            box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+            box-shadow:
+            inset 0 0 30px rgba(0, 0, 0, 0.35),
+            0 0 25px 10px rgba(0, 0, 0, 0.5);
           }
         }
       }
@@ -542,11 +547,11 @@ footer{
       }
     }
     &.corpof2{
-      top: 100%;
+      top: 90%;
       left: 20%;
       animation: espiral 4s linear infinite;
       img{
-      width: 80px;
+      width: 120px;
       height: auto;
       }
     }
@@ -564,7 +569,7 @@ footer{
       right: 35%;
       animation: boo 4s ease-in-out infinite;
       img{
-      width: 80px;
+      width: 100px;
       height: auto;
       }
     }
