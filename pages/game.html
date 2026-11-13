@@ -502,6 +502,9 @@
                 <span id="lives" role="img" aria-label="3 de 3 vidas"></span>
             </div>
 
+            <!-- Botão de pausa (aparece só durante a fase de inimigos) -->
+
+
 
             <div id="wave-progress">
 
@@ -521,15 +524,25 @@
 
             </div>
 
+            <!-- Troféu + botão de pausa, lado a lado no canto direito -->
+            <div class="hud-right">
 
-            <div class="hud-box">
+                <div class="hud-box">
 
-                <img class="trophy-icon hud-trophy" src="../assets/images/hud/trofeu.webp" alt="Pontuação"
-                    draggable="false">
+                    <img class="trophy-icon hud-trophy" src="../assets/images/hud/trofeu.webp" alt="Pontuação"
+                        draggable="false">
 
-                <span id="score">
-                    0
-                </span>
+                    <span id="score">
+                        0
+                    </span>
+
+                </div>
+
+                <!-- Botão de pausa (aparece só durante a fase de inimigos) -->
+                <button id="pause-button" type="button" aria-label="Pausar" title="Pausar (Esc)">
+                    <span class="pause-bar"></span>
+                    <span class="pause-bar"></span>
+                </button>
 
             </div>
 

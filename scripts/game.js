@@ -167,6 +167,25 @@ export default class Game {
             }
         });
 
+        // Botão de pausa no HUD (mesmo efeito do Esc)
+        this.pauseButton =
+            document.getElementById("pause-button");
+
+        this.pauseButton.addEventListener("click", () => {
+
+            if (
+                this.gameStarted &&
+                !this.gamePaused &&
+                !this.scoreManager.isGameOver() &&
+                this.waveManager.getState() === "playing"
+            ) {
+                this.pauseGame();
+            }
+
+            // Tira o foco para o Enter/Espaço não acionar o botão de novo
+            this.pauseButton.blur();
+        });
+
         this.resumeButton.addEventListener("click", () => {
 
             this.resumeGame();
@@ -1451,6 +1470,8 @@ export default class Game {
 
         this.pauseMenu.style.display = "flex";
 
+        this.updatePauseButton();
+
         this.inputManager.setPaused(true);
 
         this.audioManager.pauseMusic();
@@ -1490,6 +1511,8 @@ export default class Game {
     }
 
     update(deltaTime) {
+
+        this.updatePauseButton();
 
         if (!this.gameStarted) {
 
@@ -1649,6 +1672,21 @@ export default class Game {
         if (this.waveManager.getState() === "playing") {
             this.powerUpManager.draw(ctx);
             this.inputBar.draw(ctx);
+        }
+    }
+
+    // O botão de pausa só aparece quando o jogo pode ser pausado
+    // (fase de inimigos, sem Game Over e sem pausa ativa)
+    updatePauseButton() {
+
+        const canPause =
+            this.gameStarted &&
+            !this.gamePaused &&
+            !this.scoreManager.isGameOver() &&
+            this.waveManager.getState() === "playing";
+
+        if (this.pauseButton.hidden === canPause) {
+            this.pauseButton.hidden = !canPause;
         }
     }
 
