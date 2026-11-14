@@ -19,15 +19,34 @@ const SCROMBLUS_SPEED_MULTIPLIER = 0.79;
 // Tempo de espera para o próximo Scromblus, contado a partir do momento
 // em que o anterior sai de cena (derrotado ou ao chegar ao chão).
 // Depende das vidas do jogador no momento.
-const SCROMBLUS_COOLDOWN_FULL_LIVES = 8000;     // ms com os 3 corações
-const SCROMBLUS_COOLDOWN_MISSING_LIFE = 18000;  // ms com algum coração perdido
+const SCROMBLUS_COOLDOWN_FULL_LIVES = 5000;     // ms com os 3 corações
+const SCROMBLUS_COOLDOWN_MISSING_LIFE = 12000;  // ms com algum coração perdido
 const MAX_LIVES = 3;
+
+// ---------- Velocidade dos inimigos por onda ----------
+// Cada lista tem a velocidade de uma onda por posição: 1ª onda, 2ª onda...
+// Para ajustar uma onda específica, basta mudar o número dela.
+// A velocidade vale para o Boo e o Boozarro; o Scromblus usa metade dela.
+// (Antes era fixa: fácil 1.0, médio 1.05, difícil 1.1.)
+export const WAVE_SPEEDS = {
+    //      onda: 1     2     3     4     5     6     7     8     9     10
+    easy: [0.50, 0.60, 0.70, 0.80, 0.90, 1.00, 1.10, 1.20, 1.30, 1.40],
+    medium: [0.55, 0.70, 0.85, 1.00, 1.15, 1.30, 1.45, 1.60, 1.75, 1.90],
+    hard: [0.60, 0.85, 1.10, 1.35, 1.60, 1.85, 2.10, 2.35, 2.60, 2.85]
+};
+
+// Depois da última onda da lista, a velocidade continua subindo
+// este valor a cada nova onda.
+export const WAVE_SPEED_STEP = {
+    easy: 0.10,
+    medium: 0.15,
+    hard: 0.25
+};
 
 export const DifficultyConfig = {
 
     easy: {
         spawnInterval: 3000,
-        speed: 1,
         maxEnemies: 3,
         poolLevel: "easy",
         lives: 3,
@@ -36,7 +55,6 @@ export const DifficultyConfig = {
     },
     medium: {
         spawnInterval: 2950,
-        speed: 1.05,
         maxEnemies: 4,
         poolLevel: "medium",
         lives: 3,
@@ -45,7 +63,6 @@ export const DifficultyConfig = {
     },
     hard: {
         spawnInterval: 2900,
-        speed: 1.1,
         maxEnemies: 5,
         poolLevel: "hard",
         lives: 2,
@@ -101,6 +118,25 @@ export class EnemySpawner {
         }
     }
 
+    // Velocidade dos inimigos na onda atual (tabela WAVE_SPEEDS)
+    getWaveSpeed() {
+
+        const speeds =
+            WAVE_SPEEDS[this.difficulty] ?? WAVE_SPEEDS.medium;
+
+        const wave = Math.max(1, this.currentWave || 1);
+
+        if (wave <= speeds.length) {
+            return speeds[wave - 1];
+        }
+
+        // Ondas além da tabela: continua subindo a partir da última
+        const extraWaves = wave - speeds.length;
+        const step = WAVE_SPEED_STEP[this.difficulty] ?? 0.1;
+
+        return speeds[speeds.length - 1] + extraWaves * step;
+    }
+
     // Com os 3 corações o Scromblus volta mais rápido;
     // com algum coração perdido ele demora mais para surgir.
     getScromblusCooldown() {
@@ -112,21 +148,16 @@ export class EnemySpawner {
             : SCROMBLUS_COOLDOWN_MISSING_LIFE;
     }
 
-    // Quantos Scromblus podem surgir por onda.
-    // Cresce com as ondas em todas as dificuldades, mais devagar nas fáceis.
     getScromblusQuota() {
-
-        const wave = Math.max(1, this.currentWave || 1);
-
         if (this.difficulty === "easy") {
-            return Math.ceil(wave / 3);   // ondas 1-3: 1 | 4-6: 2 | 7-9: 3
+            return Math.random() < 0.5 ? 1 : 0;
         }
 
         if (this.difficulty === "medium") {
-            return Math.ceil(wave / 2);   // ondas 1-2: 1 | 3-4: 2 | 5-6: 3
+            return 1;
         }
 
-        return wave;                      // difícil: igual à onda
+        return Math.max(1, this.currentWave || 1);
     }
 
     update(deltaTime) {
@@ -197,7 +228,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.config.speed * BOO_SPEED_MULTIPLIER,
+                speed: this.getWaveSpeed() * BOO_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
@@ -228,7 +259,7 @@ export class EnemySpawner {
     spawnBoozarro() {
 
         const enemy = createBoozarro(0, 0, {
-            speed: this.config.speed * BOO_SPEED_MULTIPLIER
+            speed: this.getWaveSpeed() * BOO_SPEED_MULTIPLIER
         });
 
         enemy.x = this.findSafeX(
@@ -244,7 +275,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.config.speed * 0.5 * SCROMBLUS_SPEED_MULTIPLIER,
+                speed: this.getWaveSpeed() * 0.5 * SCROMBLUS_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,

@@ -14,7 +14,7 @@ export class Duplicador {
 
         this.scoreManager = scoreManager;
 
-        this.duration = 5000;
+        this.duration = 12000;// 10 s de pontuação dobrada
         this.timer = 0;
         this.active = false;
 

@@ -28,9 +28,14 @@ export default class WaveManager {
 
     }
 
+    // Palavras necessárias para concluir a onda:
+    // 10 na primeira e +2 a cada onda (10, 12, 14, 16...)
     getWordsRequired() {
 
-        return 10 + ((this.currentWave - 1) * 5);
+        const FIRST_WAVE_WORDS = 10;
+        const WORDS_PER_WAVE = 2;
+
+        return FIRST_WAVE_WORDS + ((this.currentWave - 1) * WORDS_PER_WAVE);
 
     }
 
@@ -48,8 +53,6 @@ export default class WaveManager {
             `Wave ${this.currentWave} concluída!`
         );
 
-        // Futuramente:
-        // Hora da Questão
 
     }
 
@@ -83,9 +86,9 @@ export default class WaveManager {
 
     reset() {
 
-    this.currentWave = 1;
-    this.wordsCorrect = 0;
-    this.state = "playing";
+        this.currentWave = 1;
+        this.wordsCorrect = 0;
+        this.state = "playing";
 
     }
 

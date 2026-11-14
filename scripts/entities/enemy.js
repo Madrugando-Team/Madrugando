@@ -91,6 +91,11 @@ const KILL_SPIN_TURNS = 2;      // voltas completas até sumir
 // Scromblus: entrada deslizando de cima da tela ao surgir
 const ENTRY_DURATION = 700;     // ms
 
+// Reverso: altura mínima (linha da palavra) até onde os inimigos sobem.
+// Fica logo abaixo dos corações e do troféu, com a palavra visível.
+// Para ajustar a altura da linha, mude o REVERSE_MIN_Y: um número maior a deixa mais baixa.
+const REVERSE_MIN_Y = 120;      // px do canvas
+
 const isLoaded = (image) =>
     image && image.complete && image.naturalWidth > 0;
 
@@ -156,13 +161,22 @@ export class Enemy {
             return;
         }
 
-        const direction =
-            this.reversed ? -1 : 1;
+        const step = this.speed * (deltaTime / 16);
 
-        this.y +=
-            this.speed *
-            direction *
-            (deltaTime / 16);
+        // Reverso: sobe só até a linha abaixo do HUD e espera ali.
+        // Quem nasceu durante o efeito (acima da linha) desce até ela.
+        if (this.reversed) {
+
+            if (this.y > REVERSE_MIN_Y) {
+                this.y = Math.max(this.y - step, REVERSE_MIN_Y);
+            } else if (this.y < REVERSE_MIN_Y) {
+                this.y = Math.min(this.y + step, REVERSE_MIN_Y);
+            }
+
+            return;
+        }
+
+        this.y += step;
 
     }
 

@@ -26,7 +26,7 @@ const FALLBACK_ICONS = {
 };
 
 // Tamanho máximo do ícone (lado maior, em px do canvas)
-const ICON_SIZE = 58;
+const ICON_SIZE = 76;
 
 // Espaço entre o fundo do ícone e o topo da palavra
 const ICON_GAP = 6;

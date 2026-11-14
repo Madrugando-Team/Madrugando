@@ -62,6 +62,22 @@ export class InputManager {
 
         const key = event.key.toLowerCase();
 
+        // Apaga tudo de uma vez: Ctrl+Backspace (Option+Backspace no Mac)
+        // ou a tecla Delete
+        const clearAll =
+            key === "delete" ||
+            (key === "backspace" &&
+                (event.ctrlKey || event.altKey || event.metaKey));
+
+        if (clearAll) {
+
+            this.currentInput = "";
+
+            // Evita que o navegador use o atalho para outra coisa
+            event.preventDefault();
+
+            return;
+        }
 
         if (key === "backspace") {
 
