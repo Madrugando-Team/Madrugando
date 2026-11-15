@@ -31,10 +31,23 @@ export class Despertador {
         this.burst = { age: 0 };
 
         // Elimina os inimigos e pontua cada eliminação.
+        // Conta os Scromblus antes de eliminar: cada um vale 50 pontos
+        const scromblusKilled = this.enemyManager.enemies.filter(
+            enemy => enemy.type === "scromblus" && enemy.isActive()
+        ).length;
+
+        // Elimina os inimigos e pontua cada eliminação.
+        // (o Boozarro não entra na contagem do killAll)
         const enemiesKilled = this.enemyManager.killAll();
 
-        for (let index = 0; index < enemiesKilled; index++) {
+        const otherEnemiesKilled = enemiesKilled - scromblusKilled;
+
+        for (let index = 0; index < otherEnemiesKilled; index++) {
             this.scoreManager.addScore(10);
+        }
+
+        for (let index = 0; index < scromblusKilled; index++) {
+            this.scoreManager.addScore(50);
         }
         this.waveManager.wordCorrect(enemiesKilled);
 

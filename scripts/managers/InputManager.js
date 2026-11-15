@@ -160,7 +160,24 @@ export class InputManager {
         if (enemyResult.scoredHits > 0) {
 
             if (enemyResult.enemiesKilled > 0) {
-                this.scoreManager.addScore(10 * enemyResult.enemiesKilled);
+
+                // Cada inimigo eliminado vale 10 pontos;
+                // derrotar o Scromblus vale 50 no lugar dos 10
+                const ENEMY_POINTS = 10;
+                const SCROMBLUS_POINTS = 50;
+
+                const basePoints =
+                    ENEMY_POINTS * enemyResult.enemiesKilled +
+                    (enemyResult.scromblusDefeated
+                        ? SCROMBLUS_POINTS - ENEMY_POINTS
+                        : 0);
+
+                // Combo: a soma é multiplicada pela quantidade de inimigos
+                // eliminados de uma vez (2 → ×2, 3 → ×3...)
+                const comboMultiplier = enemyResult.enemiesKilled;
+
+                this.scoreManager.addScore(basePoints * comboMultiplier);
+
                 this.waveManager.wordCorrect(enemyResult.enemiesKilled);
             }
 
