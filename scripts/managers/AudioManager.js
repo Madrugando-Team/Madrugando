@@ -87,7 +87,10 @@ export class AudioManager {
         this.unlocked = false;      // navegador já liberou a reprodução?
         this.fades = new Map();     // fades em andamento por elemento
 
-        this.muted = this.loadSettings().muted ?? false;
+        const settings = this.loadSettings();
+        this.muted = settings.muted ?? false;
+        this.musicVolume = this.normalizeVolume(settings.musicVolume, 1);
+        this.sfxVolume = this.normalizeVolume(settings.sfxVolume, 1);
 
         this.bindUnlock();
         this.bindVisibility();
@@ -108,11 +111,22 @@ export class AudioManager {
         try {
             localStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify({ muted: this.muted })
+                JSON.stringify({
+                    muted: this.muted,
+                    musicVolume: this.musicVolume,
+                    sfxVolume: this.sfxVolume
+                })
             );
         } catch {
             // Sem localStorage (modo privado etc.): segue sem salvar.
         }
+    }
+
+    normalizeVolume(value, fallback = 1) {
+        const volume = Number(value);
+        return Number.isFinite(volume)
+            ? Math.min(1, Math.max(0, volume))
+            : fallback;
     }
 
     // ---------- Política de autoplay ----------
@@ -274,7 +288,7 @@ export class AudioManager {
 
         const targetVolume = this.muted
             ? 0
-            : this.tracks[this.currentMusic].volume;
+            : this.tracks[this.currentMusic].volume * this.musicVolume;
 
         if (this.muted) {
             this.cancelFade(element);
@@ -353,7 +367,7 @@ export class AudioManager {
         }
 
         const gain = this.audioContext.createGain();
-        gain.gain.value = sound.volume ?? 1;
+        gain.gain.value = (sound.volume ?? 1) * this.sfxVolume;
 
         source.connect(gain);
         gain.connect(this.audioContext.destination);
@@ -378,6 +392,25 @@ export class AudioManager {
 
     isMuted() {
         return this.muted;
+    }
+
+    setMusicVolume(volume) {
+        this.musicVolume = this.normalizeVolume(volume);
+        this.saveSettings();
+        this.syncCurrentMusic();
+    }
+
+    getMusicVolume() {
+        return this.musicVolume;
+    }
+
+    setSfxVolume(volume) {
+        this.sfxVolume = this.normalizeVolume(volume);
+        this.saveSettings();
+    }
+
+    getSfxVolume() {
+        return this.sfxVolume;
     }
 
     // ---------- Fade ----------

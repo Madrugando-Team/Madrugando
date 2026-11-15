@@ -122,21 +122,49 @@ export default class Game {
 
         this.playButton = document.getElementById("play-button");
 
-        // Botões de som (menu principal e menu de pausa)
-        this.audioToggleButtons =
-            document.querySelectorAll("[data-audio-toggle]");
+        this.settingsModal = document.getElementById("settings-modal");
+        this.settingsReturnFocus = null;
+        this.settingsButton = document.getElementById("settings-button");
+        this.pauseSettingsButton =
+            document.getElementById("pause-settings-button");
+        this.settingsCloseButton =
+            document.getElementById("settings-close-button");
+        this.musicVolumeSlider =
+            document.getElementById("music-volume-slider");
+        this.sfxVolumeSlider =
+            document.getElementById("sfx-volume-slider");
+        this.musicVolumeValue =
+            document.getElementById("music-volume-value");
+        this.sfxVolumeValue =
+            document.getElementById("sfx-volume-value");
+        this.muteGameCheckbox =
+            document.getElementById("mute-game-checkbox");
 
-        this.audioToggleButtons.forEach(button => {
-            button.addEventListener("click", () => {
-                this.audioManager.toggleMuted();
-                this.updateAudioButtons();
-
-                // Tira o foco para o Enter/Espaço não acionar o botão de novo
-                button.blur();
-            });
+        [this.settingsButton, this.pauseSettingsButton].forEach(button => {
+            button?.addEventListener("click", () => this.openSettings());
         });
-
-        this.updateAudioButtons();
+        this.settingsCloseButton?.addEventListener("click", () => {
+            this.closeSettings();
+        });
+        this.settingsModal?.addEventListener("click", event => {
+            if (event.target === this.settingsModal) this.closeSettings();
+        });
+        this.musicVolumeSlider?.addEventListener("input", () => {
+            const value = this.musicVolumeSlider.value;
+            this.audioManager.setMusicVolume(Number(value) / 100);
+            this.musicVolumeValue.value = `${value}%`;
+            this.musicVolumeValue.textContent = `${value}%`;
+        });
+        this.sfxVolumeSlider?.addEventListener("input", () => {
+            const value = this.sfxVolumeSlider.value;
+            this.audioManager.setSfxVolume(Number(value) / 100);
+            this.sfxVolumeValue.value = `${value}%`;
+            this.sfxVolumeValue.textContent = `${value}%`;
+        });
+        this.muteGameCheckbox?.addEventListener("change", () => {
+            this.audioManager.setMuted(this.muteGameCheckbox.checked);
+        });
+        this.updateAudioSettingsUI();
 
         // Começa a música do menu (toca após a primeira interação do usuário)
         this.audioManager.playMusic("menu");
@@ -525,6 +553,11 @@ export default class Game {
         });
 
         window.addEventListener("keydown", (event) => {
+
+            if (this.settingsModal && !this.settingsModal.hidden) {
+                if (event.key === "Escape") this.closeSettings();
+                return;
+            }
 
             if (this.scoreManager.gameOverState) {
                 return;
@@ -1490,24 +1523,34 @@ export default class Game {
 
     }
 
-    updateAudioButtons() {
+    updateAudioSettingsUI() {
+        const musicVolume = Math.round(this.audioManager.getMusicVolume() * 100);
+        const sfxVolume = Math.round(this.audioManager.getSfxVolume() * 100);
 
-        const muted = this.audioManager.isMuted();
+        this.musicVolumeSlider.value = musicVolume;
+        this.sfxVolumeSlider.value = sfxVolume;
+        this.musicVolumeValue.value = `${musicVolume}%`;
+        this.musicVolumeValue.textContent = `${musicVolume}%`;
+        this.sfxVolumeValue.value = `${sfxVolume}%`;
+        this.sfxVolumeValue.textContent = `${sfxVolume}%`;
+        this.muteGameCheckbox.checked = this.audioManager.isMuted();
+    }
 
-        this.audioToggleButtons.forEach(button => {
-            const icon = muted ? "🔇" : "🔊";
+    openSettings() {
+        this.settingsReturnFocus = document.activeElement;
+        this.updateAudioSettingsUI();
+        this.settingsModal.hidden = false;
+        this.settingsModal.setAttribute("aria-hidden", "false");
+        this.settingsCloseButton.focus();
+    }
 
-            button.textContent = button.hasAttribute("data-audio-label")
-                ? `${icon} Som: ${muted ? "desligado" : "ligado"}`
-                : icon;
-
-            button.setAttribute(
-                "aria-label",
-                muted ? "Ligar som" : "Desligar som"
-            );
-            button.title = muted ? "Ligar som" : "Desligar som";
-        });
-
+    closeSettings() {
+        this.settingsModal.hidden = true;
+        this.settingsModal.setAttribute("aria-hidden", "true");
+        if (this.settingsReturnFocus?.isConnected) {
+            this.settingsReturnFocus.focus();
+        }
+        this.settingsReturnFocus = null;
     }
 
     update(deltaTime) {

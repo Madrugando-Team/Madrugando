@@ -50,16 +50,12 @@
         <div id="game-menu">
 
             <div class="main-menu-tools">
-                <button id="settings-button" type="button" aria-label="Configurações" title="Configurações em breve"
-                    disabled>
+                <button id="settings-button" type="button" aria-label="Configurações" title="Configurações">
                     ⚙️
                 </button>
                 <button id="fullscreen-button" type="button" data-fullscreen-toggle aria-label="Tela cheia"
                     title="Tela cheia">
                     ⛶
-                </button>
-                <button id="mute-button" type="button" data-audio-toggle aria-label="Desligar som" title="Desligar som">
-                    🔊
                 </button>
                 <button id="leaderboard-button" type="button" aria-label="Abrir placar" title="Placar">
                     <img class="trophy-icon" src="../assets/images/hud/trofeu.webp" alt="" draggable="false">
@@ -562,8 +558,8 @@
                 <button id="pause-fullscreen-button" type="button" data-fullscreen-toggle data-fullscreen-label>
                     ⛶ Tela cheia
                 </button>
-                <button id="pause-mute-button" type="button" data-audio-toggle data-audio-label>
-                    🔊 Som: ligado
+                <button id="pause-settings-button" type="button">
+                    ⚙️ Configurações
                 </button>
 
                 <button id="pause-menu-button">
@@ -572,6 +568,36 @@
 
             </div>
 
+        </div>
+
+        <div id="settings-modal" class="settings-modal" aria-hidden="true" hidden>
+            <section class="settings-panel" role="dialog" aria-modal="true"
+                aria-labelledby="settings-title">
+                <button id="settings-close-button" class="settings-close-button" type="button"
+                    aria-label="Fechar configurações">×</button>
+                <h2 id="settings-title">Configurações</h2>
+
+                <div class="settings-volume-control">
+                    <label for="music-volume-slider">
+                        <span>Música</span>
+                        <output id="music-volume-value" for="music-volume-slider">100%</output>
+                    </label>
+                    <input id="music-volume-slider" type="range" min="0" max="100" value="100">
+                </div>
+
+                <div class="settings-volume-control">
+                    <label for="sfx-volume-slider">
+                        <span>Efeitos sonoros</span>
+                        <output id="sfx-volume-value" for="sfx-volume-slider">100%</output>
+                    </label>
+                    <input id="sfx-volume-slider" type="range" min="0" max="100" value="100">
+                </div>
+
+                <label class="settings-mute-control" for="mute-game-checkbox">
+                    <input id="mute-game-checkbox" type="checkbox">
+                    <span>Mutar o jogo</span>
+                </label>
+            </section>
         </div>
 
     </main>
