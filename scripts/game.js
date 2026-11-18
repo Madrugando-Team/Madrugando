@@ -1790,7 +1790,8 @@ export default class Game {
         }
 
         this.gameOverScore.textContent =
-            `Pontuação: ${this.scoreManager.getScore()}`;
+            `Pontuação: ${this.scoreManager.getScore()} · ` +
+            `Palavras: ${this.scoreManager.getWordsTyped()}`;
         this.inputManager.setEnabled(false);
         this.inputManager.reset();
         this.gameOverOverlay.style.display = "flex";
@@ -1831,6 +1832,7 @@ export default class Game {
             subject: this.getSubjectLabel(),
             difficulty: this.selectedDifficulty,
             score: this.scoreManager.getScore(),
+            words: this.scoreManager.getWordsTyped(),
             createdAt: new Date().toISOString()
         };
 
@@ -1874,6 +1876,8 @@ export default class Game {
                 record.subject,
                 this.getDifficultyLabel(record.difficulty),
                 String(record.score),
+                // Partidas antigas não guardavam as palavras
+                Number.isFinite(record.words) ? String(record.words) : "—",
                 this.formatLeaderboardDate(record.createdAt)
             ];
 
@@ -1929,6 +1933,8 @@ export default class Game {
                 record.subject,
                 this.getDifficultyLabel(record.difficulty),
                 String(record.score),
+                // Partidas antigas não guardavam as palavras
+                Number.isFinite(record.words) ? String(record.words) : "—",
                 this.formatLeaderboardDate(record.createdAt)
             ];
 

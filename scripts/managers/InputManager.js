@@ -156,6 +156,12 @@ export class InputManager {
             return;
         }
 
+        // Conta a palavra digitada (estatística do placar).
+        // Combo conta como 1 palavra; o Boozarro não conta.
+        if (enemyResult.scoredHits > 0 || powerUpResult.correct) {
+            this.scoreManager.addWordTyped();
+        }
+
         // Acertou inimigo (Boo ou Scromblus)
         if (enemyResult.scoredHits > 0) {
 

@@ -6,6 +6,9 @@ export default class ScoreManager {
         this.lives = 3;
         console.log("Vidas iniciais:", this.lives);
         this.wordsCorrect = 0;
+        // Palavras digitadas corretamente (estatística para os testes;
+        // não depende da pontuação nem dos power-ups)
+        this.wordsTyped = 0;
         this.wordsMissed = 0;
         this.multiplier = 1;
 
@@ -130,6 +133,14 @@ export default class ScoreManager {
         return this.gameOverState;
     }
 
+    // Uma palavra digitada corretamente (inimigo ou power-up)
+    addWordTyped() {
+        this.wordsTyped++;
+    }
+
+    getWordsTyped() {
+        return this.wordsTyped;
+    }
 
     reset() {
 
@@ -137,6 +148,9 @@ export default class ScoreManager {
         this.lives = 3;
 
         this.wordsCorrect = 0;
+        // Palavras digitadas corretamente (estatística para os testes;
+        // não depende da pontuação nem dos power-ups)
+        this.wordsTyped = 0;
         this.wordsMissed = 0;
         this.multiplier = 1;
 

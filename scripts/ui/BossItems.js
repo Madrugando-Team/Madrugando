@@ -70,8 +70,9 @@ export class BossItems {
         const timerRect = document
             .getElementById("wave-progress")
             ?.getBoundingClientRect();
+        // DEPOIS
         const scoreRect = document
-            .querySelector("#hud > .hud-box:last-child")
+            .querySelector("#hud .hud-right .hud-box")
             ?.getBoundingClientRect();
         const scaleX = this.canvas.width / canvasRect.width;
         let startX = this.canvas.width / 2 + 120;
