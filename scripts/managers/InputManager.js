@@ -20,18 +20,139 @@ export class InputManager {
             this.handleInput.bind(this)
         );
 
+        // Campo de texto invisível que recebe as letras durante a partida.
+        // Acentos feitos com tecla morta (´ + a = á) passam pelo sistema de
+        // entrada do sistema operacional; no Linux (IBus/Fcitx) a letra
+        // acentuada só chega a um campo editável, nunca ao keydown da janela.
+        this.composing = false;
+        this.textInput = this.createTextInput();
+
     }
+
+    createTextInput() {
+
+        const input = document.createElement("input");
+
+        input.type = "text";
+        input.id = "typing-capture";
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.tabIndex = -1;
+        input.setAttribute("autocapitalize", "off");
+        input.setAttribute("autocorrect", "off");
+        input.setAttribute("aria-hidden", "true");
+
+        // Fica na tela (alguns sistemas ignoram campos fora dela),
+        // mas invisível e sem receber cliques
+        Object.assign(input.style, {
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "1px",
+            height: "1px",
+            opacity: "0",
+            border: "0",
+            padding: "0",
+            pointerEvents: "none"
+        });
+
+        input.addEventListener("compositionstart", () => {
+            this.composing = true;
+        });
+
+        input.addEventListener("compositionend", () => {
+            this.composing = false;
+            this.consumeTextInput();
+        });
+
+        input.addEventListener("input", (event) => {
+
+            // Durante a composição (ex.: depois do ´ e antes da vogal)
+            // o texto ainda não está pronto
+            if (this.composing || event.isComposing)
+                return;
+
+            this.consumeTextInput();
+        });
+
+        document.body.appendChild(input);
+
+        return input;
+    }
+
+    // Pega o que foi digitado no campo invisível e o esvazia
+    consumeTextInput() {
+
+        const text = this.textInput.value;
+
+        this.textInput.value = "";
+
+        if (!text || !this.canType())
+            return;
+
+        for (const character of text) {
+            this.typeCharacter(character.toLowerCase());
+        }
+    }
+
+    // Mantém o foco no campo invisível enquanto a partida corre,
+    // sem roubar o foco de outro campo (ex.: configurações)
+    syncFocus() {
+
+        if (!this.canType()) {
+            this.releaseFocus();
+            return;
+        }
+
+        const active = document.activeElement;
+
+        if (active === this.textInput)
+            return;
+
+        const otherFieldFocused =
+            active &&
+            active !== document.body &&
+            active.matches("input, textarea, select, [contenteditable]");
+
+        if (otherFieldFocused)
+            return;
+
+        this.textInput.focus({ preventScroll: true });
+    }
+
+    releaseFocus() {
+
+        if (document.activeElement === this.textInput) {
+            this.textInput.blur();
+        }
+
+        this.textInput.value = "";
+        this.composing = false;
+    }
+
+    canType() {
+        return this.enabled &&
+            !this.paused &&
+            this.waveManager.getState() === "playing";
+    }
+
     setPaused(value) {
 
         this.paused = value;
+
+        if (value) this.releaseFocus();
 
     }
 
     setEnabled(value) {
         this.enabled = value;
+
+        if (!value) this.releaseFocus();
     }
 
     update(deltaTime) {
+
+        this.syncFocus();
 
         if (this.state === "normal") {
             return;
@@ -91,6 +212,19 @@ export class InputManager {
             return;
         }
 
+        // Com o campo invisível focado, a letra chega pelo evento "input"
+        // (consumeTextInput); tratar aqui também a contaria duas vezes
+        if (event.target === this.textInput) {
+            return;
+        }
+
+        this.typeCharacter(key);
+
+    }
+
+
+    // Acrescenta uma letra (ou hífen válido) à palavra digitada
+    typeCharacter(key) {
 
         const isLetter = /[a-zà-ÿ]/i.test(key);
         const isValidHyphen = key === "-" &&
