@@ -1,0 +1,277 @@
+/* =========================================================
+   Celular e tablet
+   ---------------------------------------------------------
+   As classes do <body> são definidas em scripts/ui/LayoutManager.js:
+   - .is-compact          → qualquer tela de toque/estreita
+   - .is-portrait         → em pé: canvas 540 × (altura visível)
+   - .is-touch-landscape  → deitado: 1280×720 reduzido para caber
+   O bloco do jogo é desenhado no tamanho lógico (--layout-w × --layout-h)
+   e reduzido com --layout-scale. No PC nada deste arquivo se aplica.
+   ========================================================= */
+
+/* ---------- Bloco do jogo ---------- */
+
+.is-compact {
+    overflow: hidden;
+    background: #05081a;
+    overscroll-behavior: none;
+}
+
+.is-compact .game-header {
+    display: none;
+}
+
+.is-compact .game-container,
+.is-compact.is-fullscreen .game-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: var(--layout-w);
+    height: var(--layout-h);
+    margin: 0;
+
+    transform:
+        translate(var(--layout-x, 0px), var(--layout-y, 0px))
+        scale(var(--layout-scale, 1));
+    transform-origin: 0 0;
+
+    /* Evita o zoom por toque duplo ao digitar/tocar rápido */
+    touch-action: manipulation;
+}
+
+.is-compact canvas {
+    width: var(--layout-w);
+    height: var(--layout-h);
+    border: none;
+}
+
+/* Link para voltar ao site (o cabeçalho fica escondido no celular) */
+.menu-home-link {
+    display: none;
+}
+
+.is-compact .menu-home-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------- HUD em pé ---------- */
+
+.is-portrait #hud {
+    top: 10px;
+    width: calc(100% - 20px);
+    font-size: 22px;
+}
+
+.is-portrait .hud-box {
+    min-width: 0;
+    padding: 8px 12px;
+    border-radius: 12px;
+}
+
+.is-portrait .life-heart {
+    height: 24px;
+}
+
+.is-portrait #lives {
+    gap: 3px;
+    letter-spacing: 0;
+}
+
+.is-portrait #score {
+    font-size: 22px;
+}
+
+.is-portrait .hud-trophy {
+    height: 24px;
+}
+
+.is-portrait #wave-progress {
+    width: 150px;
+    padding-top: 0;
+}
+
+.is-portrait #wave-number {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.is-portrait #progress-bar {
+    height: 12px;
+}
+
+.is-portrait #progress-text {
+    font-size: 12px;
+}
+
+.is-portrait .hud-right {
+    gap: 8px;
+}
+
+.is-portrait #pause-button {
+    width: 46px;
+}
+
+.is-portrait #wave-progress.boss-timer-active #wave-number {
+    font-size: 20px;
+}
+
+.main-menu-tools .menu-home-link {
+    width: 52px;
+    height: 52px;
+    font-size: 23px;
+    text-decoration: none;
+    border-radius: 14px;
+    color: #eeeef8;
+    background: linear-gradient(135deg, rgba(48, 54, 91, 0.94), rgba(28, 32, 60, 0.97));
+    border: 1px solid rgba(170, 175, 220, 0.30);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- Menus em pé ---------- */
+/* O bloco tem 540px de largura lógica; os painéis do PC (560–950px)
+   passam a ocupar a largura disponível e rolam quando não cabem. */
+
+.is-portrait .main-menu-tools {
+    top: 12px;
+    right: 12px;
+    gap: 8px;
+}
+
+/* Os painéis começam abaixo da fileira de botões do topo */
+.is-portrait #game-menu {
+    padding: 76px 12px 12px;
+    box-sizing: border-box;
+}
+
+.is-portrait .menu-content {
+    width: 100%;
+    min-height: 0;
+    max-height: 100%;
+    padding: 40px 24px 36px;
+    overflow-y: auto;
+}
+
+.is-portrait .game-logo {
+    width: 300px;
+}
+
+.is-portrait #game-config {
+    width: 100%;
+    height: auto;
+    padding: 36px 24px;
+}
+
+.is-portrait #game-config input,
+.is-portrait #game-config select {
+    width: 100%;
+}
+
+.is-portrait #leaderboard-menu,
+.is-portrait #custom-game-menu,
+.is-portrait #custom-game-config {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    padding: 36px 16px 24px;
+    transform: none;
+}
+
+.is-portrait #leaderboard-menu h2,
+.is-portrait #custom-game-menu h2,
+.is-portrait #custom-game-config h2 {
+    margin: 10px 0 20px;
+    font-size: 30px;
+}
+
+.is-portrait .leaderboard-filters select {
+    min-width: 0;
+    flex: 1 1 140px;
+}
+
+/* Tabelas: rolam para o lado dentro da própria caixa */
+.is-portrait .leaderboard-table {
+    min-width: 640px;
+    font-size: 13px;
+}
+
+.is-portrait .custom-game-footer {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.is-portrait .custom-game-footer button,
+.is-portrait #save-custom-game-button {
+    width: 100%;
+}
+
+.is-portrait .dictionary-add button,
+.is-portrait .dictionary-add #open-dictionary-import-button {
+    flex: 1 1 auto;
+}
+
+/* ---------- Pausa, fim de jogo e configurações ---------- */
+
+.is-portrait .pause-content {
+    width: calc(100% - 48px);
+    padding: 36px 24px;
+}
+
+.is-portrait .pause-content button {
+    width: 100%;
+    margin: 6px 0;
+}
+
+.is-portrait .pause-content p {
+    text-align: center;
+}
+
+.is-portrait .game-over-panel {
+    width: 100%;
+    padding: 24px 16px;
+}
+
+.is-portrait .game-over-table-wrap {
+    max-height: none;
+    flex: 1 1 auto;
+}
+
+.is-portrait .game-over-actions {
+    width: 100%;
+    flex-direction: column;
+}
+
+.is-portrait .game-over-panel .game-over-actions button {
+    width: 100%;
+}
+
+/* Textos do "Personalize seu Jogo" maiores (a tela é reduzida ~75%) */
+.is-portrait #custom-game-config input[type="text"],
+.is-portrait #custom-game-config textarea,
+.is-portrait #custom-game-config select,
+.is-portrait #game-config input,
+.is-portrait #game-config select {
+    font-size: 18px;
+}
+
+.is-portrait .custom-game-field label,
+.is-portrait .question-options-header,
+.is-portrait .saved-questions-header,
+.is-portrait .dictionary-add button,
+.is-portrait #add-question-button {
+    font-size: 15px;
+}
+
+.is-portrait .custom-game-section h3 {
+    font-size: 20px;
+}
+
+/* Sem teclado físico o "Pressione ESC" não faz sentido */
+@media (pointer: coarse) {
+    .pause-content p {
+        display: none;
+    }
+}

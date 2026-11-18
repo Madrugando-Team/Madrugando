@@ -70,7 +70,6 @@ export class BossItems {
         const timerRect = document
             .getElementById("wave-progress")
             ?.getBoundingClientRect();
-        // DEPOIS
         const scoreRect = document
             .querySelector("#hud .hud-right .hud-box")
             ?.getBoundingClientRect();
@@ -91,9 +90,18 @@ export class BossItems {
 
         const hudRect = document.getElementById("hud")?.getBoundingClientRect();
         const scaleY = this.canvas.height / canvasRect.height;
-        const top = hudRect
+        let top = hudRect
             ? (hudRect.top - canvasRect.top) * scaleY
             : this.top;
+
+        // Celular em pé: não cabe ao lado do cronômetro, então os itens
+        // ficam numa fileira centralizada logo abaixo do HUD
+        if (this.canvas.width < 800) {
+            startX = (this.canvas.width - groupWidth) / 2;
+            top = hudRect
+                ? (hudRect.bottom - canvasRect.top) * scaleY + 12
+                : this.top + 70;
+        }
 
         return ITEM_DEFINITIONS.map((item, index) => ({
             ...item,

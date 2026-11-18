@@ -10,7 +10,23 @@ export class Scene {
 
         // Usa a imagem de fundo quando ela já estiver carregada
         if (BACKGROUND.complete && BACKGROUND.naturalWidth > 0) {
-            ctx.drawImage(BACKGROUND, 0, 0, w, h);
+
+            // Preenche a tela sem distorcer: no PC (1280×720) a imagem cabe
+            // inteira; no celular em pé é recortada nas laterais
+            const scale = Math.max(
+                w / BACKGROUND.naturalWidth,
+                h / BACKGROUND.naturalHeight
+            );
+            const drawWidth = BACKGROUND.naturalWidth * scale;
+            const drawHeight = BACKGROUND.naturalHeight * scale;
+
+            ctx.drawImage(
+                BACKGROUND,
+                (w - drawWidth) / 2,
+                (h - drawHeight) / 2,
+                drawWidth,
+                drawHeight
+            );
             return;
         }
 

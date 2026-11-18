@@ -32,7 +32,8 @@ const ICON_SIZE = 76;
 const ICON_GAP = 6;
 
 export class PowerUp {
-    constructor({ x, y, type, speed, word }) {
+    constructor({ x, y, type, speed, word, maxX = 1280 }) {
+        this.maxX = maxX;   // largura do canvas: some depois de passar dela
         this.x = x;
         this.y = y;
         this.type = type;
@@ -50,7 +51,7 @@ export class PowerUp {
         this.x += this.speed * (deltaTime / 16);
 
         // Saiu da tela pela direita
-        if (this.x > 1280 + 100) {
+        if (this.x > this.maxX + 100) {
             this.kill();
         }
     }

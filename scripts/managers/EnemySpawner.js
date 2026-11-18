@@ -88,6 +88,9 @@ export class EnemySpawner {
         this.canvasWidth =
             config.canvasWidth ?? 1280;
 
+        this.canvasHeight =
+            config.canvasHeight ?? 720;
+
         this.enemyConfig = {
             category: config.category ?? "science",
             ...config.enemyConfig
@@ -228,7 +231,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.getWaveSpeed() * BOO_SPEED_MULTIPLIER,
+                speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * BOO_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
@@ -259,7 +262,7 @@ export class EnemySpawner {
     spawnBoozarro() {
 
         const enemy = createBoozarro(0, 0, {
-            speed: this.getWaveSpeed() * BOO_SPEED_MULTIPLIER
+            speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * BOO_SPEED_MULTIPLIER
         });
 
         enemy.x = this.findSafeX(
@@ -275,7 +278,7 @@ export class EnemySpawner {
             0,
             0,
             {
-                speed: this.getWaveSpeed() * 0.5 * SCROMBLUS_SPEED_MULTIPLIER,
+                speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * 0.5 * SCROMBLUS_SPEED_MULTIPLIER,
                 category: this.enemyConfig.category,
                 difficulty: this.difficulty,
                 poolLevel: this.config.poolLevel,
@@ -303,9 +306,22 @@ export class EnemySpawner {
         return true;
     }
 
+    // A velocidade da tabela vale para a altura do PC (720). Em telas mais
+    // altas ou mais baixas (celular em pé, com ou sem teclado) a velocidade
+    // acompanha a altura, então o tempo até o chão continua o mesmo.
+    getHeightSpeedFactor() {
+        return this.canvasHeight / 720;
+    }
+
+    // Distância mínima das bordas. Na tela estreita do celular em pé
+    // a margem do PC (100px) tiraria espaço demais.
+    getSideMargin() {
+        return this.canvasWidth < 800 ? 24 : 100;
+    }
+
     findSafeX(wordWidth = 100) {
 
-        const margin = 100;
+        const margin = this.getSideMargin();
         const minDistance = 50;
         const maxAttempts = 10;
 
@@ -338,7 +354,7 @@ export class EnemySpawner {
     }
 
     randomX() {
-        const margin = 100;
+        const margin = this.getSideMargin();
 
         return (
             Math.random() *

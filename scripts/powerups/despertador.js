@@ -5,7 +5,9 @@ PUF_IMAGE.src = new URL(
     import.meta.url
 ).href;
 
-const PUF_CENTER = { x: 640, y: 340 }; // centro da área de jogo
+// Centro da área de jogo, em proporção do canvas (no PC: 640 × 340).
+// Assim o PUF também fica no meio da tela do celular em pé.
+const PUF_CENTER = { x: 0.5, y: 340 / 720 };
 const PUF_START_SIZE = 80;   // px do canvas ao surgir
 const PUF_END_SIZE = 900;    // px do canvas ao terminar de expandir
 const PUF_DURATION = 750;    // ms
@@ -104,8 +106,8 @@ export class Despertador {
         ctx.globalAlpha = Math.max(alpha, 0);
         ctx.drawImage(
             PUF_IMAGE,
-            PUF_CENTER.x - width / 2,
-            PUF_CENTER.y - height / 2,
+            ctx.canvas.width * PUF_CENTER.x - width / 2,
+            ctx.canvas.height * PUF_CENTER.y - height / 2,
             width,
             height
         );

@@ -24,7 +24,17 @@ export class InputManager {
         // Acentos feitos com tecla morta (´ + a = á) passam pelo sistema de
         // entrada do sistema operacional; no Linux (IBus/Fcitx) a letra
         // acentuada só chega a um campo editável, nunca ao keydown da janela.
+        // No celular é ele que abre o teclado virtual.
         this.composing = false;
+
+        // Texto do campo já processado e, para cada letra, a "geração" da
+        // palavra em que entrou (muda a cada acerto ou ao apagar tudo)
+        this.fieldText = "";
+        this.fieldGenerations = [];
+        this.inputGeneration = 0;
+
+        this.touchQuery = window.matchMedia("(pointer: coarse)");
+
         this.textInput = this.createTextInput();
 
     }
@@ -38,12 +48,14 @@ export class InputManager {
         input.autocomplete = "off";
         input.spellcheck = false;
         input.tabIndex = -1;
-        input.setAttribute("autocapitalize", "off");
+        input.setAttribute("autocapitalize", "none");
         input.setAttribute("autocorrect", "off");
+        input.setAttribute("enterkeyhint", "done");
         input.setAttribute("aria-hidden", "true");
 
         // Fica na tela (alguns sistemas ignoram campos fora dela),
-        // mas invisível e sem receber cliques
+        // mas invisível e sem receber cliques. A fonte de 16px evita
+        // o zoom automático do iPhone ao focar o campo.
         Object.assign(input.style, {
             position: "fixed",
             top: "0",
@@ -53,6 +65,7 @@ export class InputManager {
             opacity: "0",
             border: "0",
             padding: "0",
+            fontSize: "16px",
             pointerEvents: "none"
         });
 
@@ -65,13 +78,7 @@ export class InputManager {
             this.consumeTextInput();
         });
 
-        input.addEventListener("input", (event) => {
-
-            // Durante a composição (ex.: depois do ´ e antes da vogal)
-            // o texto ainda não está pronto
-            if (this.composing || event.isComposing)
-                return;
-
+        input.addEventListener("input", () => {
             this.consumeTextInput();
         });
 
@@ -80,29 +87,81 @@ export class InputManager {
         return input;
     }
 
-    // Pega o que foi digitado no campo invisível e o esvazia
+    // Compara o campo invisível com o que já foi processado e aplica só a
+    // diferença. Isso cobre três casos:
+    // - PC: cada tecla chega sozinha e o campo é esvaziado em seguida;
+    // - tecla morta (´ depois a): o "´" provisório é trocado por "á";
+    // - teclado do celular (Gboard etc.): a palavra fica "em composição"
+    //   e cresce letra a letra; não dá para esvaziar o campo no meio dela.
     consumeTextInput() {
 
         const text = this.textInput.value;
+        const previous = this.fieldText;
 
-        this.textInput.value = "";
+        let common = 0;
 
-        if (!text || !this.canType())
-            return;
+        while (
+            common < previous.length &&
+            common < text.length &&
+            previous[common] === text[common]
+        ) {
+            common++;
+        }
 
-        for (const character of text) {
-            this.typeCharacter(character.toLowerCase());
+        // Letras que sumiram do campo (apagar no teclado do celular ou
+        // troca do "´" provisório). Só desfaz as da palavra atual.
+        for (let index = previous.length - 1; index >= common; index--) {
+
+            if (this.fieldGenerations[index] === this.inputGeneration &&
+                this.currentInput.length > 0) {
+                this.currentInput = this.currentInput.slice(0, -1);
+            }
+        }
+
+        this.fieldGenerations.length = common;
+
+        for (const character of text.slice(common)) {
+
+            const accepted =
+                this.canType() &&
+                this.typeCharacter(character.toLowerCase());
+
+            this.fieldGenerations.push(
+                accepted ? this.inputGeneration : -1
+            );
+        }
+
+        this.fieldText = text;
+
+        // Fora de uma composição o campo pode ser esvaziado
+        if (!this.composing) {
+            this.clearField();
         }
     }
 
+    clearField() {
+        this.textInput.value = "";
+        this.fieldText = "";
+        this.fieldGenerations = [];
+    }
+
+    isTouchDevice() {
+        return this.touchQuery.matches;
+    }
+
     // Mantém o foco no campo invisível enquanto a partida corre,
-    // sem roubar o foco de outro campo (ex.: configurações)
+    // sem roubar o foco de outro campo (ex.: configurações).
+    // No celular o foco só é dado por um toque (focusForTyping), porque
+    // o navegador só abre o teclado em resposta a um gesto do usuário.
     syncFocus() {
 
         if (!this.canType()) {
             this.releaseFocus();
             return;
         }
+
+        if (this.isTouchDevice())
+            return;
 
         const active = document.activeElement;
 
@@ -120,14 +179,43 @@ export class InputManager {
         this.textInput.focus({ preventScroll: true });
     }
 
+    // Chamado dentro de um toque/clique: foca o campo e abre o teclado
+    focusForTyping() {
+
+        if (!this.enabled || this.paused)
+            return;
+
+        if (this.waveManager.getState() !== "playing")
+            return;
+
+        // Já focado mas com o teclado fechado (ex.: botão "voltar" do
+        // Android): tirar e devolver o foco faz o teclado reaparecer
+        if (document.activeElement === this.textInput) {
+            this.textInput.blur();
+        }
+
+        this.textInput.focus({ preventScroll: true });
+    }
+
+    isTypingFocused() {
+        return document.activeElement === this.textInput;
+    }
+
+    // Celular sem o teclado aberto: a barra mostra "toque para digitar"
+    needsTapToType() {
+        return this.isTouchDevice() &&
+            this.canType() &&
+            !this.isTypingFocused();
+    }
+
     releaseFocus() {
 
         if (document.activeElement === this.textInput) {
             this.textInput.blur();
         }
 
-        this.textInput.value = "";
         this.composing = false;
+        this.clearField();
     }
 
     canType() {
@@ -147,12 +235,15 @@ export class InputManager {
     setEnabled(value) {
         this.enabled = value;
 
-        if (!value) this.releaseFocus();
+        if (value) {
+            // Ao iniciar a partida pelo botão (um toque), já abre o teclado
+            this.focusForTyping();
+        } else {
+            this.releaseFocus();
+        }
     }
 
     update(deltaTime) {
-
-        this.syncFocus();
 
         if (this.state === "normal") {
             return;
@@ -193,6 +284,7 @@ export class InputManager {
         if (clearAll) {
 
             this.currentInput = "";
+            this.inputGeneration++;
 
             // Evita que o navegador use o atalho para outra coisa
             event.preventDefault();
@@ -201,6 +293,13 @@ export class InputManager {
         }
 
         if (key === "backspace") {
+
+            // No meio de uma composição (teclado do celular, tecla morta)
+            // quem apaga é o próprio campo, tratado em consumeTextInput
+            if (event.target === this.textInput &&
+                (this.composing || this.textInput.value !== "")) {
+                return;
+            }
 
             this.currentInput =
                 this.currentInput.slice(0, -1);
@@ -223,7 +322,8 @@ export class InputManager {
     }
 
 
-    // Acrescenta uma letra (ou hífen válido) à palavra digitada
+    // Acrescenta uma letra (ou hífen válido) à palavra digitada.
+    // Retorna se a tecla foi aceita.
     typeCharacter(key) {
 
         const isLetter = /[a-zà-ÿ]/i.test(key);
@@ -251,8 +351,10 @@ export class InputManager {
 
             this.checkWord();
 
+            return true;
         }
 
+        return false;
     }
 
 
@@ -357,6 +459,9 @@ export class InputManager {
 
         this.currentInput = "";
 
+        // Letras já processadas não podem mais apagar a próxima palavra
+        this.inputGeneration++;
+
         if (enemyResult.enemiesKilled > 1) {
             this.state = "combo";
             this.stateTimer = 360;
@@ -406,6 +511,7 @@ export class InputManager {
         this.currentInput = "";
         this.state = "normal";
         this.stateTimer = 0;
+        this.inputGeneration++;
 
     }
 

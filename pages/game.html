@@ -5,7 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, interactive-widget=resizes-content">
 
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/landingpage/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/landingpage/icons/favicon-32x32.png">
@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="../styles/game.css">
     <link rel="stylesheet" href="../styles/hud.css">
     <link rel="stylesheet" href="../styles/menu.css">
+    <link rel="stylesheet" href="../styles/mobile.css">
 
 </head>
 
@@ -50,6 +51,10 @@
         <div id="game-menu">
 
             <div class="main-menu-tools">
+                <!-- Só aparece no celular, onde o cabeçalho fica escondido -->
+                <a class="menu-home-link" href="../index.html" aria-label="Voltar ao site" title="Voltar ao site">
+                    ⬅
+                </a>
                 <button id="settings-button" type="button" aria-label="Configurações" title="Configurações">
                     ⚙️
                 </button>

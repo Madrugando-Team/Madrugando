@@ -75,7 +75,37 @@ export class Duplicador {
 
         ctx.save();
         ctx.globalAlpha = Math.max(alpha, 0);
-        ctx.drawImage(OVERLAY, 0, 0, width, height);
+
+        const sourceWidth = OVERLAY.naturalWidth;
+        const sourceHeight = OVERLAY.naturalHeight;
+
+        if (width / height >= sourceWidth / sourceHeight * 0.9) {
+
+            // PC: a imagem tem o mesmo formato do canvas
+            ctx.drawImage(OVERLAY, 0, 0, width, height);
+
+        } else {
+
+            // Celular em pé: esticar deformaria as estrelas. Usa a mesma
+            // escala nos dois eixos e junta a metade esquerda com a direita
+            // da imagem (o brilho fica nas bordas).
+            const scale = height / sourceHeight;
+            const half = sourceWidth / 2;
+            const drawHalf = Math.min(half * scale, width / 2);
+            const sourceHalf = drawHalf / scale;
+
+            ctx.drawImage(
+                OVERLAY,
+                0, 0, sourceHalf, sourceHeight,
+                0, 0, drawHalf, height
+            );
+            ctx.drawImage(
+                OVERLAY,
+                sourceWidth - sourceHalf, 0, sourceHalf, sourceHeight,
+                width - drawHalf, 0, drawHalf, height
+            );
+        }
+
         ctx.restore();
     }
 

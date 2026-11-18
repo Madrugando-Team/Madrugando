@@ -101,18 +101,24 @@ export class Reverso {
         ctx.save();
         ctx.globalAlpha = Math.max(fade, 0) * WIND_OPACITY;
 
+        // Na tela estreita (celular em pé) as faixas ficam mais finas
+        // para não cobrir o meio da tela
+        const bandScale = Math.min(1, width / 800);
+        const leftWidth = WIND_LEFT_WIDTH * bandScale;
+        const rightWidth = WIND_RIGHT_WIDTH * bandScale;
+
         // Faixa esquerda
         ctx.drawImage(
             frame,
             0, 0, WIND_LEFT_WIDTH, frame.naturalHeight,
-            0, 0, WIND_LEFT_WIDTH, height
+            0, 0, leftWidth, height
         );
 
         // Faixa direita
         ctx.drawImage(
             frame,
             WIND_LEFT_WIDTH, 0, WIND_RIGHT_WIDTH, frame.naturalHeight,
-            width - WIND_RIGHT_WIDTH, 0, WIND_RIGHT_WIDTH, height
+            width - rightWidth, 0, rightWidth, height
         );
 
         ctx.restore();

@@ -260,6 +260,18 @@ export class InputBar {
 
         }
 
+        // Celular com o teclado fechado: avisa como abrir
+        if (!text && this.inputManager.needsTapToType?.()) {
+
+            ctx.font = "22px Arial";
+            ctx.fillStyle = "rgba(235, 233, 255, 0.75)";
+            ctx.fillText(
+                "⌨ Toque na tela para digitar",
+                48,
+                y + this.height / 2
+            );
+        }
+
         ctx.textBaseline =
             "alphabetic";
 

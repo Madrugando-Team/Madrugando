@@ -137,8 +137,11 @@ export class PowerUpManager {
             x: -50,
             y: this.canvasHeight / 2,
             type: type,
-            speed: 1.4,
-            word: word
+            // Na tela estreita do celular em pé atravessa mais devagar,
+            // para dar tempo de ler e digitar a palavra
+            speed: this.canvasWidth < 800 ? 0.9 : 1.4,
+            word: word,
+            maxX: this.canvasWidth
         });
 
         this.powerUps.push(powerUp);

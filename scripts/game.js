@@ -14,6 +14,7 @@ import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
 import { AudioManager } from "./managers/AudioManager.js";
 import { FullscreenToggle } from "./ui/FullscreenToggle.js";
+import { LayoutManager } from "./ui/LayoutManager.js";
 import { setIgnoreAccents } from "./utils/typing.js";
 
 
@@ -80,6 +81,7 @@ export default class Game {
             "medium",
             {
                 canvasWidth: this.canvas.width,
+                canvasHeight: this.canvas.height,
                 category: "science"
             },
             this.waveManager,
@@ -107,6 +109,21 @@ export default class Game {
             this.inputManager,
             this.canvas
         );
+
+        // Formato da tela: PC (1280×720), celular em pé ou deitado.
+        // Precisa vir depois dos managers, que recebem o novo tamanho.
+        this.layout = new LayoutManager({
+            canvas: this.canvas,
+            container: document.querySelector(".game-container"),
+            onResize: (size) => this.handleCanvasResize(size)
+        });
+
+        // Celular: tocar na tela durante a partida abre o teclado.
+        // Usa "click" (e não "pointerdown") porque o toque tira o foco do
+        // campo logo depois do pointerdown.
+        this.canvas.addEventListener("click", () => {
+            this.inputManager.focusForTyping();
+        });
 
         this.menu =
             document.getElementById("game-menu");
@@ -1473,6 +1490,39 @@ export default class Game {
 
     }
 
+    // O canvas mudou de tamanho (celular girou ou o teclado abriu/fechou).
+    // Avisa os managers e reposiciona o que já está na tela na mesma
+    // proporção, para nada "pular" para o chão.
+    handleCanvasResize({ oldWidth, oldHeight, width, height }) {
+
+        this.enemyManager.canvasHeight = height;
+        this.enemySpawner.canvasWidth = width;
+        this.enemySpawner.canvasHeight = height;
+        this.powerUpManager.canvasWidth = width;
+        this.powerUpManager.canvasHeight = height;
+
+        const scaleX = width / oldWidth;
+        const scaleY = height / oldHeight;
+
+        this.enemyManager.enemies.forEach(enemy => {
+            enemy.x *= scaleX;
+            enemy.y *= scaleY;
+
+            // Mantém o tempo até o chão (ver getHeightSpeedFactor)
+            enemy.speed *= scaleY;
+
+            if (enemy.anchorX !== undefined) {
+                enemy.anchorX *= scaleX;
+            }
+        });
+
+        this.powerUpManager.powerUps.forEach(powerUp => {
+            powerUp.x *= scaleX;
+            powerUp.y *= scaleY;
+            powerUp.maxX = width;
+        });
+    }
+
     start() {
 
         requestAnimationFrame(
@@ -1519,6 +1569,9 @@ export default class Game {
 
         this.inputManager.setPaused(false);
 
+        // No celular o toque em "Continuar" reabre o teclado
+        this.inputManager.focusForTyping();
+
         this.audioManager.resumeMusic();
 
     }
@@ -1556,6 +1609,9 @@ export default class Game {
     update(deltaTime) {
 
         this.updatePauseButton();
+
+        // Campo invisível de digitação: focado só na fase de inimigos
+        this.inputManager.syncFocus();
 
         if (!this.gameStarted) {
 

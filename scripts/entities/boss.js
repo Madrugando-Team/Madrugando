@@ -48,6 +48,43 @@ const BOSS_SPRITE_MAX_WIDTH = 300;
 const BOSS_FLOAT_AMPLITUDE = 4;   // px de flutuação
 const BOSS_FLOAT_PERIOD = 2200;   // ms por ciclo
 
+// Medidas da tela do boss. No PC (1280×720) são as de sempre; no celular
+// em pé (canvas com 540 de largura) a pergunta e as alternativas ocupam
+// a largura toda, as alternativas ficam uma embaixo da outra e o boss
+// fica abaixo do HUD e dos itens.
+const BOSS_LAYOUTS = {
+    landscape: {
+        spriteBottom: BOSS_SPRITE_BOTTOM,
+        spriteHeight: BOSS_SPRITE_HEIGHT,
+        spriteMaxWidth: BOSS_SPRITE_MAX_WIDTH,
+        boxY: 300,
+        boxWidth: 860,
+        questionMaxWidth: 800,
+        questionVisibleHeight: 160,
+        columns: 2,
+        optionMaxWidth: 340,
+        questionFont: "20px Arial",
+        optionFont: "17px Arial"
+    },
+    portrait: {
+        spriteBottom: 300,
+        spriteHeight: 150,
+        spriteMaxWidth: 240,
+        boxY: 312,
+        boxWidth: 508,
+        questionMaxWidth: 448,
+        questionVisibleHeight: 200,
+        columns: 1,
+        optionMaxWidth: 468,
+        // A tela do celular é reduzida (~75%): letras um pouco maiores
+        questionFont: "22px Arial",
+        optionFont: "19px Arial"
+    }
+};
+
+const getBossLayout = (canvas) =>
+    canvas.width < 800 ? BOSS_LAYOUTS.portrait : BOSS_LAYOUTS.landscape;
+
 export class Boss {
 
     constructor({ x, y, category, question }) {
@@ -342,7 +379,7 @@ export class Boss {
     }
 
     // Desenha o boss acima do retângulo da pergunta, flutuando levemente
-    drawBossSprite(ctx, centerX) {
+    drawBossSprite(ctx, centerX, layout = BOSS_LAYOUTS.landscape) {
 
         const sprite = BOSS_SPRITES[this.bossName];
 
@@ -350,8 +387,8 @@ export class Boss {
             return;
 
         const scale = Math.min(
-            BOSS_SPRITE_HEIGHT / sprite.naturalHeight,
-            BOSS_SPRITE_MAX_WIDTH / sprite.naturalWidth
+            layout.spriteHeight / sprite.naturalHeight,
+            layout.spriteMaxWidth / sprite.naturalWidth
         );
 
         const width = sprite.naturalWidth * scale;
@@ -370,7 +407,7 @@ export class Boss {
         ctx.drawImage(
             sprite,
             centerX - width / 2,
-            BOSS_SPRITE_BOTTOM - height + float,
+            layout.spriteBottom - height + float,
             width,
             height
         );
@@ -402,16 +439,21 @@ export class Boss {
         const centerX =
             ctx.canvas.width / 2;
 
-        this.drawBossSprite(ctx, centerX);
+        const layout = getBossLayout(ctx.canvas);
+
+        // Usado também pelas setas do teclado (moveVertical)
+        this.columns = layout.columns;
+
+        this.drawBossSprite(ctx, centerX, layout);
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         ctx.font = "bold 28px Arial";
         ctx.fillStyle = "#f5f3ff";
-        ctx.font = "20px Arial";
+        ctx.font = layout.questionFont;
 
-        const questionMaxWidth = 800;
+        const questionMaxWidth = layout.questionMaxWidth;
 
         const questionLines =
             this.wrapText(
@@ -428,13 +470,13 @@ export class Boss {
             questionLineHeight +
             questionPadding * 2;
 
-        const questionVisibleHeight = 160;
-        const boxWidth = 860;
+        const questionVisibleHeight = layout.questionVisibleHeight;
+        const boxWidth = layout.boxWidth;
 
         const boxX =
             centerX - boxWidth / 2;
 
-        const boxY = 300;
+        const boxY = layout.boxY;
 
         const questionBoxHeight =
             Math.min(
@@ -503,7 +545,7 @@ export class Boss {
 
         ctx.clip();
 
-        ctx.font = "20px Arial";
+        ctx.font = layout.questionFont;
         ctx.fillStyle = "#f5f3ff";
 
         const questionStartY =
@@ -536,9 +578,11 @@ export class Boss {
             this.questionScrollMax
         );
 
-        ctx.font = "17px Arial";
+        ctx.font = layout.optionFont;
 
-        const optionMaxWidth = 340;
+        const optionMaxWidth = layout.optionMaxWidth;
+        const columns = layout.columns;
+        const rows = Math.ceil(this.question.options.length / columns);
         const optionPadding = 20;
         const gap = 12;
 
@@ -547,8 +591,8 @@ export class Boss {
             optionPadding * 2;
 
         const totalWidth =
-            optionWidth * 2 +
-            gap;
+            optionWidth * columns +
+            gap * (columns - 1);
 
         const startX =
             centerX -
@@ -572,13 +616,13 @@ export class Boss {
         const availableOptionsHeight =
             optionsBottomLimit -
             startY -
-            rowGap;
+            rowGap * (rows - 1);
 
         const optionMaxHeight =
             Math.max(
                 50,
                 Math.floor(
-                    availableOptionsHeight / 2
+                    availableOptionsHeight / rows
                 )
             );
 
@@ -659,7 +703,7 @@ export class Boss {
 
                 const row =
                     Math.floor(
-                        data.index / 2
+                        data.index / columns
                     );
 
                 if (
@@ -683,7 +727,7 @@ export class Boss {
         for (
             let i = 0;
             i < optionData.length;
-            i += 2
+            i += columns
         ) {
 
             const rowHeight =
@@ -691,7 +735,7 @@ export class Boss {
 
             for (
                 let column = 0;
-                column < 2;
+                column < columns;
                 column++
             ) {
 
@@ -832,7 +876,7 @@ export class Boss {
 
                 ctx.clip();
 
-                ctx.font = "17px Arial";
+                ctx.font = layout.optionFont;
                 ctx.fillStyle = this.eliminatedOptions.has(data.index)
                     ? "#9aa1ad"
                     : "#f5f3ff";
@@ -989,6 +1033,13 @@ export class Boss {
 
         if (!this.active)
             return;
+
+        // Alternativas em uma coluna (celular em pé): cima/baixo
+        // andam uma por vez
+        if (this.columns === 1) {
+            this.selectNextOption(direction === "down" ? 1 : -1);
+            return;
+        }
 
         const current =
             this.selectedOption;
