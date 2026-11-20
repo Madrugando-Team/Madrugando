@@ -1,0 +1,308 @@
+.menu-toggle{
+  display: none;
+}
+
+@media (max-width: 900px){
+
+  /* NAVBAR */
+  nav{
+    -webkit-mask-image: none;
+    mask-image: none;
+    background-color: rgba(7, 20, 38, 0.88);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    overflow: visible;
+  }
+
+  nav .navbar-pc{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0 1rem;
+  }
+
+  nav .navbar-pc li:first-child{
+    height: 70px;
+    display: flex;
+    align-items: center;
+    margin-right: 0;
+  }
+
+  nav .nav-logo{
+    height: 56px;
+  }
+
+  nav .navbar-pc li:not(:first-child){
+    display: none;
+    height: 52px;
+  }
+
+  nav.aberto .navbar-pc li:not(:first-child){
+    display: flex;
+    align-items: stretch;
+  }
+
+  nav .navbar-pc li a:not(.linkbtn){
+    width: 100%;
+    font-size: 1rem;
+    padding: 0 .5rem;
+    opacity: .9;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  nav .navbar-pc li:last-child{
+    height: auto;
+    padding: .75rem 0 1rem;
+  }
+
+  nav .navbar-pc .btn-jogar{
+    width: 100%;
+  }
+
+  nav .navbar-pc .btn-jogar .linkbtn{
+    text-align: center;
+    padding: .85rem 1rem;
+    font-size: 1rem;
+  }
+
+  /* MENU HAMBURGUER */
+  .menu-toggle{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    position: absolute;
+    top: 13px;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+    padding: 0 10px;
+    border-radius: 8px;
+    z-index: 1000;
+  }
+
+  .menu-toggle span{
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--text-comum);
+    transition: transform .25s ease, opacity .25s ease;
+  }
+
+  nav.aberto .menu-toggle span:nth-child(1){ transform: translateY(8px) rotate(45deg); }
+  nav.aberto .menu-toggle span:nth-child(2){ opacity: 0; }
+  nav.aberto .menu-toggle span:nth-child(3){ transform: translateY(-8px) rotate(-45deg); }
+
+  main{
+    padding-top: 70px;
+  }
+
+  /* TIPOGRAFIA */
+  h1{
+    font-size: clamp(1.9rem, 8vw, 2.8rem);
+    letter-spacing: .08rem;
+  }
+
+  h2{
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    text-align: center;
+  }
+
+  /*  HERO  */
+  .hero{
+    min-height: auto;
+    padding-top: 1rem;
+  }
+
+  /* carrossel de fantasmas do hero */
+  .hero .boo.banner-carrossel{
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: 99;
+    width: min(78%, 320px);
+    height: 240px;
+    margin: 0 auto;
+  }
+
+  .hero .boo.banner-carrossel ul{
+    height: 100%;
+  }
+
+  .hero .boo.banner-carrossel img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* fantasmas decorativos menores */
+  .hero .boo.f1{ top: 4%; left: 6%; }
+  .hero .boo.f1 img{ width: 50px; }
+  .hero .boo.f2{ display: none; }
+  .hero .boo.f3{ top: 8%; left: 78%; }
+  .hero .boo.f3 img{ width: 70px; }
+
+  .hero .banner{
+    min-height: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem 6% 6rem;
+  }
+
+  .hero .banner .banner-titulo{
+    text-align: center;
+  }
+
+  .hero .banner .banner-desc{
+    text-align: center;
+    margin: 0 auto 1.5rem;
+    max-width: 100%;
+  }
+
+  .hero .banner .banner-btns{
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero .banner .banner-conteudo .btn-jogar{
+    margin-right: 0;
+    width: 100%;
+  }
+
+  /*  MAIN */
+  .corpo-main{
+    margin: 0 5%;
+  }
+
+  .corpo-conteudoE,
+  .corpo-conteudoD{
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 3rem 0 4rem;
+  }
+
+  .corpo-conteudoE .corpo-img{ order: 2; }
+
+  .corpo-conteudoE .corpo-img img,
+  .corpo-conteudoD .corpo-img img{
+    width: 100%;
+    margin: 0;
+    border-width: 10px;
+    outline-offset: -10px;
+  }
+
+  .corpo-conteudoE .corpo-texto p,
+  .corpo-conteudoD .corpo-texto p{
+    text-align: center;
+  }
+
+  .corpo-main .boo2.corpof1 img{ width: 65px; }
+  .corpo-main .boo2.corpof2 img{ width: 70px; }
+  .corpo-main .boo2.corpof3 img{ width: 50px; }
+  .corpo-main .boo2.corpof4 img{ width: 55px; }
+
+  /* carrossel "Conheça os fantasmas" */
+  .carrossel-fantasmas{
+    width: 100%;
+    max-width: 340px;
+    height: 300px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .carrossel-fantasmas img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .carrossel-fantasmas .seta.seta.antes{ left: .25rem; }
+  .carrossel-fantasmas .seta.seta.depois{ right: .25rem; }
+
+  .carrossel-fantasmas .seta{
+    font-size: 1.4rem;
+    padding: .35rem .75rem;
+    opacity: .85;
+  }
+
+  .carrossel-fantasmas .bolinhas{
+    bottom: -1.75rem;
+  }
+
+  .corpo-texto.fantasmas h3{
+    text-align: center;
+  }
+
+  /*  BANNER BAIXO E FOOTER  */
+  .banner-baixo{
+    margin-top: -8%;
+  }
+
+  .banner-baixo .logo{
+    width: 180px;
+    top: 14%;
+  }
+
+  .banner-baixo .banner{
+    min-height: 30vh;
+  }
+
+  footer .footer-div{
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem 5%;
+    text-align: center;
+  }
+
+  footer .footer-div h3,
+  footer .footer-div p{
+    text-align: center;
+  }
+
+  footer .footer-classificacao h3{
+    justify-self: center;
+    margin: 0 auto .75rem;
+  }
+
+  footer .footer-classificacao p{
+    width: 100%;
+  }
+
+  /* PÁGINAS INTERNAS (sobre / regras / faq) */
+  .sobre-main{
+    padding: 0 5%;
+  }
+
+  .carrossel{
+    width: 88%;
+  }
+
+  .carrossel .seta.antes{ left: -6%; }
+  .carrossel .seta.depois{ right: -6%; }
+
+  .carrossel .seta{
+    font-size: 1.4rem;
+    padding: .35rem .75rem;
+  }
+}
+
+/*  CELULARES PEQUENOS  */
+@media (max-width: 480px){
+  .hero .boo.banner-carrossel{
+    height: 200px;
+  }
+
+  .btn-jogar{
+    font-size: 17px;
+  }
+
+  .carrossel-fantasmas{
+    max-width: 280px;
+    height: 260px;
+  }
+
+  details summary{
+    font-size: .95rem;
+  }
+}
