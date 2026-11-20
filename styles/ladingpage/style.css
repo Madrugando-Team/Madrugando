@@ -181,3 +181,15 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secundario);
 }
+
+/* SELECTION */
+
+::selection {
+  background: #dadada79;
+  color: black;
+}
+
+::-moz-selection {
+  background: #dadada79;
+  color: black;
+}
