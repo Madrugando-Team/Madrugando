@@ -12,6 +12,13 @@ const Questions = {
     math: MathQuestions,
 };
 
+export function getQuestionsForCategory(category) {
+    if (category === "all") {
+        return Object.values(Questions).flat();
+    }
+    return Questions[category] ?? [];
+}
+
 // ---------- Sprites dos bosses (prévia, até chegarem os animados) ----------
 
 const loadBossSprite = (file) => {

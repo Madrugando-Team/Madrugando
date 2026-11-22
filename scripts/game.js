@@ -1557,6 +1557,7 @@ export default class Game {
     startGame() {
 
         this.bossItems.reset();
+        this.bossManager.resetQuestionCycles();
 
         this.isCustomGame = false;
         this.currentCustomGame = null;
@@ -1835,7 +1836,8 @@ export default class Game {
 
                 this.bossManager.spawnCustom(
                     this.customGameQuestions,
-                    this.selectedDifficulty
+                    this.selectedDifficulty,
+                    this.currentCustomGame?.id ?? "custom"
                 );
 
             } else {
@@ -2325,6 +2327,7 @@ export default class Game {
     startCustomGame(game) {
 
         this.bossItems.reset();
+        this.bossManager.resetQuestionCycles();
 
         this.playerName = "";
         this.currentRunRecordId = null;

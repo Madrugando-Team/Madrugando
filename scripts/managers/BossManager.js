@@ -1,4 +1,4 @@
-import { Boss } from "../entities/boss.js";
+import { Boss, getQuestionsForCategory } from "../entities/boss.js";
 import { DifficultyConfig } from "./EnemySpawner.js";
 
 export class BossManager {
@@ -7,6 +7,9 @@ export class BossManager {
 
         this.boss = null;
         this.customQuestions = null;
+        this.questionCycles = new Map();
+        this.activeQuestionPool = [];
+        this.activeQuestionPoolKey = null;
 
         this.timeLimit = 45;
         this.timeRemaining = 45;
@@ -111,44 +114,133 @@ export class BossManager {
 
     canSwitchQuestion() {
         if (!this.boss || !this.timerActive) return false;
-        if (this.customQuestions) {
-            return this.customQuestions.some(
-                question => question.question !== this.boss.question.question
-            );
-        }
-        return Boolean(this.boss.getAlternateQuestion());
+        return this.hasAlternativeQuestion();
     }
 
     switchQuestion() {
         if (!this.canSwitchQuestion()) return false;
+        const question = this.drawQuestion(
+            this.activeQuestionPoolKey,
+            this.activeQuestionPool,
+            this.getQuestionKey(this.boss.question)
+        );
+        if (!question) return false;
+        return this.boss.setQuestion(
+            this.randomizeQuestion(question),
+            this.customQuestions ? null : this.boss.questionCategory
+        );
+    }
 
-        if (this.customQuestions) {
-            const alternatives = this.customQuestions.filter(
-                question => question.question !== this.boss.question.question
-            );
-            const next = alternatives[
-                Math.floor(Math.random() * alternatives.length)
-            ];
-            return this.boss.setQuestion(
-                this.randomizeQuestion(next),
-                null
+    resetQuestionCycles() {
+        this.questionCycles.clear();
+        this.activeQuestionPool = [];
+        this.activeQuestionPoolKey = null;
+    }
+
+    getQuestionKey(question) {
+        return String(question?.question ?? "")
+            .normalize("NFC")
+            .trim()
+            .replace(/\s+/g, " ")
+            .toLocaleLowerCase("pt-BR");
+    }
+
+    shuffleQuestions(questions) {
+        const shuffled = [...questions];
+        for (let index = shuffled.length - 1; index > 0; index--) {
+            const other = Math.floor(Math.random() * (index + 1));
+            [shuffled[index], shuffled[other]] = [shuffled[other], shuffled[index]];
+        }
+        return shuffled;
+    }
+
+    getQuestionCycle(poolKey, questions) {
+        const uniqueQuestions = [...new Map(
+            questions.map(question => [this.getQuestionKey(question), question])
+        ).values()];
+        const signature = uniqueQuestions
+            .map(question => this.getQuestionKey(question))
+            .sort()
+            .join("\u001f");
+        let cycle = this.questionCycles.get(poolKey);
+        if (!cycle || cycle.signature !== signature) {
+            cycle = { signature, source: uniqueQuestions, remaining: [], lastKey: null };
+            this.questionCycles.set(poolKey, cycle);
+        }
+        return cycle;
+    }
+
+    refillQuestionCycle(cycle, excludedKey = null) {
+        cycle.remaining = this.shuffleQuestions(cycle.source);
+        if (cycle.remaining.length > 1 && cycle.lastKey) {
+            const firstKey = this.getQuestionKey(cycle.remaining[0]);
+            if (firstKey === cycle.lastKey || firstKey === excludedKey) {
+                const alternateIndex = cycle.remaining.findIndex(question => {
+                    const key = this.getQuestionKey(question);
+                    return key !== cycle.lastKey && key !== excludedKey;
+                });
+                if (alternateIndex > 0) {
+                    [cycle.remaining[0], cycle.remaining[alternateIndex]] =
+                        [cycle.remaining[alternateIndex], cycle.remaining[0]];
+                }
+            }
+        }
+    }
+
+    drawQuestion(poolKey, questions, excludedKey = null) {
+        if (!poolKey || !Array.isArray(questions) || questions.length === 0) return null;
+        const cycle = this.getQuestionCycle(poolKey, questions);
+        if (!cycle.source.length) return null;
+        if (!cycle.remaining.length) this.refillQuestionCycle(cycle, excludedKey);
+
+        if (excludedKey) {
+            cycle.remaining = cycle.remaining.filter(
+                question => this.getQuestionKey(question) !== excludedKey
             );
         }
 
-        const category = this.boss.questionCategory;
-        const question = this.boss.getAlternateQuestion(category);
-        return this.boss.setQuestion(question, category);
+        if (!cycle.remaining.length && excludedKey) {
+            // A pergunta atual já saiu neste ciclo. Ao recarregá-lo para o
+            // Switch, pulamos a atual e deixamos as demais antes da repetição.
+            if (cycle.source.length < 2) return null;
+            this.refillQuestionCycle(cycle, excludedKey);
+            cycle.remaining = cycle.remaining.filter(
+                question => this.getQuestionKey(question) !== excludedKey
+            );
+        }
+        if (!cycle.remaining.length) return null;
+
+        const [question] = cycle.remaining.splice(
+            Math.floor(Math.random() * cycle.remaining.length),
+            1
+        );
+        cycle.lastKey = this.getQuestionKey(question);
+        return question;
+    }
+
+    hasAlternativeQuestion() {
+        if (!this.boss || !this.activeQuestionPoolKey) return false;
+        return this.activeQuestionPool.some(
+            question => this.getQuestionKey(question) !== this.getQuestionKey(this.boss.question)
+        );
     }
 
     spawn(category, difficulty = "medium") {
 
         this.customQuestions = null;
+        this.activeQuestionPool = getQuestionsForCategory(category);
+        this.activeQuestionPoolKey = `base:${category ?? "all"}`;
+        const question = this.drawQuestion(
+            this.activeQuestionPoolKey,
+            this.activeQuestionPool
+        );
 
         this.boss = new Boss({
 
             x: 640,
             y: 150,
-            category: category
+            category: category,
+            question
 
         });
 
@@ -158,19 +250,18 @@ export class BossManager {
 
     }
 
-    spawnCustom(questions, difficulty = "medium") {
+    spawnCustom(questions, difficulty = "medium", poolKey = "custom") {
 
         if (!questions || questions.length === 0)
             return;
 
         this.customQuestions = questions;
-
-        const question =
-            questions[
-            Math.floor(
-                Math.random() * questions.length
-            )
-            ];
+        this.activeQuestionPool = questions;
+        this.activeQuestionPoolKey = `custom:${poolKey}`;
+        const question = this.drawQuestion(
+            this.activeQuestionPoolKey,
+            questions
+        );
 
         const randomizedQuestion =
             this.randomizeQuestion(question);
