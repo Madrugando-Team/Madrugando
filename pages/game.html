@@ -611,10 +611,14 @@
                     <input id="sfx-volume-slider" type="range" min="0" max="100" value="100">
                 </div>
 
-                <label class="settings-mute-control" for="mute-game-checkbox">
-                    <input id="mute-game-checkbox" type="checkbox">
+                <div class="settings-mute-control">
+                    <input id="mute-game-checkbox" type="checkbox" hidden aria-hidden="true" tabindex="-1">
+                    <button id="mute-game-toggle" class="settings-mute-toggle" type="button"
+                        aria-label="Mutar o som do jogo" aria-pressed="false">
+                        <img id="mute-game-icon" src="../assets/images/hud/som.webp" alt="">
+                    </button>
                     <span>Mutar o jogo</span>
-                </label>
+                </div>
             </section>
         </div>
 

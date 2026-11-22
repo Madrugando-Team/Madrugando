@@ -87,6 +87,12 @@ export default class Game {
             this.waveManager,
             this.scoreManager
         );
+        this.enemySpawner.setBoolhanteRewardAvailability(() => this.bossItems.hasUnusedItems());
+        this.enemyManager.setBoolhanteDefeatedHandler((enemy, coinPosition) => {
+            this.enemySpawner.collectBoolhanteToken();
+            this.bossItems.collectToken(coinPosition.x, coinPosition.y);
+        });
+        this.bossItems.onRewardUsed = () => this.enemySpawner.useBoolhanteToken();
 
         this.powerUpManager = new PowerUpManager(
             this.canvas.width,
@@ -156,6 +162,10 @@ export default class Game {
             document.getElementById("sfx-volume-value");
         this.muteGameCheckbox =
             document.getElementById("mute-game-checkbox");
+        this.muteGameIcon =
+            document.getElementById("mute-game-icon");
+        this.muteGameToggle =
+            document.getElementById("mute-game-toggle");
 
         [this.settingsButton, this.pauseSettingsButton].forEach(button => {
             button?.addEventListener("click", () => this.openSettings());
@@ -178,8 +188,10 @@ export default class Game {
             this.sfxVolumeValue.value = `${value}%`;
             this.sfxVolumeValue.textContent = `${value}%`;
         });
-        this.muteGameCheckbox?.addEventListener("change", () => {
+        this.muteGameToggle?.addEventListener("click", () => {
+            this.muteGameCheckbox.checked = !this.muteGameCheckbox.checked;
             this.audioManager.setMuted(this.muteGameCheckbox.checked);
+            this.updateMuteIcon();
         });
         this.updateAudioSettingsUI();
 
@@ -278,11 +290,14 @@ export default class Game {
             if (this.bossItems.handleClick(
                 mouseX,
                 mouseY,
-                this.bossManager
+                this.bossManager,
+                this.enemySpawner.hasBoolhanteToken()
             )) {
                 this.audioManager.playSfx("clique");
                 return;
             }
+
+            if (this.bossItems.isRouletteActive()) return;
 
             const result =
                 this.bossManager.handleClick(
@@ -518,13 +533,7 @@ export default class Game {
                 scaleY;
 
             if (this.bossItems.containsPoint(mouseX, mouseY)) {
-                const hoveredButton = this.bossItems.getButtons().find(item =>
-                    Math.hypot(
-                        mouseX - (item.x + item.size / 2),
-                        mouseY - (item.y + item.size / 2)
-                    ) <= item.size / 2 + 5
-                );
-                this.bossItems.hoveredItem = hoveredButton?.id ?? null;
+                this.bossItems.hoveredItem = this.bossItems.getHoveredItem(mouseX, mouseY);
                 this.canvas.style.cursor = "pointer";
                 return;
             }
@@ -624,6 +633,8 @@ export default class Game {
             if (!this.bossManager.hasBoss()) {
                 return;
             }
+
+            if (this.bossItems.isRouletteActive()) return;
 
 
             const previousOption =
@@ -1548,7 +1559,7 @@ export default class Game {
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
 
-        // No fácil os acentos são opcionais ao digitar
+        // No Fácil, os acentos são opcionais nas palavras digitáveis.
         setIgnoreAccents(this.selectedDifficulty === "easy");
 
         this.enemySpawner.setDifficulty(
@@ -1674,6 +1685,21 @@ export default class Game {
         this.sfxVolumeValue.value = `${sfxVolume}%`;
         this.sfxVolumeValue.textContent = `${sfxVolume}%`;
         this.muteGameCheckbox.checked = this.audioManager.isMuted();
+        this.updateMuteIcon();
+    }
+
+    updateMuteIcon() {
+        if (!this.muteGameIcon || !this.muteGameCheckbox) return;
+        const muted = this.muteGameCheckbox.checked;
+        this.muteGameIcon.src = muted
+            ? "../assets/images/hud/semsom.webp"
+            : "../assets/images/hud/som.webp";
+        this.muteGameIcon.alt = muted ? "Som mutado" : "Som ativado";
+        this.muteGameToggle?.setAttribute("aria-pressed", String(muted));
+        this.muteGameToggle?.setAttribute(
+            "aria-label",
+            muted ? "Ativar o som do jogo" : "Mutar o som do jogo"
+        );
     }
 
     openSettings() {
@@ -1745,6 +1771,12 @@ export default class Game {
 
         this.bossManager.update(deltaTime);
 
+        const rouletteFinished = this.bossItems.update(deltaTime);
+        if (rouletteFinished) {
+            this.bossManager.resumeTimer();
+            this.bossItems.activateReward(this.bossManager);
+        }
+
         this.updateBossHUD();
 
         if (
@@ -1803,6 +1835,7 @@ export default class Game {
                 );
 
             }
+
         }
 
         this.updateHUD();
@@ -1846,13 +1879,18 @@ export default class Game {
         }
 
         this.enemyManager.draw(ctx);
+        this.bossItems.drawCoinAnimation(ctx);
         this.bossManager.draw(ctx);
 
         if (
             this.waveManager.getState() === "question" &&
             this.bossManager.hasBoss()
         ) {
-            this.bossItems.draw(ctx, this.bossManager);
+            this.bossItems.draw(
+                ctx,
+                this.bossManager,
+                this.enemySpawner.hasBoolhanteToken()
+            );
         }
 
         if (this.waveManager.getState() === "playing") {
@@ -2293,7 +2331,7 @@ export default class Game {
 
         this.selectedSubject = null;
 
-        // No fácil os acentos são opcionais ao digitar
+        // No Fácil, os acentos são opcionais também no Custom Game.
         setIgnoreAccents(game.difficulty === "easy");
 
         this.enemySpawner.setDifficulty(

@@ -3,7 +3,8 @@ import { Enemy, BOO_VARIANT_COUNT } from "./enemy.js";
 import {
     getWordsByCategory,
     getRandomWordLevel,
-    getRandomCustomWord
+    getRandomCustomWord,
+    getCustomWordsForLevels
 } from "../data/wordpools.js";
 
 export function createBoo(x, y, config) {
@@ -13,19 +14,23 @@ export function createBoo(x, y, config) {
         difficulty,
         poolLevel,
         speed,
-        customDictionary
+        customDictionary,
+        forcedWordLevel,
+        type = "boo"
     } = config;
 
     // Prioriza o dicionário personalizado.
     // Caso contrário, busca as palavras da matéria
     // selecionada ou de todas as matérias.
     let word;
-    if (customDictionary) {
+    if (customDictionary && forcedWordLevel) {
+        word = getCustomWordsForLevels(customDictionary, [forcedWordLevel])[0];
+    } else if (customDictionary) {
         word = getRandomCustomWord(customDictionary, difficulty);
     } else {
         const pool = getWordsByCategory(
             category,
-            difficulty ? getRandomWordLevel(difficulty) : poolLevel
+            forcedWordLevel ?? (difficulty ? getRandomWordLevel(difficulty) : poolLevel)
         );
         word = Array.isArray(pool) && pool.length
             ? pool[Math.floor(Math.random() * pool.length)]
@@ -44,7 +49,7 @@ export function createBoo(x, y, config) {
         y,
         word,
         speed,
-        type: "boo",
+        type,
         // Sorteia uma das variações visuais do Boo
         variant: Math.floor(Math.random() * BOO_VARIANT_COUNT)
     });

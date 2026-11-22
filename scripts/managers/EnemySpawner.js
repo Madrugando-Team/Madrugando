@@ -107,6 +107,11 @@ export class EnemySpawner {
         this.currentWave = 1;
         this.scromblusSpawned = 0;
         this.scromblusQuota = this.getScromblusQuota();
+        this.boolhanteToken = false;
+        this.nextBoolhanteWave = 2;
+        this.boolhanteSpawnedWave = null;
+        this.boolhanteTargetProgress = null;
+        this.hasUnusedBoolhanteRewards = () => true;
     }
 
     pauseSpawning(duration = 500) {
@@ -179,6 +184,7 @@ export class EnemySpawner {
             this.scromblusSpawned = 0;
             this.scromblusTimer = 0;
             this.scromblusQuota = this.getScromblusQuota();
+            this.boolhanteTargetProgress = this.getRandomBoolhanteProgress();
         }
 
         // Geração normal de Boos
@@ -222,6 +228,8 @@ export class EnemySpawner {
 
     spawn() {
 
+        if (this.shouldSpawnBoolhante() && this.spawnBoolhante()) return;
+
         if (this.shouldSpawnBoozarro()) {
             this.spawnBoozarro();
             return;
@@ -247,6 +255,60 @@ export class EnemySpawner {
 
         this.enemyManager.add(enemy);
 
+    }
+
+    setBoolhanteRewardAvailability(check) {
+        this.hasUnusedBoolhanteRewards = check;
+    }
+
+    hasBoolhanteToken() {
+        return this.boolhanteToken;
+    }
+
+    shouldSpawnBoolhante() {
+        if (this.boolhanteTargetProgress === null) {
+            this.boolhanteTargetProgress = this.getRandomBoolhanteProgress();
+        }
+        return !this.boolhanteToken &&
+            this.currentWave >= this.nextBoolhanteWave &&
+            this.boolhanteSpawnedWave !== this.currentWave &&
+            this.waveManager.getWordsCorrect() >= this.boolhanteTargetProgress &&
+            this.hasUnusedBoolhanteRewards();
+    }
+
+    getRandomBoolhanteProgress() {
+        const required = this.waveManager.getWordsRequired();
+        if (required <= 4) return 1;
+        return 2 + Math.floor(Math.random() * (required - 3));
+    }
+
+    spawnBoolhante() {
+        const wordLevel = this.difficulty === "easy" ? "medium" : "hard";
+        const enemy = createBoo(0, 0, {
+            speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * BOO_SPEED_MULTIPLIER,
+            category: this.enemyConfig.category,
+            difficulty: this.difficulty,
+            poolLevel: this.config.poolLevel,
+            customDictionary: this.customDictionary,
+            forcedWordLevel: wordLevel,
+            type: "boolhante"
+        });
+        if (!enemy) return false;
+        enemy.x = this.findSafeX(enemy.word.length * 10);
+        this.enemyManager.add(enemy);
+        this.boolhanteSpawnedWave = this.currentWave;
+        return true;
+    }
+
+    collectBoolhanteToken() {
+        this.boolhanteToken = true;
+    }
+
+    useBoolhanteToken() {
+        if (!this.boolhanteToken) return false;
+        this.boolhanteToken = false;
+        this.nextBoolhanteWave = this.currentWave + 2;
+        return true;
     }
 
     shouldSpawnBoozarro() {
@@ -370,6 +432,10 @@ export class EnemySpawner {
         this.scromblusSpawned = 0;
         this.scromblusQuota = this.getScromblusQuota();
         this.customDictionary = null;
+        this.boolhanteToken = false;
+        this.nextBoolhanteWave = 2;
+        this.boolhanteSpawnedWave = null;
+        this.boolhanteTargetProgress = null;
 
     }
 

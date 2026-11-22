@@ -74,6 +74,12 @@ export class BossManager {
 
     }
 
+    resumeTimer() {
+        if (this.boss && this.timeRemaining > 0 && !this.timeoutRevealActive) {
+            this.timerActive = true;
+        }
+    }
+
     getTimeRemaining() {
 
         return Math.ceil(this.timeRemaining);

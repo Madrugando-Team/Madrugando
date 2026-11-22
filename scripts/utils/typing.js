@@ -1,6 +1,6 @@
 // Regra única para comparar o que o jogador digita com as palavras do jogo.
 //
-// No modo fácil os acentos são opcionais: a palavra aparece escrita
+// No modo fácil, os acentos são opcionais: a palavra aparece escrita
 // corretamente ("fácil"), mas digitar "facil" também vale. O mesmo vale
 // para o ç ("cabeça" aceita "cabeca").
 

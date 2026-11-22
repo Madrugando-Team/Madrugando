@@ -398,15 +398,29 @@
     border-top: 1px solid rgba(190, 195, 235, 0.18);
     color: rgba(242, 241, 255, 0.94);
     font-size: 16px;
+}
+
+.settings-mute-toggle {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    background: transparent;
     cursor: pointer;
 }
 
-.settings-mute-control input {
-    width: 19px;
-    height: 19px;
-    margin: 0;
-    accent-color: #a89bff;
-    cursor: pointer;
+.settings-mute-control img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 7px rgba(168, 155, 255, 0.35));
+}
+
+.settings-mute-toggle:focus,
+.settings-mute-toggle:focus-visible {
+    outline: none;
 }
 
 @media (max-width: 520px) {

@@ -41,6 +41,10 @@ const SPRITES = {
     }
 };
 
+// O Boolhante reutiliza a animação do Boo, com tratamento dourado no draw.
+SPRITES.boolhante = SPRITES.boo;
+const BOOLHANTE_COIN = loadSprite("boolhante", "moeda.webp");
+
 // O Boozarro congelado usa o mesmo sprite do Boo
 SPRITES.boozarro.frozen = SPRITES.boo.frozen;
 
@@ -56,6 +60,12 @@ const TYPE_CONFIG = {
         platePosition: 0.62,   // altura da placa no corpo (0 = topo, 1 = base)
         textColor: "#ffffff",
         deathDuration: 800     // ms piscando antes de sumir
+    },
+    boolhante: {
+        height: 110,
+        platePosition: 0.62,
+        textColor: "#fff2a6",
+        deathDuration: 800
     },
     // Mesmo tamanho e placa do Boo
     boozarro: {
@@ -122,6 +132,7 @@ export class Enemy {
 
         // Animação de entrada (apenas visual)
         this.entryTimer = 0;
+        this.boolhanteCoinCollected = false;
 
     }
 
@@ -247,6 +258,20 @@ export class Enemy {
         };
     }
 
+    getCoinCenter() {
+        const sprite = this.getCurrentSprite();
+        const { height } = this.getConfig();
+        const width = isLoaded(sprite)
+            ? height * sprite.naturalWidth / sprite.naturalHeight
+            : 66;
+        const center = this.getCenter();
+        const radius = Math.max(12, Math.min(17, height * 0.14));
+        return {
+            x: center.x + width / 2 - radius * 0.2,
+            y: this.getSpriteTop() + radius * 0.8
+        };
+    }
+
     // Base do sprite, usada para saber quando o inimigo toca o chão
     getBottom() {
         return this.getSpriteTop() + this.getConfig().height;
@@ -272,6 +297,11 @@ export class Enemy {
         // Sprite ainda não carregou: mantém o desenho antigo
         if (!isLoaded(sprite)) {
             this.drawAsText(ctx);
+            if (this.type === "boolhante" && !this.boolhanteCoinCollected) {
+                const wordWidth = this.getWordWidth(ctx);
+                const centerX = this.getCenterX(wordWidth);
+                this.drawCoinBadge(ctx, centerX, this.getSpriteTop(), 66, this.getConfig().height);
+            }
             return;
         }
 
@@ -310,13 +340,17 @@ export class Enemy {
             return;
         }
 
-        ctx.drawImage(
-            sprite,
-            centerX - width / 2,
-            spriteTop,
-            width,
-            height
-        );
+        if (this.type === "boolhante") {
+            ctx.save();
+            ctx.filter = "sepia(1) saturate(5) hue-rotate(350deg) brightness(1.08)";
+            ctx.drawImage(sprite, centerX - width / 2, spriteTop, width, height);
+            ctx.restore();
+            if (!this.boolhanteCoinCollected) {
+                this.drawCoinBadge(ctx, centerX, spriteTop, width, height);
+            }
+        } else {
+            ctx.drawImage(sprite, centerX - width / 2, spriteTop, width, height);
+        }
 
         // Durante a derrota a palavra some: ela já foi acertada
         if (!this.isHit()) {
@@ -327,6 +361,30 @@ export class Enemy {
             }
         }
 
+        ctx.restore();
+    }
+
+    drawCoinBadge(ctx, centerX, spriteTop, width, height) {
+        const radius = Math.max(12, Math.min(17, height * 0.14));
+        const x = centerX + width / 2 - radius * 0.2;
+        const y = spriteTop + radius * 0.8;
+        ctx.save();
+        ctx.fillStyle = "#f6c744";
+        ctx.strokeStyle = "#8d5a13";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        if (isLoaded(BOOLHANTE_COIN)) {
+            ctx.drawImage(BOOLHANTE_COIN, x - radius * 0.7, y - radius * 0.7, radius * 1.4, radius * 1.4);
+        } else {
+            ctx.font = `${radius * 1.35}px Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#fff";
+            ctx.fillText("🪙", x, y + 1);
+        }
         ctx.restore();
     }
 
@@ -505,6 +563,9 @@ export class Enemy {
 
         this.phaseHitTimer = 0;
         this.hitTimer = this.getConfig().deathDuration;
+        if (this.type === "boolhante") {
+            this.boolhanteCoinCollected = true;
+        }
 
     }
 

@@ -7,7 +7,12 @@ export class EnemyManager {
         this.enemies = [];
         this.scoreManager = scoreManager;
         this.canvasHeight = canvasHeight;
+        this.onBoolhanteDefeated = null;
 
+    }
+
+    setBoolhanteDefeatedHandler(handler) {
+        this.onBoolhanteDefeated = handler;
     }
 
 
@@ -91,6 +96,9 @@ export class EnemyManager {
             result.correct = true;
             result.enemy = enemy;
             result.enemiesHit++;
+            const boolhanteCoinPosition = enemy.type === "boolhante"
+                ? enemy.getCoinCenter()
+                : null;
 
             if (enemy.type === "boozarro") {
                 result.boozarroHits++;
@@ -115,6 +123,10 @@ export class EnemyManager {
                 // (não dá pontos nem progresso de onda)
                 if (enemy.type !== "boozarro") {
                     result.enemiesKilled++;
+                }
+                if (enemy.type === "boolhante") {
+                    result.boolhanteDefeated = true;
+                    this.onBoolhanteDefeated?.(enemy, boolhanteCoinPosition);
                 }
             }
         });
@@ -177,7 +189,13 @@ export class EnemyManager {
 
         // Boos mostram a animação de hit; o Scromblus some na hora
         enemiesToKill.forEach(enemy => {
+            const boolhanteCoinPosition = enemy.type === "boolhante"
+                ? enemy.getCoinCenter()
+                : null;
             enemy.hit();
+            if (enemy.type === "boolhante") {
+                this.onBoolhanteDefeated?.(enemy, boolhanteCoinPosition);
+            }
         });
 
         this.removeDead();
