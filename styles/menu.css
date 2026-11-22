@@ -523,6 +523,29 @@
     color: rgba(210, 215, 240, 0.5);
 }
 
+.question-help-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 10px 0 16px;
+    color: rgba(235, 233, 255, 0.88);
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+#game-config .question-help-toggle input,
+#custom-game-config .question-help-toggle input {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    margin: 1px 0 0;
+    accent-color: #a89bff;
+}
+
 #leaderboard-menu {
 
     display: none;
@@ -1201,7 +1224,7 @@
 
     border-color: rgba(130, 145, 255, 0.65);
 
-    background: rgba(12, 17, 42, 0.82);
+    background-color: rgba(12, 17, 42, 0.82);
 
     box-shadow:
         0 0 0 3px rgba(110, 125, 255, 0.08),

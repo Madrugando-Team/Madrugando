@@ -200,7 +200,12 @@ export class BossItems {
 
     getHoveredItem(x, y) {
         const itemId = this.rewardItemId || this.activeItemId;
-        return itemId && this.containsItemSlotPoint(x, y) ? itemId : null;
+        if (itemId && this.containsItemSlotPoint(x, y)) return itemId;
+        if (this.tokenAvailable && !itemId) {
+            const token = this.getTokenButton();
+            if (Math.hypot(x - token.x, y - token.y) <= token.radius + 8) return "token";
+        }
+        return null;
     }
 
     activateReward(bossManager) {
@@ -265,7 +270,29 @@ export class BossItems {
         } else {
             ctx.font = "28px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", token.x, token.y);
         }
+        if (this.hoveredItem === "token") {
+            this.drawTooltip(ctx, "Ficha da roleta", "Clique para sortear e ativar um item.", token.x, token.y + token.radius + 8);
+        }
         ctx.restore();
+    }
+
+    drawTooltip(ctx, title, description, anchorX, anchorY) {
+        const width = 252;
+        const height = 58;
+        const left = Math.min(Math.max(8, anchorX - width / 2), this.canvas.width - width - 8);
+        const top = Math.min(this.canvas.height - height - 8, anchorY + 4);
+        ctx.fillStyle = "rgba(12, 16, 39, .96)";
+        ctx.strokeStyle = "rgba(255, 220, 120, .88)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(left, top, width, height, 10);
+        else ctx.rect(left, top, width, height);
+        ctx.fill(); ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "top";
+        ctx.fillStyle = "#ffe9a1"; ctx.font = "bold 13px Arial";
+        ctx.fillText(title, left + width / 2, top + 8);
+        ctx.fillStyle = "#fff"; ctx.font = "12px Arial";
+        ctx.fillText(description, left + width / 2, top + 30);
     }
 
     drawEvent(ctx) {

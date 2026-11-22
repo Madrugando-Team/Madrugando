@@ -111,6 +111,7 @@ export class EnemySpawner {
         this.nextBoolhanteWave = 2;
         this.boolhanteSpawnedWave = null;
         this.boolhanteTargetProgress = null;
+        this.boolhanteEnabled = true;
         this.hasUnusedBoolhanteRewards = () => true;
     }
 
@@ -261,6 +262,11 @@ export class EnemySpawner {
         this.hasUnusedBoolhanteRewards = check;
     }
 
+    setBoolhanteEnabled(enabled) {
+        this.boolhanteEnabled = enabled !== false;
+        if (!this.boolhanteEnabled) this.boolhanteToken = false;
+    }
+
     hasBoolhanteToken() {
         return this.boolhanteToken;
     }
@@ -269,7 +275,8 @@ export class EnemySpawner {
         if (this.boolhanteTargetProgress === null) {
             this.boolhanteTargetProgress = this.getRandomBoolhanteProgress();
         }
-        return !this.boolhanteToken &&
+        return this.boolhanteEnabled &&
+            !this.boolhanteToken &&
             this.currentWave >= this.nextBoolhanteWave &&
             this.boolhanteSpawnedWave !== this.currentWave &&
             this.waveManager.getWordsCorrect() >= this.boolhanteTargetProgress &&
@@ -279,7 +286,7 @@ export class EnemySpawner {
     getRandomBoolhanteProgress() {
         const required = this.waveManager.getWordsRequired();
         if (required <= 4) return 1;
-        return 2 + Math.floor(Math.random() * (required - 3));
+        return 1 + Math.floor(Math.random() * (required - 2));
     }
 
     spawnBoolhante() {
@@ -324,7 +331,8 @@ export class EnemySpawner {
     spawnBoozarro() {
 
         const enemy = createBoozarro(0, 0, {
-            speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * BOO_SPEED_MULTIPLIER
+            speed: this.getWaveSpeed() * this.getHeightSpeedFactor() * BOO_SPEED_MULTIPLIER,
+            customDictionary: this.customDictionary
         });
 
         enemy.x = this.findSafeX(

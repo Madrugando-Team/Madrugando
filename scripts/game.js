@@ -731,6 +731,8 @@ export default class Game {
 
         this.gameConfig =
             document.getElementById("game-config");
+        this.allowQuestionHelpCheckbox =
+            document.getElementById("allow-question-help");
 
         this.customGameMenu =
             document.getElementById("custom-game-menu");
@@ -752,6 +754,8 @@ export default class Game {
 
         this.customGameDifficultySelect =
             document.getElementById("custom-game-difficulty");
+        this.customAllowQuestionHelpCheckbox =
+            document.getElementById("custom-allow-question-help");
 
         this.saveCustomGameButton =
             document.getElementById("save-custom-game-button");
@@ -978,6 +982,7 @@ export default class Game {
             this.selectedSubject = subject;
 
             this.selectedDifficulty = difficulty;
+            this.allowQuestionHelp = this.allowQuestionHelpCheckbox.checked;
 
             this.startGame();
 
@@ -1057,6 +1062,8 @@ export default class Game {
             name: name,
 
             difficulty: difficulty,
+
+            allowHints: this.customAllowQuestionHelpCheckbox.checked,
 
             dictionary: [
                 ...this.customGameDictionary
@@ -1510,6 +1517,7 @@ export default class Game {
         this.customGameNameInput.value = "";
 
         this.customGameDifficultySelect.value = "";
+        this.customAllowQuestionHelpCheckbox.checked = true;
 
         this.dictionaryWordInput.value = "";
 
@@ -1559,12 +1567,15 @@ export default class Game {
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
 
+        this.allowQuestionHelp = this.allowQuestionHelpCheckbox.checked;
+
         // No Fácil, os acentos são opcionais nas palavras digitáveis.
         setIgnoreAccents(this.selectedDifficulty === "easy");
 
         this.enemySpawner.setDifficulty(
             this.selectedDifficulty
         );
+        this.enemySpawner.setBoolhanteEnabled(this.allowQuestionHelp);
         this.enemySpawner.setCategory(
             this.selectedSubject
         );
@@ -2329,6 +2340,8 @@ export default class Game {
         this.selectedDifficulty =
             game.difficulty;
 
+        this.allowQuestionHelp = game.allowHints ?? true;
+
         this.selectedSubject = null;
 
         // No Fácil, os acentos são opcionais também no Custom Game.
@@ -2337,6 +2350,7 @@ export default class Game {
         this.enemySpawner.setDifficulty(
             game.difficulty
         );
+        this.enemySpawner.setBoolhanteEnabled(this.allowQuestionHelp);
         this.enemySpawner.setCustomDictionary(
             game.dictionary
         );
@@ -2374,6 +2388,8 @@ export default class Game {
         this.customGameDifficultySelect.value =
             game.difficulty;
 
+        this.customAllowQuestionHelpCheckbox.checked = game.allowHints ?? true;
+
         this.customGameDictionary = [
             ...game.dictionary
         ];
@@ -2402,6 +2418,7 @@ export default class Game {
         const data = {
             name: game.name,
             difficulty: game.difficulty,
+            allowHints: game.allowHints ?? true,
             dictionary: game.dictionary,
             questions: game.questions
         };
@@ -2504,6 +2521,15 @@ export default class Game {
                     }
 
                     if (
+                        data.allowHints !== undefined &&
+                        typeof data.allowHints !== "boolean"
+                    ) {
+                        throw new Error(
+                            "A opção de ajuda precisa ser verdadeira ou falsa."
+                        );
+                    }
+
+                    if (
                         !Array.isArray(data.dictionary) ||
                         data.dictionary.length === 0
                     ) {
@@ -2586,6 +2612,9 @@ export default class Game {
 
                         difficulty:
                             data.difficulty,
+
+                        allowHints:
+                            data.allowHints ?? true,
 
                         dictionary:
                             [...new Set(data.dictionary.map(

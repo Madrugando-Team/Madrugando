@@ -108,7 +108,12 @@ export class CustomGameManager {
 
         try {
 
-            this.games = JSON.parse(data);
+            const savedGames = JSON.parse(data);
+            this.games = savedGames.map(game => ({
+                ...game,
+                // Saves antigos não tinham essa opção: mantêm a ajuda ligada.
+                allowHints: game.allowHints ?? true
+            }));
 
         } catch (error) {
 
