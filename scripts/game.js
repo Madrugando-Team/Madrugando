@@ -745,6 +745,14 @@ export default class Game {
         this.saveCustomGameButton =
             document.getElementById("save-custom-game-button");
 
+        this.customGameValidationDialog =
+            document.getElementById("custom-game-validation-dialog");
+        this.customGameValidationList =
+            document.getElementById("custom-game-validation-list");
+        this.customGameValidationOkButton =
+            document.getElementById("custom-game-validation-ok");
+        this.customGameValidationFocusTarget = null;
+
         this.customGameList =
             document.getElementById("custom-game-list");
 
@@ -1011,6 +1019,15 @@ export default class Game {
 
             }
         );
+
+        this.customGameValidationOkButton.addEventListener("click", () => {
+            this.customGameValidationDialog.close();
+        });
+        this.customGameValidationDialog.addEventListener("close", () => {
+            const target = this.customGameValidationFocusTarget;
+            this.customGameValidationFocusTarget = null;
+            if (target?.isConnected) target.focus();
+        });
 
     }
 
@@ -1298,68 +1315,10 @@ export default class Game {
 
     saveCustomGame() {
 
-        const name =
-            this.customGameNameInput.value.trim();
-
-        const difficulty =
-            this.customGameDifficultySelect.value;
-
-        if (!name) {
-
-            console.log(
-                "Digite um nome para o Custom Game."
-            );
-
+        const issues = this.getCustomGameValidationIssues();
+        if (issues.length > 0) {
+            this.showCustomGameValidation(issues);
             return;
-
-        }
-
-        if (name.length > 64) {
-            alert("O nome do jogo deve ter no máximo 64 caracteres.");
-            return;
-        }
-
-        const invalidWord = this.customGameDictionary.find(
-            word => typeof word !== "string" || !/^[\p{L}]{1,22}$/u.test(word)
-        );
-
-        if (invalidWord) {
-            alert("O dicionário só pode conter palavras com letras, sem espaços ou símbolos, e com até 22 caracteres.");
-            return;
-        }
-
-        if (!difficulty) {
-
-            console.log(
-                "Selecione uma dificuldade."
-            );
-
-            return;
-
-        }
-
-        if (
-            this.customGameDictionary.length === 0
-        ) {
-
-            console.log(
-                "Adicione pelo menos uma palavra ao dicionário."
-            );
-
-            return;
-
-        }
-
-        if (
-            this.customGameQuestions.length === 0
-        ) {
-
-            console.log(
-                "Adicione pelo menos uma questão."
-            );
-
-            return;
-
         }
 
         const game =
@@ -1399,6 +1358,134 @@ export default class Game {
 
         this.renderCustomGames();
 
+    }
+
+    getCustomGameValidationIssues() {
+
+        const name =
+            this.customGameNameInput.value.trim();
+
+        const difficulty =
+            this.customGameDifficultySelect.value;
+
+        const issues = [];
+        if (!name) {
+            issues.push({
+                message: "Dê um nome ao jogo.",
+                target: this.customGameNameInput
+            });
+        } else if (Array.from(name).length > 64) {
+            issues.push({
+                message: "Reduza o nome do jogo para no máximo 64 caracteres.",
+                target: this.customGameNameInput
+            });
+        }
+
+        if (!difficulty) {
+            issues.push({
+                message: "Escolha a dificuldade do jogo.",
+                target: this.customGameDifficultySelect
+            });
+        }
+
+        const invalidWords = this.customGameDictionary.filter(
+            word => typeof word !== "string" || !/^[\p{L}]{1,22}$/u.test(word)
+        );
+        if (invalidWords.length > 0) {
+            issues.push({
+                message: "Corrija ou exclua as palavras inválidas do dicionário. Use apenas letras (com ou sem acento), sem espaços ou símbolos, e até 22 caracteres.",
+                target: this.dictionaryList
+            });
+        }
+
+        if (this.customGameDictionary.length === 0) {
+            issues.push({
+                message: "Adicione pelo menos uma palavra ao dicionário.",
+                target: this.dictionaryWordInput
+            });
+        }
+
+        const invalidQuestions = this.customGameQuestions.some(question =>
+            !question ||
+            typeof question.question !== "string" ||
+            !question.question.trim() ||
+            !Array.isArray(question.options) ||
+            question.options.length !== 4 ||
+            question.options.some(option =>
+                typeof option !== "string" || !option.trim()
+            ) ||
+            !Number.isInteger(question.correctAnswer) ||
+            question.correctAnswer < 0 ||
+            question.correctAnswer >= question.options.length
+        );
+        if (invalidQuestions) {
+            issues.push({
+                message: "Revise as questões adicionadas: cada uma precisa de enunciado, quatro alternativas preenchidas e uma resposta correta marcada.",
+                target: this.questionList
+            });
+        }
+
+        if (this.customGameQuestions.length === 0) {
+            issues.push({
+                message: "Adicione pelo menos uma questão ao jogo.",
+                target: this.questionTextInput
+            });
+        }
+
+        const optionInputs = this.customGameConfig.querySelectorAll(
+            ".question-option input[type='text']"
+        );
+        const correctAnswer = this.customGameConfig.querySelector(
+            "input[name='correct-answer']:checked"
+        );
+        const hasQuestionDraft =
+            this.questionTextInput.value.trim() ||
+            Array.from(optionInputs).some(input => input.value.trim()) ||
+            Boolean(correctAnswer);
+
+        if (hasQuestionDraft) {
+            if (!this.questionTextInput.value.trim()) {
+                issues.push({
+                    message: "Preencha o enunciado da questão que está no formulário.",
+                    target: this.questionTextInput
+                });
+            }
+            if (Array.from(optionInputs).some(input => !input.value.trim())) {
+                issues.push({
+                    message: "Preencha as quatro alternativas da questão em andamento.",
+                    target: optionInputs[
+                        Array.from(optionInputs).findIndex(input => !input.value.trim())
+                    ]
+                });
+            }
+            if (!correctAnswer) {
+                issues.push({
+                    message: "Marque qual alternativa é a resposta correta.",
+                    target: this.customGameConfig.querySelector(
+                        "input[name='correct-answer']"
+                    )
+                });
+            }
+            issues.push({
+                message: "Clique em “Adicionar Questão” para incluir essa questão no jogo antes de salvar.",
+                target: this.addQuestionButton
+            });
+        }
+
+        return issues;
+    }
+
+    showCustomGameValidation(issues) {
+        this.customGameValidationList.replaceChildren();
+        for (const issue of issues) {
+            const item = document.createElement("li");
+            item.textContent = issue.message;
+            this.customGameValidationList.appendChild(item);
+        }
+
+        this.customGameValidationFocusTarget = issues[0]?.target ?? null;
+        this.customGameValidationDialog.showModal();
+        this.customGameValidationOkButton.focus();
     }
 
     resetCustomGameForm() {
