@@ -536,7 +536,6 @@
     cursor: pointer;
 }
 
-#game-config .question-help-toggle input,
 #custom-game-config .question-help-toggle input {
     flex: 0 0 18px;
     width: 18px;

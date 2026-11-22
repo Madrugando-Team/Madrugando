@@ -731,8 +731,6 @@ export default class Game {
 
         this.gameConfig =
             document.getElementById("game-config");
-        this.allowQuestionHelpCheckbox =
-            document.getElementById("allow-question-help");
 
         this.customGameMenu =
             document.getElementById("custom-game-menu");
@@ -982,8 +980,6 @@ export default class Game {
             this.selectedSubject = subject;
 
             this.selectedDifficulty = difficulty;
-            this.allowQuestionHelp = this.allowQuestionHelpCheckbox.checked;
-
             this.startGame();
 
         });
@@ -1568,7 +1564,7 @@ export default class Game {
         const difficulty =
             DifficultyConfig[this.selectedDifficulty];
 
-        this.allowQuestionHelp = this.allowQuestionHelpCheckbox.checked;
+        this.allowQuestionHelp = true;
 
         // No Fácil, os acentos são opcionais nas palavras digitáveis.
         setIgnoreAccents(this.selectedDifficulty === "easy");
