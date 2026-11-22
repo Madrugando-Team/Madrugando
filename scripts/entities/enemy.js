@@ -48,6 +48,40 @@ const BOOLHANTE_COIN = loadSprite("boolhante", "moeda.webp");
 // O Boozarro congelado usa o mesmo sprite do Boo
 SPRITES.boozarro.frozen = SPRITES.boo.frozen;
 
+// Pré-renderiza uma vez os frames dourados do Boolhante. Aplicar ctx.filter
+// a cada frame causava picos de renderização em computadores mais modestos.
+const GOLD_SPRITE_FILTER = "sepia(1) saturate(5) hue-rotate(350deg) brightness(1.08)";
+const GOLD_SPRITE_CACHE = new WeakMap();
+
+const createGoldSprite = (image) => {
+    if (!image?.complete || image.naturalWidth === 0 || GOLD_SPRITE_CACHE.has(image)) {
+        return GOLD_SPRITE_CACHE.get(image) ?? image;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context) return image;
+
+    context.filter = GOLD_SPRITE_FILTER;
+    context.drawImage(image, 0, 0);
+    GOLD_SPRITE_CACHE.set(image, canvas);
+    return canvas;
+};
+
+for (const image of [
+    ...SPRITES.boo.variants,
+    SPRITES.boo.hit,
+    SPRITES.boo.frozen
+]) {
+    if (isLoaded(image)) {
+        createGoldSprite(image);
+    } else {
+        image.addEventListener("load", () => createGoldSprite(image), { once: true });
+    }
+}
+
 // O Scromblus usa o último frame de hit na animação de derrota
 SPRITES.scromblus.kill = SPRITES.scromblus.phaseHits[1];
 
@@ -341,10 +375,8 @@ export class Enemy {
         }
 
         if (this.type === "boolhante") {
-            ctx.save();
-            ctx.filter = "sepia(1) saturate(5) hue-rotate(350deg) brightness(1.08)";
-            ctx.drawImage(sprite, centerX - width / 2, spriteTop, width, height);
-            ctx.restore();
+            const goldSprite = createGoldSprite(sprite);
+            ctx.drawImage(goldSprite, centerX - width / 2, spriteTop, width, height);
             if (!this.boolhanteCoinCollected) {
                 this.drawCoinBadge(ctx, centerX, spriteTop, width, height);
             }
