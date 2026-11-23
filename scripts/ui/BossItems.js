@@ -11,9 +11,6 @@ const ITEM_IMAGES = Object.fromEntries(ITEM_DEFINITIONS.filter(item => item.imag
     return [item.id, image];
 }));
 
-const COIN_IMAGE = new Image();
-COIN_IMAGE.src = new URL("../../assets/images/enemies/boolhante/moeda.webp", import.meta.url).href;
-
 export class BossItems {
     constructor(canvas) {
         this.canvas = canvas;
@@ -241,11 +238,7 @@ export class BossItems {
         const size = 42 * (1 - progress * 0.15);
         ctx.save();
         ctx.globalAlpha = 1 - progress;
-        if (COIN_IMAGE.complete && COIN_IMAGE.naturalWidth) {
-            ctx.drawImage(COIN_IMAGE, x - size / 2, y - size / 2, size, size);
-        } else {
-            ctx.font = `${size * 0.85}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", x, y);
-        }
+        ctx.font = `${size * 0.85}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", x, y);
         ctx.restore();
     }
 
@@ -265,11 +258,7 @@ export class BossItems {
         ctx.strokeStyle = "#ffd85d";
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(token.x, token.y, token.radius * pulse, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        if (COIN_IMAGE.complete && COIN_IMAGE.naturalWidth) {
-            ctx.drawImage(COIN_IMAGE, token.x - 17, token.y - 17, 34, 34);
-        } else {
-            ctx.font = "28px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", token.x, token.y);
-        }
+        ctx.font = "28px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", token.x, token.y);
         if (this.hoveredItem === "token") {
             this.drawTooltip(ctx, "Ficha da roleta", "Clique para sortear e ativar um item.", token.x, token.y + token.radius + 8);
         }

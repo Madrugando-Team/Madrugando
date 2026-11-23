@@ -43,7 +43,6 @@ const SPRITES = {
 
 // O Boolhante reutiliza a animação do Boo, com tratamento dourado no draw.
 SPRITES.boolhante = SPRITES.boo;
-const BOOLHANTE_COIN = loadSprite("boolhante", "moeda.webp");
 
 // O Boozarro congelado usa o mesmo sprite do Boo
 SPRITES.boozarro.frozen = SPRITES.boo.frozen;
@@ -75,7 +74,7 @@ for (const image of [
     SPRITES.boo.hit,
     SPRITES.boo.frozen
 ]) {
-    if (isLoaded(image)) {
+    if (image.complete && image.naturalWidth > 0) {
         createGoldSprite(image);
     } else {
         image.addEventListener("load", () => createGoldSprite(image), { once: true });
@@ -408,15 +407,11 @@ export class Enemy {
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
-        if (isLoaded(BOOLHANTE_COIN)) {
-            ctx.drawImage(BOOLHANTE_COIN, x - radius * 0.7, y - radius * 0.7, radius * 1.4, radius * 1.4);
-        } else {
-            ctx.font = `${radius * 1.35}px Arial`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = "#fff";
-            ctx.fillText("🪙", x, y + 1);
-        }
+        ctx.font = `${radius * 1.35}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+        ctx.fillText("🪙", x, y + 1);
         ctx.restore();
     }
 
