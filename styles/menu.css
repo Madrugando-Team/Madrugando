@@ -2344,3 +2344,26 @@
 
     filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
 }
+
+.fullscreen-icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    object-fit: contain;
+    flex: 0 0 auto;
+    user-select: none;
+    pointer-events: none;
+}
+
+#fullscreen-button {
+    display: grid;
+    place-items: center;
+}
+
+#pause-fullscreen-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}

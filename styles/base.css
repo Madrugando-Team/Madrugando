@@ -9,3 +9,27 @@ body {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
 }
+/* Evita realces azuis em elementos decorativos; campos continuam selecionáveis. */
+body {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+[contenteditable="true"] * {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+img,
+svg,
+canvas,
+button,
+a {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}

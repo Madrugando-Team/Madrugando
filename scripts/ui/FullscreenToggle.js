@@ -135,9 +135,10 @@ export class FullscreenToggle {
 
             const label = active ? "Sair da tela cheia" : "Tela cheia";
 
-            button.textContent = button.hasAttribute("data-fullscreen-label")
-                ? `⛶ ${label}`
-                : "⛶";
+            if (button.hasAttribute("data-fullscreen-label")) {
+                const labelElement = button.querySelector("[data-fullscreen-text]");
+                if (labelElement) labelElement.textContent = label;
+            }
 
             button.setAttribute("aria-label", label);
             button.title = label;

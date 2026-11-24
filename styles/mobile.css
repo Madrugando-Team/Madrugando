@@ -67,8 +67,8 @@
 
 .is-portrait .hud-box {
     min-width: 0;
-    padding: 8px 12px;
-    border-radius: 12px;
+    padding: 0;
+    border-radius: 0;
 }
 
 .is-portrait .life-heart {
@@ -108,11 +108,11 @@
 }
 
 .is-portrait .hud-right {
-    gap: 8px;
+    gap: 22px;
 }
 
 .is-portrait #pause-button {
-    width: 46px;
+    width: 24px;
 }
 
 .is-portrait #wave-progress.boss-timer-active #wave-number {

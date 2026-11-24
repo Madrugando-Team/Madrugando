@@ -60,7 +60,7 @@
                 </button>
                 <button id="fullscreen-button" type="button" data-fullscreen-toggle aria-label="Tela cheia"
                     title="Tela cheia">
-                    ⛶
+                    <img class="fullscreen-icon" src="../assets/images/hud/telacheia.webp" alt="" draggable="false">
                 </button>
                 <button id="leaderboard-button" type="button" aria-label="Abrir placar" title="Placar">
                     <img class="trophy-icon" src="../assets/images/hud/trofeu.webp" alt="" draggable="false">
@@ -548,12 +548,12 @@
 
                 <div class="hud-box">
 
-                    <img class="trophy-icon hud-trophy" src="../assets/images/hud/trofeu.webp" alt="Pontuação"
-                        draggable="false">
-
                     <span id="score">
                         0
                     </span>
+
+                    <img class="trophy-icon hud-trophy" src="../assets/images/hud/trofeu.webp" alt="Pontuação"
+                        draggable="false">
 
                 </div>
 
@@ -579,7 +579,8 @@
                     Continuar
                 </button>
                 <button id="pause-fullscreen-button" type="button" data-fullscreen-toggle data-fullscreen-label>
-                    ⛶ Tela cheia
+                    <img class="fullscreen-icon" src="../assets/images/hud/telacheia.webp" alt="" draggable="false">
+                    <span data-fullscreen-text>Tela cheia</span>
                 </button>
                 <button id="pause-settings-button" type="button">
                     ⚙️ Configurações
