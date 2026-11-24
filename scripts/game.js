@@ -87,7 +87,7 @@ export default class Game {
             this.waveManager,
             this.scoreManager
         );
-        this.enemySpawner.setBoolhanteRewardAvailability(() => this.bossItems.hasUnusedItems());
+        this.enemySpawner.setBoolhanteRewardAvailability(() => this.bossItems.hasRollableItems());
         this.enemyManager.setBoolhanteDefeatedHandler((enemy, coinPosition) => {
             this.enemySpawner.collectBoolhanteToken();
             this.bossItems.collectToken(coinPosition.x, coinPosition.y);

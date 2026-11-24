@@ -14,7 +14,6 @@ const ITEM_IMAGES = Object.fromEntries(ITEM_DEFINITIONS.filter(item => item.imag
 export class BossItems {
     constructor(canvas) {
         this.canvas = canvas;
-        this.used = new Set();
         this.usedThisRound = false;
         this.shieldArmed = false;
         this.hoveredItem = null;
@@ -31,7 +30,6 @@ export class BossItems {
     }
 
     reset() {
-        this.used.clear();
         this.usedThisRound = false;
         this.shieldArmed = false;
         this.hoveredItem = null;
@@ -50,14 +48,14 @@ export class BossItems {
         this.activeItemId = null;
     }
 
-    getUnusedItems(bossManager = null) {
+    getRollableItems(bossManager = null) {
         return ITEM_DEFINITIONS.filter(item =>
-            !this.used.has(item.id) && (!bossManager || this.canUse(item, bossManager))
+            !bossManager || this.canUse(item, bossManager)
         );
     }
 
-    hasUnusedItems() {
-        return this.getUnusedItems().length > 0;
+    hasRollableItems() {
+        return this.getRollableItems().length > 0;
     }
 
     hasReward() {
@@ -70,7 +68,7 @@ export class BossItems {
 
     startRoulette(bossManager) {
         if (this.roulette || this.reveal || this.rewardItemId) return false;
-        const candidates = this.getUnusedItems(bossManager);
+        const candidates = this.getRollableItems(bossManager);
         if (!candidates.length) return false;
         const winner = candidates[Math.floor(Math.random() * candidates.length)];
         const winnerIndex = ITEM_DEFINITIONS.findIndex(item => item.id === winner.id);
@@ -141,7 +139,7 @@ export class BossItems {
     }
 
     canUse(item, bossManager) {
-        if (this.usedThisRound || this.used.has(item.id)) return false;
+        if (this.usedThisRound) return false;
         if (item.id === "eraser") return bossManager.canEliminateWrongOption();
         if (item.id === "switch") return bossManager.canSwitchQuestion();
         return true;
@@ -182,7 +180,6 @@ export class BossItems {
             case "switch": activated = bossManager.switchQuestion(); break;
         }
         if (activated) {
-            this.used.add(item.id);
             this.usedThisRound = true;
             this.rewardItemId = null;
             this.onRewardUsed?.();
@@ -216,7 +213,6 @@ export class BossItems {
             case "switch": activated = bossManager.switchQuestion(); break;
         }
         if (!activated) return false;
-        this.used.add(item.id);
         this.usedThisRound = true;
         this.activeItemId = item.id;
         this.rewardItemId = null;
@@ -337,7 +333,7 @@ export class BossItems {
         }).sort((a, b) => a.depth - b.depth);
         for (const entry of wheelItems) {
             const size = (94 + (entry.depth + 1) * 30) * wheelScale;
-            this.drawItemIcon(ctx, entry.item, entry.x, entry.y, size, !this.used.has(entry.item.id));
+            this.drawItemIcon(ctx, entry.item, entry.x, entry.y, size);
         }
 
         ctx.fillStyle = "#fff0a0";
