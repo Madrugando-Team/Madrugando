@@ -55,6 +55,26 @@ export const SFX_SOUNDS = {
     derrota: {
         src: audioPath("sfx/derrota.mp3"),
         volume: 0.8
+    },
+    // Dois ou mais inimigos eliminados com a mesma palavra
+    combo: {
+        src: audioPath("sfx/combo.mp3"),
+        volume: 0.35
+    },
+    // Digitou a palavra do Boozarro (perde uma vida)
+    boozarro: {
+        src: audioPath("sfx/boozarro.mp3"),
+        volume: 0.35
+    },
+    // Personagem leva dano (inimigo chegou ao chão ou tempo do Boss acabou)
+    dano: {
+        src: audioPath("sfx/dano.mp3"),
+        volume: 0.4
+    },
+    // Boolhante derrotado (ganha a ficha da roleta)
+    boolhante: {
+        src: audioPath("sfx/boolhante.mp3"),
+        volume: 0.3
     }
 };
 

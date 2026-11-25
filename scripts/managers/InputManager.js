@@ -423,18 +423,28 @@ export class InputManager {
                 this.waveManager.wordCorrect(enemyResult.enemiesKilled);
             }
 
-            // Derrotar o Scromblus tem som próprio no lugar do acerto comum
-            this.audioManager?.playSfx(
-                enemyResult.scromblusDefeated
-                    ? "scromblusDerrotado"
-                    : "acerto"
-            );
+            // Som do acerto, do mais especial para o mais comum.
+            // O Boolhante sozinho não toca o acerto: o som dele sai
+            // pelo handler de derrota do Boolhante (game.js).
+            let hitSound = "acerto";
+
+            if (enemyResult.scromblusDefeated) {
+                hitSound = "scromblusDerrotado";
+            } else if (enemyResult.enemiesKilled > 1) {
+                hitSound = "combo";
+            } else if (enemyResult.boolhanteDefeated) {
+                hitSound = null;
+            }
+
+            if (hitSound) {
+                this.audioManager?.playSfx(hitSound);
+            }
         }
 
         // Digitou a palavra errada do Boozarro: perde uma vida
         if (enemyResult.boozarroHits > 0) {
 
-            this.audioManager?.playSfx("derrota");
+            this.audioManager?.playSfx("boozarro");
 
             for (let i = 0; i < enemyResult.boozarroHits; i++) {
                 this.scoreManager.loseLife("boozarro");

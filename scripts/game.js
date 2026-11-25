@@ -88,7 +88,9 @@ export default class Game {
             this.scoreManager
         );
         this.enemySpawner.setBoolhanteRewardAvailability(() => this.bossItems.hasRollableItems());
+        this.scoreManager.onEnemyDamage = () => this.audioManager.playSfx("dano");
         this.enemyManager.setBoolhanteDefeatedHandler((enemy, coinPosition) => {
+            this.audioManager.playSfx("boolhante");
             this.enemySpawner.collectBoolhanteToken();
             this.bossItems.collectToken(coinPosition.x, coinPosition.y);
         });
@@ -1794,6 +1796,7 @@ export default class Game {
             !this.bossManager.timeoutRevealFinished
         ) {
             this.scoreManager.loseLife();
+            this.audioManager.playSfx("dano");
 
             if (this.scoreManager.isGameOver()) {
                 return;

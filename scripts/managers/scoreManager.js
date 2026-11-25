@@ -19,6 +19,10 @@ export default class ScoreManager {
         this.invincibilityDuration = 3000; // 3 segundos
         this.invincibilityTimer = 0;
 
+        // Avisado quando um inimigo chega ao chão e tira uma vida
+        // (usado pelo game.js para tocar o som de dano)
+        this.onEnemyDamage = null;
+
         this.hud = new HUD();
 
         this.updateHUD();
@@ -54,6 +58,10 @@ export default class ScoreManager {
 
         console.log("Vida perdida:", source);
         console.log("Vidas restantes:", this.lives);
+
+        if (source === "enemy") {
+            this.onEnemyDamage?.();
+        }
 
         this.updateHUD();
 
