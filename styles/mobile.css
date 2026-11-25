@@ -112,7 +112,32 @@
 }
 
 .is-portrait #pause-button {
-    width: 24px;
+    width: 30px;
+    height: 34px;
+    gap: 8px;
+}
+
+.is-portrait .pause-bar {
+    width: 9px;
+    height: 26px;
+}
+
+/* Área de toque do pause no celular. O desenho continua pequeno, mas o
+   toque vale num quadrado invisível de ~48px reais em volta dele.
+   Como o jogo é reduzido por --layout-scale, a medida é dividida pela
+   escala; o limite de 80px evita que, deitado, a área cubra o placar. */
+.is-compact #pause-button {
+    position: relative;
+}
+
+.is-compact #pause-button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(calc(48px / var(--layout-scale, 1)), 80px);
+    height: min(calc(48px / var(--layout-scale, 1)), 80px);
+    transform: translate(-50%, -50%);
 }
 
 .is-portrait #wave-progress.boss-timer-active #wave-number {

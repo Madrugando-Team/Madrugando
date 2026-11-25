@@ -137,7 +137,11 @@ const ENTRY_DURATION = 700;     // ms
 // Reverso: altura mínima (linha da palavra) até onde os inimigos sobem.
 // Fica logo abaixo dos corações e do troféu, com a palavra visível.
 // Para ajustar a altura da linha, mude o REVERSE_MIN_Y: um número maior a deixa mais baixa.
-const REVERSE_MIN_Y = 120;      // px do canvas
+const REVERSE_MIN_Y = 96;      // px do canvas
+
+// Gelo: inimigos acima desta linha (palavra ainda fora da tela ou
+// embaixo do HUD) descem até ela antes de congelar
+const FREEZE_MIN_Y = REVERSE_MIN_Y;
 
 const isLoaded = (image) =>
     image && image.complete && image.naturalWidth > 0;
@@ -542,6 +546,12 @@ export class Enemy {
 
     // Referente ao power-up Gelo, que congela os inimigos na tela;
     freeze() {
+
+        // Quem acabou de nascer ainda está com a palavra fora da tela.
+        // Ele continua descendo e só congela ao chegar na linha em que a
+        // palavra fica legível (o Gelo chama freezeAll a cada quadro).
+        if (this.y < FREEZE_MIN_Y)
+            return;
 
         this.frozen = true;
 

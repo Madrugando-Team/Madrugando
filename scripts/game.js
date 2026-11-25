@@ -1821,7 +1821,16 @@ export default class Game {
         }
 
         // Cria o Boss quando a wave entra na fase de perguntas
+        // Antes, espera o "PUF!" do Despertador e a animação de derrota dos
+        // últimos inimigos terminarem (o reset abaixo os apagava na hora)
         if (
+            this.waveManager.getState() === "question" &&
+            !this.bossManager.hasBoss() &&
+            this.isWaveEndAnimating()
+        ) {
+            this.powerUpManager.despertador.update(deltaTime);
+            this.enemyManager.updateDefeatAnimations(deltaTime);
+        } else if (
             this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
@@ -1857,6 +1866,13 @@ export default class Game {
 
     }
 
+    // Fim de onda ainda com efeito na tela: "PUF!" do Despertador ou
+    // inimigo piscando/girando na animação de derrota
+    isWaveEndAnimating() {
+        return Boolean(this.powerUpManager.despertador.burst) ||
+            this.enemyManager.enemies.some(enemy => enemy.isHit());
+    }
+
     draw() {
         const ctx = this.ctx;
         const width = this.canvas.width;
@@ -1869,8 +1885,10 @@ export default class Game {
         if (!this.gameStarted) {
             return;
         }
+        // O "PUF!" continua visível se a bomba terminar a onda
+        this.powerUpManager.despertador.drawEffects(ctx);
+
         if (this.waveManager.getState() === "playing") {
-            this.powerUpManager.despertador.drawEffects(ctx);
             this.powerUpManager.draw(ctx);
             this.inputBar.draw(ctx);
         }

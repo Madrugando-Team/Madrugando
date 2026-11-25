@@ -23,6 +23,15 @@ const SCROMBLUS_COOLDOWN_FULL_LIVES = 5000;     // ms com os 3 corações
 const SCROMBLUS_COOLDOWN_MISSING_LIFE = 12000;  // ms com algum coração perdido
 const MAX_LIVES = 3;
 
+// ---------- Posição de nascimento ----------
+// Mede as palavras com a mesma fonte da placa (enemy.js)
+const MEASURE_CTX = document.createElement("canvas").getContext("2d");
+const WORD_FONT = "bold 20px Arial";
+const PLATE_SIDE_PADDING = 14;  // folga da placa/balão em cada lado da palavra
+const SPAWN_GAP = 16;           // espaço mínimo entre dois inimigos
+const SPAWN_CLEAR_Y = 220;      // inimigos abaixo desta linha já não esbarram em quem nasce
+const SPAWN_ATTEMPTS = 16;      // posições sorteadas antes de aceitar a menos apertada
+
 // ---------- Velocidade dos inimigos por onda ----------
 // Cada lista tem a velocidade de uma onda por posição: 1ª onda, 2ª onda...
 // Para ajustar uma onda específica, basta mudar o número dela.
@@ -250,9 +259,7 @@ export class EnemySpawner {
         if (!enemy) {
             return;
         }
-        enemy.x = this.findSafeX(
-            enemy.word.length * 10
-        );
+        this.placeEnemy(enemy);
 
         this.enemyManager.add(enemy);
 
@@ -301,7 +308,7 @@ export class EnemySpawner {
             type: "boolhante"
         });
         if (!enemy) return false;
-        enemy.x = this.findSafeX(enemy.word.length * 10);
+        this.placeEnemy(enemy);
         this.enemyManager.add(enemy);
         this.boolhanteSpawnedWave = this.currentWave;
         return true;
@@ -335,9 +342,7 @@ export class EnemySpawner {
             customDictionary: this.customDictionary
         });
 
-        enemy.x = this.findSafeX(
-            enemy.word.length * 10
-        );
+        this.placeEnemy(enemy);
 
         this.enemyManager.add(enemy);
     }
@@ -360,9 +365,7 @@ export class EnemySpawner {
             return;
         }
 
-        enemy.x = this.findSafeX(
-            enemy.word.length * 10
-        );
+        this.placeEnemy(enemy);
 
         // O Scromblus nasce com o corpo inteiro visível (a palavra fica
         // no balão acima dele), então ele entra deslizando de cima
@@ -383,53 +386,95 @@ export class EnemySpawner {
         return this.canvasHeight / 720;
     }
 
-    // Distância mínima das bordas. Na tela estreita do celular em pé
-    // a margem do PC (100px) tiraria espaço demais.
+    // Distância mínima entre a borda da tela e o desenho do inimigo
+    // (sprite ou placa, o que for mais largo). Na tela estreita do
+    // celular em pé a margem do PC (100px) tiraria espaço demais.
     getSideMargin() {
-        return this.canvasWidth < 800 ? 24 : 100;
+        return this.canvasWidth < 800 ? 16 : 100;
     }
 
-    findSafeX(wordWidth = 100) {
+    // Largura real que o inimigo ocupa na tela: a placa/balão com a
+    // palavra ou o sprite, o que for maior. Devolve também a largura da
+    // palavra, porque enemy.x é a borda esquerda da palavra.
+    getEnemyExtent(enemy) {
 
+        MEASURE_CTX.font = WORD_FONT;
+        const wordWidth = MEASURE_CTX.measureText(enemy.word).width;
+        const spriteWidth =
+            enemy.getSpriteSize(enemy.getCurrentSprite()).width;
+
+        return {
+            wordWidth,
+            halfWidth: Math.max(
+                wordWidth / 2 + PLATE_SIDE_PADDING,
+                spriteWidth / 2
+            )
+        };
+    }
+
+    // Escolhe onde o inimigo nasce:
+    // - o desenho inteiro fica dentro da tela (antes a palavra podia
+    //   nascer cortada na borda direita);
+    // - evita encostar nos inimigos que ainda estão perto do topo.
+    //   Os que já desceram não atrapalham (todos descem juntos), exceto
+    //   o Scromblus, que é mais lento e acaba sendo alcançado.
+    placeEnemy(enemy) {
+
+        const { wordWidth, halfWidth } = this.getEnemyExtent(enemy);
         const margin = this.getSideMargin();
-        const minDistance = 50;
-        const maxAttempts = 10;
+        const middle = this.canvasWidth / 2;
 
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const minCenter = Math.min(margin + halfWidth, middle);
+        const maxCenter = Math.max(this.canvasWidth - margin - halfWidth, middle);
 
-            const x =
-                Math.random() *
-                (this.canvasWidth - margin * 2 - wordWidth) +
-                margin;
+        const neighbors = this.enemyManager.enemies
+            .filter(other =>
+                other !== enemy &&
+                other.isActive() &&
+                (other.y < SPAWN_CLEAR_Y || other.type === "scromblus")
+            )
+            .map(other => {
+                const extent = this.getEnemyExtent(other);
+                return {
+                    center: other.anchorX ?? other.x + extent.wordWidth / 2,
+                    halfWidth: extent.halfWidth
+                };
+            });
 
-            let safe = true;
+        // Quanto sobra até o vizinho mais próximo (negativo = sobreposto)
+        const clearance = center => neighbors.reduce(
+            (smallest, other) => Math.min(
+                smallest,
+                Math.abs(center - other.center) -
+                (halfWidth + other.halfWidth + SPAWN_GAP)
+            ),
+            Infinity
+        );
 
-            for (const enemy of this.enemyManager.enemies) {
+        let bestCenter = middle;
+        let bestClearance = -Infinity;
 
-                const distance =
-                    Math.abs(enemy.x - x);
+        for (let attempt = 0; attempt < SPAWN_ATTEMPTS; attempt++) {
 
-                if (distance < wordWidth + minDistance) {
-                    safe = false;
-                    break;
-                }
+            const center =
+                minCenter + Math.random() * (maxCenter - minCenter);
+            const space = clearance(center);
+
+            // O primeiro lugar livre já serve: continua sorteado, sem
+            // empurrar os inimigos para os cantos
+            if (space >= 0) {
+                bestCenter = center;
+                break;
             }
 
-            if (safe) {
-                return x;
+            // Sem lugar livre (tela cheia): fica com o menos apertado
+            if (space > bestClearance) {
+                bestClearance = space;
+                bestCenter = center;
             }
         }
 
-        return this.randomX();
-    }
-
-    randomX() {
-        const margin = this.getSideMargin();
-
-        return (
-            Math.random() *
-            (this.canvasWidth - margin * 2)
-        ) + margin;
+        enemy.x = bestCenter - wordWidth / 2;
     }
 
     reset() {

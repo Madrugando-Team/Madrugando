@@ -145,6 +145,20 @@ export class EnemyManager {
     }
 
 
+    // Só avança as animações de derrota (sem mover ninguém nem causar
+    // dano). Usado no fim da onda, enquanto o Boss ainda não apareceu.
+    updateDefeatAnimations(deltaTime) {
+
+        this.enemies.forEach(enemy => {
+            if (enemy.isHit()) {
+                enemy.update(deltaTime);
+            }
+        });
+
+        this.removeDead();
+
+    }
+
     removeDead() {
 
         this.enemies =
