@@ -220,13 +220,13 @@ nav{
       }
     }
     &.banner-carrossel{
-      top: 25%;
-      left: 63%;
+      top: 18%;
+      left: 58%;
       animation-delay: 2s;
       opacity: 1;
       img{
-      width: 450px;
-      height: 400px;
+      width: 500px;
+      height: 450px;
       }
       ul{
         position: relative;

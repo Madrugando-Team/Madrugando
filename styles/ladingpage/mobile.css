@@ -120,8 +120,8 @@
     top: auto;
     left: auto;
     z-index: 99;
-    width: min(78%, 320px);
-    height: 240px;
+    width: min(90%, 500px);
+    height: 450px;
     margin: 0 auto;
   }
 
