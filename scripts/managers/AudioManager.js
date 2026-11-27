@@ -105,6 +105,7 @@ export class AudioManager {
         this.currentMusic = null;   // nome da trilha que deveria estar tocando
         this.musicPaused = false;   // pausado pelo jogo (menu de pausa)
         this.unlocked = false;      // navegador já liberou a reprodução?
+        this.unlockHandler = null;
         this.fades = new Map();     // fades em andamento por elemento
 
         const settings = this.loadSettings();
@@ -154,20 +155,22 @@ export class AudioManager {
     // Navegadores bloqueiam áudio até a primeira interação do usuário.
     // Na primeira tecla/clique, tentamos tocar a trilha pendente.
     bindUnlock() {
+        if (this.unlockHandler) return;
 
-        const unlock = () => {
-            this.unlocked = true;
-
-            window.removeEventListener("pointerdown", unlock, true);
-            window.removeEventListener("keydown", unlock, true);
-
-            this.audioContext?.resume();
-
+        this.unlockHandler = () => {
+            this.audioContext?.resume().catch(() => {});
             this.syncCurrentMusic();
         };
 
-        window.addEventListener("pointerdown", unlock, true);
-        window.addEventListener("keydown", unlock, true);
+        window.addEventListener("pointerdown", this.unlockHandler, true);
+        window.addEventListener("keydown", this.unlockHandler, true);
+    }
+
+    removeUnlockListeners() {
+        if (!this.unlockHandler) return;
+        window.removeEventListener("pointerdown", this.unlockHandler, true);
+        window.removeEventListener("keydown", this.unlockHandler, true);
+        this.unlockHandler = null;
     }
 
     // Pausa a música quando a aba fica oculta e retoma ao voltar,
@@ -235,7 +238,8 @@ export class AudioManager {
 
         const isSameTrack = this.currentMusic === name;
 
-        if (isSameTrack && !restart && !this.musicPaused) {
+        const currentElement = isSameTrack ? this.getElement(name) : null;
+        if (isSameTrack && !restart && !this.musicPaused && !currentElement.paused) {
             return;
         }
 
@@ -322,14 +326,24 @@ export class AudioManager {
             const playPromise = element.play();
 
             if (playPromise) {
-                playPromise.catch(error => {
+                playPromise.then(() => {
+                    if (element === this.getCurrentElement() && !this.musicPaused) {
+                        this.unlocked = true;
+                        this.removeUnlockListeners();
+                    }
+                }).catch(error => {
                     // NotAllowedError: ainda sem interação do usuário.
-                    // A trilha toca quando o bindUnlock disparar.
+                    // Mantém os listeners ativos para tentar de novo na próxima
+                    // interação real do usuário.
+                    this.unlocked = false;
                     if (error.name !== "NotAllowedError") {
                         console.warn("Não foi possível tocar a música:", error);
                     }
                 });
             }
+        } else {
+            this.unlocked = true;
+            this.removeUnlockListeners();
         }
 
         this.fadeTo(element, targetVolume);
