@@ -158,17 +158,22 @@ export class AudioManager {
         if (this.unlockHandler) return;
 
         this.unlockHandler = () => {
-            this.audioContext?.resume().catch(() => {});
+            // Inicia o elemento de música dentro do gesto do usuário antes de
+            // tentar retomar o AudioContext dos efeitos sonoros. Alguns
+            // navegadores são mais estritos com a ordem dessas chamadas.
             this.syncCurrentMusic();
+            this.audioContext?.resume().catch(() => {});
         };
 
         window.addEventListener("pointerdown", this.unlockHandler, true);
+        window.addEventListener("click", this.unlockHandler, true);
         window.addEventListener("keydown", this.unlockHandler, true);
     }
 
     removeUnlockListeners() {
         if (!this.unlockHandler) return;
         window.removeEventListener("pointerdown", this.unlockHandler, true);
+        window.removeEventListener("click", this.unlockHandler, true);
         window.removeEventListener("keydown", this.unlockHandler, true);
         this.unlockHandler = null;
     }
