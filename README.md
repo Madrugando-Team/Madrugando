@@ -48,9 +48,9 @@ O Madrugando é um projeto de TCC que propõe o desenvolvimento de um jogo web e
 
 ## <img width="50" height="50" alt="Fantasma roxo" src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/fant4.webp" /> DOCUMENTAÇÃO:
 Além do código-fonte, o projeto possui documentos complementares que apresentam os aspectos acadêmicos, técnicos e de desenvolvimento do Madrugando:
-- Artigo do TCC:
-- Game Design Document (GDD):
-- Documento de Requisitos: 
+- <a href="https://drive.google.com/file/d/1mbdI5PPkUAZhsx8cdcHb1l4NTPQ9x7Vx/view?usp=drive_link" target="_blank"> Artigo do TCC</a> 
+- <a href="https://drive.google.com/file/d/1siYklFL_o7bq7X4oiuGUPEhemA0dzS47/view?usp=drive_link" target="_blank">Game Design Document (GDD)</a> 
+- <a href="https://drive.google.com/file/d/1JJWGtE2JdqxFRD15IkeD6eiwhcp5XmBR/view?usp=drive_link" target="_blank">Documento de Requisitos</a>
 
 
 ## <img width="38" height="40" alt="Fantasma Vermelho" src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/vermelho.webp" /> AMBIENTE DE DESENVOLVIMENTO:

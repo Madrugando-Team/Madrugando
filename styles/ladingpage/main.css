@@ -445,9 +445,10 @@ nav{
 
 /* BANNER BAIXO */
 .banner-baixo{
+  position: relative;
   margin-top: -15%;
   width: 100%;
-  background-image: url(../../assets/landingpage/banner.webp);
+  isolation: isolate;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -458,6 +459,26 @@ nav{
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s ease, transform 0.8s ease;
+
+  &::before, &::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+  }
+
+  &::before{
+      background-image: url(../../assets/landingpage/banner.webp);
+  }
+  &::after{
+      background-image: url(../../assets/landingpage/banner2.webp);
+      opacity: 0;
+      animation: banner-baixo 3s ease-in-out infinite;
+      will-change: opacity;
+  }
 
   &.ativo{
     opacity: 1;
@@ -483,6 +504,8 @@ footer{
   backdrop-filter: blur(2px);
   width: 100%;
   opacity: 0.8;
+  z-index: 999;
+  position: relative;
 
   a{
     color: inherit;
@@ -582,3 +605,14 @@ footer{
     75% {transform: rotate(540deg) translate(2vw, 0) rotate(-540deg) scale(1);}
     100% {transform: rotate(720deg) translate(0vw, 0) rotate(-720deg) scale(0.8);opacity: 0;}
 }
+
+@keyframes banner-baixo{
+  0%, 100%{ opacity: 0; }
+  50%{ opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .banner-baixo::after{
+    animation: none;
+    opacity: 0.5;
+  }}

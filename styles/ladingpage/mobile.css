@@ -241,32 +241,48 @@
 
   .banner-baixo .logo{
     width: 180px;
-    top: 14%;
+    top: 21%;
   }
 
   .banner-baixo .banner{
-    min-height: 30vh;
+    min-height: 45vh;
+  }
+
+  footer{
+    padding: 0;
+    line-height: 1.2;
   }
 
   footer .footer-div{
+    width: 100%;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
-    padding: 1.5rem 5%;
+    gap: 0.5rem;
+    padding: 0.75rem 6%;
     text-align: center;
   }
 
   footer .footer-div h3,
   footer .footer-div p{
     text-align: center;
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+
+    footer .footer-classificacao{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
   }
 
   footer .footer-classificacao h3{
-    justify-self: center;
-    margin: 0 auto .75rem;
+    margin: 0;
+    padding: 0.15rem 0.45rem;
+    font-size: 0.8rem;
   }
 
   footer .footer-classificacao p{
-    width: 100%;
+    width: auto;
   }
 
   /* PÁGINAS INTERNAS (sobre / regras / faq) */
