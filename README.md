@@ -1,7 +1,7 @@
 # <img width="30" height="45" alt="Fantasma" src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/fant1.webp" />  MADRUGANDO... <img width="40" height="50" alt="Fantasma" src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/fant4.webp" />
 
 <p align="center">
-  <img src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/banner.webp" width="50%" alt="Banner Madrugando"/>
+  <img src="https://github.com/Madrugando-Team/Madrugando/blob/main/assets/landingpage/banner2.webp" width="50%" alt="Banner Madrugando"/>
 </p>
 
 <p align="center">
