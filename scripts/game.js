@@ -9,6 +9,7 @@ import { PowerUpManager } from "./managers/PowerUpManager.js";
 import HUD from "./ui/hud.js";
 import { BossManager } from "./managers/BossManager.js";
 import { BossItems } from "./ui/BossItems.js";
+import { QuestionIntro } from "./ui/QuestionIntro.js";
 import { CustomGameManager } from "./managers/CustomGameManager.js";
 import { LeaderboardManager } from "./managers/LeaderboardManager.js";
 import WordPools from "./data/wordpools.js";
@@ -45,6 +46,7 @@ export default class Game {
         this.bossManager = new BossManager();
 
         this.bossItems = new BossItems(this.canvas);
+        this.questionIntro = new QuestionIntro();
 
         this.hud = new HUD();
 
@@ -168,6 +170,22 @@ export default class Game {
             document.getElementById("mute-game-icon");
         this.muteGameToggle =
             document.getElementById("mute-game-toggle");
+
+        this.creditsModal = document.getElementById("credits-modal");
+        this.creditsReturnFocus = null;
+        this.creditsCloseButton =
+            document.getElementById("credits-close-button");
+
+        document.getElementById("credits-button")?.addEventListener("click", () => {
+            this.audioManager.playSfx("clique");
+            this.openCredits();
+        });
+        this.creditsCloseButton?.addEventListener("click", () => {
+            this.closeCredits();
+        });
+        this.creditsModal?.addEventListener("click", event => {
+            if (event.target === this.creditsModal) this.closeCredits();
+        });
 
         [this.settingsButton, this.pauseSettingsButton].forEach(button => {
             button?.addEventListener("click", () => this.openSettings());
@@ -584,6 +602,11 @@ export default class Game {
 
             if (this.settingsModal && !this.settingsModal.hidden) {
                 if (event.key === "Escape") this.closeSettings();
+                return;
+            }
+
+            if (this.creditsModal && !this.creditsModal.hidden) {
+                if (event.key === "Escape") this.closeCredits();
                 return;
             }
 
@@ -1555,6 +1578,7 @@ export default class Game {
     startGame() {
 
         this.bossItems.reset();
+        this.questionIntro.reset();
         this.bossManager.resetQuestionCycles();
 
         this.isCustomGame = false;
@@ -1720,6 +1744,22 @@ export default class Game {
         this.settingsCloseButton.focus();
     }
 
+    openCredits() {
+        this.creditsReturnFocus = document.activeElement;
+        this.creditsModal.hidden = false;
+        this.creditsModal.setAttribute("aria-hidden", "false");
+        this.creditsCloseButton.focus();
+    }
+
+    closeCredits() {
+        this.creditsModal.hidden = true;
+        this.creditsModal.setAttribute("aria-hidden", "true");
+        if (this.creditsReturnFocus?.isConnected) {
+            this.creditsReturnFocus.focus();
+        }
+        this.creditsReturnFocus = null;
+    }
+
     closeSettings() {
         this.settingsModal.hidden = true;
         this.settingsModal.setAttribute("aria-hidden", "true");
@@ -1835,8 +1875,21 @@ export default class Game {
             this.enemyManager.updateDefeatAnimations(deltaTime);
         } else if (
             this.waveManager.getState() === "question" &&
+            !this.bossManager.hasBoss() &&
+            !this.questionIntro.isFinished()
+        ) {
+            // "HORA DA QUESTÃO!" antes do Boss. A tela é limpa quando o
+            // aviso começa, para ele não aparecer por cima de inimigos
+            if (!this.questionIntro.isActive()) {
+                this.enemyManager.reset();
+            }
+
+            this.questionIntro.update(deltaTime);
+        } else if (
+            this.waveManager.getState() === "question" &&
             !this.bossManager.hasBoss()
         ) {
+            this.questionIntro.reset();
             this.bossItems.beginBossRound();
             this.enemyManager.reset();
 
@@ -1911,6 +1964,7 @@ export default class Game {
         this.enemyManager.draw(ctx);
         this.bossItems.drawCoinAnimation(ctx);
         this.bossManager.draw(ctx);
+        this.questionIntro.draw(ctx, width, height);
 
         if (
             this.waveManager.getState() === "question" &&
@@ -2344,6 +2398,7 @@ export default class Game {
     startCustomGame(game) {
 
         this.bossItems.reset();
+        this.questionIntro.reset();
         this.bossManager.resetQuestionCycles();
 
         this.playerName = "";

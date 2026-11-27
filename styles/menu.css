@@ -429,6 +429,49 @@
     }
 }
 
+/* Janela de créditos (reaproveita o visual da janela de configurações) */
+.credits-list {
+    margin: 0;
+}
+
+.credits-item {
+    margin: 0 0 22px;
+    text-align: center;
+}
+
+.credits-item:last-child {
+    margin-bottom: 0;
+}
+
+.credits-item dt {
+    margin: 0 0 6px;
+    color: #c5c0ff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.credits-item dd {
+    margin: 0;
+    color: #f5f3ff;
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.credits-item a {
+    color: #f5f3ff;
+    text-decoration: underline;
+    text-decoration-color: rgba(168, 155, 255, 0.6);
+    text-underline-offset: 4px;
+}
+
+.credits-item a:hover,
+.credits-item a:focus-visible {
+    color: #c5c0ff;
+    text-decoration-color: #c5c0ff;
+}
+
 
 #game-config {
 
@@ -2356,9 +2399,33 @@
     pointer-events: none;
 }
 
-#fullscreen-button {
+#fullscreen-button,
+#settings-button {
     display: grid;
     place-items: center;
+}
+
+.settings-icon {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    object-fit: contain;
+    flex: 0 0 auto;
+    user-select: none;
+    pointer-events: none;
+}
+
+#pause-settings-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+
+#pause-settings-button .settings-icon {
+    width: 24px;
+    height: 24px;
 }
 
 #pause-fullscreen-button {

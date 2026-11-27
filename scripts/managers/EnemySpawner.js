@@ -92,6 +92,9 @@ export class EnemySpawner {
         this.waveManager = waveManager;
         this.scoreManager = scoreManager;
         this.spawnPauseTimer = 0;
+        // Função que diz se o nascimento de inimigos está bloqueado
+        // (ex.: durante o Gelo). Definida por quem controla o efeito.
+        this.isSpawnBlocked = null;
         this.customDictionary = null;
 
         this.canvasWidth =
@@ -126,6 +129,12 @@ export class EnemySpawner {
 
     pauseSpawning(duration = 500) {
         this.spawnPauseTimer = duration;
+    }
+
+    // Enquanto `check()` devolver true, nenhum inimigo nasce e os
+    // tempos de espera (Boos e Scromblus) ficam parados
+    setSpawnBlocker(check) {
+        this.isSpawnBlocked = check;
     }
 
     setDifficulty(level) {
@@ -186,6 +195,11 @@ export class EnemySpawner {
 
             this.spawnPauseTimer -= deltaTime;
 
+            return;
+        }
+
+        // Gelo: ninguém nasce enquanto o efeito estiver ativo
+        if (this.isSpawnBlocked?.()) {
             return;
         }
 

@@ -1,3 +1,5 @@
+import { drawCoin } from "../utils/coin.js";
+
 const ITEM_DEFINITIONS = [
     { id: "eraser", label: "Borracha", description: "Elimina uma alternativa errada.", fallback: "🧽", image: "itemBORRACHA.webp" },
     { id: "shield", label: "Escudo", description: "Protege contra um erro.", fallback: "🛡️", image: "itemSHIELD.webp" },
@@ -234,7 +236,7 @@ export class BossItems {
         const size = 42 * (1 - progress * 0.15);
         ctx.save();
         ctx.globalAlpha = 1 - progress;
-        ctx.font = `${size * 0.85}px Arial`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", x, y);
+        drawCoin(ctx, x, y, size);
         ctx.restore();
     }
 
@@ -254,7 +256,7 @@ export class BossItems {
         ctx.strokeStyle = "#ffd85d";
         ctx.lineWidth = 3;
         ctx.beginPath(); ctx.arc(token.x, token.y, token.radius * pulse, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.font = "28px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("🪙", token.x, token.y);
+        drawCoin(ctx, token.x, token.y, token.radius * 1.5);
         if (this.hoveredItem === "token") {
             this.drawTooltip(ctx, "Ficha da roleta", "Clique para sortear e ativar um item.", token.x, token.y + token.radius + 8);
         }
