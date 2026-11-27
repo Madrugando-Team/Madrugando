@@ -30,6 +30,8 @@ export class PowerUpManager {
 
         this.timer = 0;
         this.gelo = new Gelo(this.enemyManager);
+        // Nenhum inimigo nasce enquanto o Gelo estiver ativo
+        this.enemySpawner.setSpawnBlocker(() => this.gelo.active);
         this.despertador = new Despertador(
             this.enemyManager,
             this.enemySpawner,

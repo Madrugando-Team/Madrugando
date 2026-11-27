@@ -59,7 +59,7 @@
                     ⬅
                 </a>
                 <button id="settings-button" type="button" aria-label="Configurações" title="Configurações">
-                    ⚙️
+                    <img class="settings-icon" src="../assets/images/hud/engrenagem.webp" alt="" draggable="false">
                 </button>
                 <button id="fullscreen-button" type="button" data-fullscreen-toggle aria-label="Tela cheia"
                     title="Tela cheia">
@@ -86,6 +86,10 @@
 
                 <button id="how-to-play-button">
                     Como Jogar
+                </button>
+
+                <button id="credits-button" type="button">
+                    Créditos
                 </button>
 
             </div>
@@ -586,7 +590,8 @@
                     <span data-fullscreen-text>Tela cheia</span>
                 </button>
                 <button id="pause-settings-button" type="button">
-                    ⚙️ Configurações
+                    <img class="settings-icon" src="../assets/images/hud/engrenagem.webp" alt="" draggable="false">
+                    <span>Configurações</span>
                 </button>
 
                 <button id="pause-menu-button">
@@ -627,6 +632,48 @@
                     </button>
                     <span>Mutar o jogo</span>
                 </div>
+            </section>
+        </div>
+
+        <div id="credits-modal" class="settings-modal" aria-hidden="true" hidden>
+            <section class="settings-panel credits-panel" role="dialog" aria-modal="true"
+                aria-labelledby="credits-title">
+                <button id="credits-close-button" class="settings-close-button" type="button"
+                    aria-label="Fechar créditos">×</button>
+                <h2 id="credits-title">Créditos</h2>
+
+                <dl class="credits-list">
+                    <div class="credits-item">
+                        <dt>Desenvolvedores</dt>
+                        <dd>
+                            <a href="https://github.com/xxxRafaelxxx" target="_blank"
+                                rel="noopener noreferrer">Rafael Santos</a>,
+                            <a href="https://github.com/Viniverasss" target="_blank"
+                                rel="noopener noreferrer">Vinícius Xavier</a>
+                        </dd>
+                    </div>
+                    <div class="credits-item">
+                        <dt>UI e Game Design</dt>
+                        <dd>
+                            <a href="https://github.com/RicardoPCP" target="_blank"
+                                rel="noopener noreferrer">Ricardo Pessoa</a>
+                        </dd>
+                    </div>
+                    <div class="credits-item">
+                        <dt>Artista 2D</dt>
+                        <dd>
+                            <a href="https://x.com/Cascavelbaleia" target="_blank"
+                                rel="noopener noreferrer">Isabelle Vieira</a>
+                        </dd>
+                    </div>
+                    <div class="credits-item">
+                        <dt>Música</dt>
+                        <dd>
+                            <a href="https://soundcloud.com/pgrobot" target="_blank"
+                                rel="noopener noreferrer">PG</a>
+                        </dd>
+                    </div>
+                </dl>
             </section>
         </div>
 

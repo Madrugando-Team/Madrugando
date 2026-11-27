@@ -1,3 +1,5 @@
+import { drawCoin } from "../utils/coin.js";
+
 // ---------- Sprites ----------
 
 const loadSprite = (folder, file) => {
@@ -137,7 +139,7 @@ const ENTRY_DURATION = 700;     // ms
 // Reverso: altura mínima (linha da palavra) até onde os inimigos sobem.
 // Fica logo abaixo dos corações e do troféu, com a palavra visível.
 // Para ajustar a altura da linha, mude o REVERSE_MIN_Y: um número maior a deixa mais baixa.
-const REVERSE_MIN_Y = 96;      // px do canvas
+const REVERSE_MIN_Y = 120;      // px do canvas
 
 // Gelo: inimigos acima desta linha (palavra ainda fora da tela ou
 // embaixo do HUD) descem até ela antes de congelar
@@ -403,20 +405,8 @@ export class Enemy {
         const radius = Math.max(12, Math.min(17, height * 0.14));
         const x = centerX + width / 2 - radius * 0.2;
         const y = spriteTop + radius * 0.8;
-        ctx.save();
-        ctx.fillStyle = "#f6c744";
-        ctx.strokeStyle = "#8d5a13";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.font = `${radius * 1.35}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#fff";
-        ctx.fillText("🪙", x, y + 1);
-        ctx.restore();
+        // A imagem já é a moeda inteira (com borda): sem círculo atrás
+        drawCoin(ctx, x, y, radius * 2.4);
     }
 
 
